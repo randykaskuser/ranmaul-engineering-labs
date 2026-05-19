@@ -1,0 +1,62 @@
+---
+title: "Reducing Mobile E2E Runtime Without Destabilizing Device Sessions"
+description: "A practical workflow for cutting Android E2E execution time while preserving session reliability and debuggability."
+locale: "en"
+domain: "qa"
+slug: "reducing-mobile-e2e-runtime-with-device-stability-constraints"
+canonicalGroup: "qa-mobile-e2e-runtime-stability"
+publishedAt: "2026-05-10"
+updatedAt: "2026-05-10"
+tags: ["appium", "ci", "android", "stability", "troubleshooting"]
+featured: true
+draft: false
+coverImage: "/window.svg"
+coverAlt: "Terminal-driven mobile test orchestration"
+series: "mobile-reliability"
+relatedCanonicalGroups: ["fpv-dji-o4-pro-stabilization-inconsistency"]
+---
+
+## Context / Problem
+
+Our mobile E2E suite crossed a runtime threshold where feedback became too slow for pull-request flow. The obvious fix was parallelism, but previous attempts introduced flaky session handoffs and occasional orphaned device states.
+
+## Constraints
+
+- Device pool is limited and shared across teams.
+- CI workers are ephemeral and cannot rely on long-lived emulator warmup.
+- Failure diagnostics must remain readable for debugging handoff.
+
+## Investigation / Experiment
+
+I tested three changes independently before combining them:
+
+1. Split tests by capability profile instead of random balancing.
+2. Cache app artifacts and only reinstall when version hash changes.
+3. Move fragile login/bootstrap tests into a separate serial lane.
+
+```bash
+pnpm test:e2e --shard=1/3 --profile=android-smoke
+pnpm test:e2e --shard=2/3 --profile=android-core
+pnpm test:e2e --shard=3/3 --profile=android-edge
+```
+
+## Findings
+
+- Runtime dropped from 52 minutes to 31 minutes on average.
+- Session-level flakiness did not increase after isolating bootstrap-sensitive flows.
+- Artifact caching removed repeated installation overhead with low maintenance cost.
+
+## Trade-offs
+
+- Profile-based grouping requires occasional manual rebalancing.
+- Separate serial lane adds one more CI step to monitor.
+
+## Final Decision
+
+Keep profile-based sharding and hash-driven artifact install as baseline. Keep serial lane only for known bootstrap-fragile tests, and review membership every sprint.
+
+## Practical Takeaways
+
+- Optimize runtime only after mapping failure modes.
+- Parallelism without capability discipline often shifts cost into debugging.
+- Stability and speed are compatible if test topology reflects real device constraints.

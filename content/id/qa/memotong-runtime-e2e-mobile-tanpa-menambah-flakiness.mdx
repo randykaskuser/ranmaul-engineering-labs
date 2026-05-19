@@ -1,0 +1,51 @@
+---
+title: "Memotong Runtime E2E Mobile Tanpa Menambah Flakiness"
+description: "Panduan praktis untuk mempercepat eksekusi E2E Android sambil menjaga stabilitas sesi dan kualitas debugging."
+locale: "id"
+domain: "qa"
+slug: "memotong-runtime-e2e-mobile-tanpa-menambah-flakiness"
+canonicalGroup: "qa-mobile-e2e-runtime-stability"
+publishedAt: "2026-05-11"
+updatedAt: "2026-05-11"
+tags: ["appium", "android", "ci", "stabilitas", "troubleshooting"]
+featured: false
+draft: false
+coverImage: "/window.svg"
+coverAlt: "Pipeline pengujian mobile dan stabilitas sesi"
+translationOf: "reducing-mobile-e2e-runtime-with-device-stability-constraints"
+series: "mobile-reliability"
+---
+
+## Context / Problem
+
+Waktu eksekusi E2E mobile sudah terlalu lama untuk ritme review pull request. Saat diparalelkan secara agresif, masalah baru muncul: session handoff gagal dan perangkat kadang tertinggal dalam state tidak bersih.
+
+## Constraints
+
+- Pool device terbatas dan dipakai bersama.
+- Worker CI bersifat ephemeral.
+- Log kegagalan harus tetap mudah dianalisis lintas tim.
+
+## Investigation / Experiment
+
+Langkah yang diuji bertahap:
+
+1. Sharding berdasarkan capability profile, bukan random split.
+2. Reinstall app hanya ketika hash build berubah.
+3. Test bootstrap rapuh dipindahkan ke jalur serial terpisah.
+
+## Findings
+
+- Runtime turun signifikan sambil menjaga kestabilan sesi.
+- Noise flakiness berkurang setelah test bootstrap sensitif dipisahkan.
+- Caching artifact memberi penghematan konsisten di CI.
+
+## Trade-offs
+
+- Perlu review periodik terhadap komposisi shard.
+- Pipeline bertambah satu langkah serial.
+
+## Final Takeaways
+
+- Kecepatan dan stabilitas bisa dicapai bersamaan jika topologi test disiplin.
+- Paralelisme harus mengikuti profil device, bukan hanya jumlah test.

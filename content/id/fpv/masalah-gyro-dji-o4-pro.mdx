@@ -1,0 +1,60 @@
+---
+title: "Masalah Jitter Stabilisasi DJI O4 Pro pada Getaran Frekuensi Rendah"
+description: "Catatan investigasi lapangan tentang inkonsistensi stabilisasi pada unit O4 Pro yang lebih baru, dengan pemisahan jelas antara observasi dan spekulasi."
+locale: "id"
+domain: "fpv"
+slug: "masalah-gyro-dji-o4-pro"
+canonicalGroup: "fpv-dji-o4-pro-stabilization-inconsistency"
+publishedAt: "2026-05-13"
+updatedAt: "2026-05-13"
+tags: ["o4-pro", "stabilisasi", "getaran", "troubleshooting", "uji-lapangan"]
+featured: true
+draft: false
+coverImage: "/globe.svg"
+coverAlt: "Alur diagnosis stabilisasi FPV"
+translationOf: "o4-pro-stabilization-jitter-under-low-frequency-vibration"
+---
+
+## Context / Problem
+
+Dalam beberapa sesi terbang sinematik, saya melihat micro-jitter pada hasil rekaman yang sudah distabilisasi. Gejala ini tidak selalu terlihat di live feed, tetapi muncul jelas saat playback normal dan lebih terlihat saat speed-ramp.
+
+## Constraints
+
+- Tidak ada rig laboratorium untuk injeksi getaran terkontrol.
+- Kondisi angin dan terrain berubah antar sesi.
+- Setup harus tetap layak pakai untuk pekerjaan lapangan.
+- Opsi rollback firmware terbatas, jadi A/B murni tidak selalu memungkinkan.
+
+## Investigation
+
+Saya pecah investigasi menjadi beberapa jalur yang bisa diukur:
+
+1. **Baseline mekanis**: cek balance prop, kelonggaran motor bell, resonansi arm, dan torque baut stack.
+2. **Isolasi mount**: uji beberapa tingkat kekerasan damping dan ketegangan mount kamera.
+3. **Profil filter**: bandingkan low-pass konservatif vs agresif sambil memantau band getaran di blackbox.
+4. **Skenario terbang**: ulangi lintasan pada cruise halus, throttle punch, dan transisi yaw intens.
+
+## Findings
+
+### Observasi terkonfirmasi
+
+- Jitter lebih sering muncul saat transien throttle dibanding cruise stabil.
+- Ada korelasi berulang dengan kenaikan energi gyro pada band rendah.
+- Damping yang lebih keras kadang menekan wobble besar, tapi micro-jitter bisa lebih terlihat.
+
+### Dugaan yang belum terkonfirmasi
+
+- Toleransi revisi hardware baru mungkin lebih sensitif terhadap karakter getaran tertentu.
+- Perilaku stabilisasi bisa berubah tergantung spektrum getaran, bukan sekadar besar getaran total.
+
+## Trade-offs
+
+- Damping lebih lunak kadang memperbaiki jitter, tapi menambah sedikit horizon lag.
+- Filter lebih berat menurunkan jitter visual, tapi mengorbankan ketajaman respons kontrol.
+
+## Final Takeaways
+
+- Anggap masalah ini sebagai **vibration sensitivity issue** terlebih dahulu.
+- Pakai profil terbang yang repeatable agar data antar sesi bisa dibandingkan.
+- Pisahkan klaim berbasis data dari spekulasi agar keputusan tuning tetap rasional.

@@ -1,0 +1,70 @@
+---
+title: "O4 Pro Stabilization Jitter Under Low-Frequency Vibration: Field Notes"
+description: "Observed stabilization inconsistency on newer O4 Pro units, with a cautious breakdown of what is measured, what is inferred, and what remains unknown."
+locale: "en"
+domain: "fpv"
+slug: "o4-pro-stabilization-jitter-under-low-frequency-vibration"
+canonicalGroup: "fpv-dji-o4-pro-stabilization-inconsistency"
+publishedAt: "2026-05-12"
+updatedAt: "2026-05-12"
+tags: ["o4-pro", "stabilization", "vibration", "troubleshooting", "field-test"]
+featured: true
+draft: false
+coverImage: "/globe.svg"
+coverAlt: "FPV stabilization diagnostics workflow"
+relatedCanonicalGroups: ["qa-mobile-e2e-runtime-stability"]
+---
+
+## Context / Problem
+
+During routine cinematic flights, I started seeing intermittent micro-jitter in stabilized output from a newer O4 Pro setup. The artifact appeared as brief frame-level twitching that was not consistently visible in live feed, but became obvious during replay and speed-ramped sequences.
+
+## Constraints
+
+- I had no controlled lab rig for repeatable motor vibration injection.
+- Wind and terrain were variable across sessions.
+- Aircraft stack had to remain flyable for client-adjacent field work.
+- Firmware rollback options were limited for direct A/B isolation.
+
+## Investigation
+
+I separated troubleshooting into measurable buckets:
+
+1. **Mechanical baseline**: checked prop balance, motor bell play, arm resonance, and stack screw torque.
+2. **Mount isolation**: tested alternate damping hardness and camera mount tension.
+3. **Filter profile**: compared conservative and aggressive low-pass settings while logging blackbox vibration bands.
+4. **Flight condition split**: repeated passes under smooth cruise, throttle punch, and yaw-heavy transitions.
+
+```bash
+# Example analysis sequence used after each flight set
+blackbox-export --session 2026-05-12-a --channels gyro,debug,throttle
+python analyze_vibe_bands.py --input session-a.csv --band-low 40 --band-high 120
+```
+
+## Findings
+
+### Confirmed observations
+
+- Jitter frequency increased during throttle transients rather than steady cruise.
+- The artifact correlated with elevated energy in lower gyro bands (roughly 55–95 Hz in repeated sessions).
+- Harder mounting reduced large wobble but sometimes made micro-jitter more visible.
+
+### Plausible but unconfirmed
+
+- Newer hardware revision tolerance may be less forgiving to low-frequency frame vibration.
+- Some stabilization behavior might be more sensitive to specific vibration signatures than earlier units.
+
+I cannot claim a definitive hardware defect from current data. The evidence supports sensitivity differences, not root-cause certainty.
+
+## Trade-offs
+
+- Softer isolation improved micro-jitter in some flights, but introduced slight horizon lag in rapid directional changes.
+- Heavier filtering reduced visible jitter but cost some control sharpness and post-processing flexibility.
+- Conservative tune is safer for delivery consistency, but less agile for freestyle-style movement.
+
+## Final Takeaways
+
+- Treat the issue as a **vibration sensitivity problem first**, hardware defect second.
+- Use repeatable flight profiles when diagnosing stabilization behavior; random freestyle data is hard to compare.
+- Keep claims bounded by evidence: separate measured correlation from speculation.
+- A practical mitigation stack today is: strict mechanical baseline + moderate damping + conservative filter profile + scenario-specific flight style adjustments.

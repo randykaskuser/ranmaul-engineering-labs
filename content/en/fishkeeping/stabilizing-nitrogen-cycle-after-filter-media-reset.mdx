@@ -1,0 +1,59 @@
+---
+title: "Stabilizing the Nitrogen Cycle After a Filter Media Reset"
+description: "A systems-first recovery workflow for maintaining biological stability after an unplanned filter media replacement."
+locale: "en"
+domain: "fishkeeping"
+slug: "stabilizing-nitrogen-cycle-after-filter-media-reset"
+canonicalGroup: "fishkeeping-filter-media-reset-cycle-stability"
+publishedAt: "2026-05-08"
+updatedAt: "2026-05-08"
+tags: ["filtration", "nitrogen-cycle", "maintenance", "troubleshooting"]
+featured: false
+draft: false
+coverImage: "/file.svg"
+coverAlt: "Filter maintenance and water stability tracking"
+---
+
+## Context / Problem
+
+After replacing a large portion of biological media during maintenance, ammonia spikes started appearing within 48 hours. Fish behavior remained mostly normal, but surface activity increased during evening feed windows.
+
+## Constraints
+
+- Livestock load was moderate and could not be relocated quickly.
+- Spare mature media volume was limited.
+- Water changes had to be done without large temperature swings.
+
+## Investigation / Experiment
+
+I treated recovery as a controlled stabilization process:
+
+1. Increased dissolved oxygen support near filter return.
+2. Reduced feed volume by ~30% for one week.
+3. Added seeded media from a stable secondary system.
+4. Logged ammonia/nitrite twice daily and nitrate daily.
+
+```bash
+python log_water_params.py --tank display-main --days 7 --metrics nh3,no2,no3,temp
+```
+
+## Findings
+
+- Ammonia peak occurred on day 2 and started declining by day 4.
+- Nitrite lagged ammonia by roughly one day, then normalized by day 6.
+- Stable oxygenation reduced stress behavior during the transition window.
+
+## Trade-offs
+
+- Reduced feeding slowed growth momentum temporarily.
+- More frequent testing added operational overhead for one week.
+
+## Final Decision
+
+Keep a reserved volume of mature media for recovery scenarios and avoid replacing high fractions of biological media in one maintenance cycle.
+
+## Practical Takeaways
+
+- Treat filtration work as system-change management, not isolated cleaning.
+- Biological stability depends on pacing, not speed of maintenance.
+- Small, repeated interventions are safer than one large reset.
