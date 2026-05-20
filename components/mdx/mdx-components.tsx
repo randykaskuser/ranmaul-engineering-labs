@@ -63,4 +63,9 @@ export const mdxComponents: MDXComponents = {
   h2: (props) => <h2 {...props} className={["mt-12", props.className ?? ""].join(" ")} />,
   h3: (props) => <h3 {...props} className={["mt-10", props.className ?? ""].join(" ")} />,
   pre: (props) => <pre {...props} className={["not-prose", props.className ?? ""].join(" ")} />,
+  table: (props) => (
+    <div className="not-prose overflow-x-auto rounded-2xl border border-hairline">
+      <table {...props} />
+    </div>
+  ),
 };

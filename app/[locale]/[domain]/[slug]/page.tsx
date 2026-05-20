@@ -119,7 +119,7 @@ export default async function ArticlePage({ params }: { params: Promise<RoutePar
               {article.locale.toUpperCase()} · {article.domain.toUpperCase()}
             </p>
             <h1 className="display-title mt-4 text-4xl text-ink md:text-6xl">{article.title}</h1>
-            <p className="mt-5 max-w-[70ch] text-base leading-8 text-body md:text-lg">{article.description}</p>
+            <p className="type-lede mt-5 max-w-[70ch]">{article.description}</p>
 
             <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-body">
               <p>Published: {formatDate(article.publishedAt)}</p>

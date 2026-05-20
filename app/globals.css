@@ -308,6 +308,45 @@ a {
   font-size: 0.86em;
 }
 
+.article-prose :not(pre) > code {
+  border: 1px solid var(--hairline);
+  background: color-mix(in srgb, var(--surface-card-soft) 82%, transparent);
+  padding: 0.1em 0.35em;
+  border-radius: 0.5rem;
+}
+
+.article-prose blockquote {
+  border-left: 2px solid var(--hairline-strong);
+  padding-left: 1rem;
+  color: color-mix(in srgb, var(--body) 86%, var(--ink));
+}
+
+.article-prose hr {
+  border: 0;
+  border-top: 1px solid var(--hairline);
+  margin-block: 2.25rem;
+}
+
+.article-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-block: 1.5rem;
+  font-size: 0.95em;
+}
+
+.article-prose th,
+.article-prose td {
+  border: 1px solid var(--hairline);
+  padding: 0.75rem 0.85rem;
+  vertical-align: top;
+}
+
+.article-prose th {
+  text-align: left;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--surface-card-soft) 78%, transparent);
+}
+
 .article-prose pre {
   overflow-x: auto;
   border: 1px solid var(--hairline);
