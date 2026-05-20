@@ -13,10 +13,13 @@ export function SiteFooter() {
               A technical editorial platform documenting QA automation, FPV systems,
               fishkeeping engineering, and cinematic drone field work.
             </p>
+            <p className="text-xs tracking-[0.12em] text-muted">
+              Premium engineering editorial · Minimal by default · Built for long-form readability
+            </p>
           </div>
 
-          <nav aria-label="Footer">
-            <ul className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm text-body">
+          <nav aria-label="Footer" className="md:justify-self-end">
+            <ul className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm text-body">
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="transition-colors hover:text-ink focus-visible:text-ink">
@@ -26,6 +29,11 @@ export function SiteFooter() {
               ))}
             </ul>
           </nav>
+        </div>
+
+        <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-hairline pt-6 text-xs text-muted">
+          <p>© {new Date().getFullYear()} Engineering Labs. All notes are published for learning and reuse.</p>
+          <p>Built with Next.js · Content-first architecture</p>
         </div>
       </SiteContainer>
     </footer>

@@ -14,6 +14,9 @@ const inter = Inter({
 const displaySerif = EB_Garamond({
   variable: "--font-display",
   subsets: ["latin"],
+  // EB Garamond doesn't provide 300 on Google Fonts; keep 400 as the lightest.
+  // The editorial "lighter display" feel is achieved via tracking + size + color,
+  // not ultra-light font weight.
   weight: ["400", "500"],
 });
 

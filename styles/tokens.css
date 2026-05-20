@@ -1,37 +1,41 @@
 :root {
-  --canvas: #0f1115;
-  --canvas-soft: #151922;
-  --surface-card: #1b212c;
-  --surface-card-soft: #202735;
-  --ink: #f3f4f6;
-  --body: #c3cad6;
-  --muted: #9ca6b8;
-  --hairline: #2a3241;
-  --hairline-strong: #374154;
-  --primary: #f3f4f6;
-  --on-primary: #0f1115;
-  --orb-mint: rgba(167, 229, 211, 0.18);
-  --orb-peach: rgba(244, 197, 168, 0.14);
-  --orb-lavender: rgba(200, 184, 224, 0.16);
-  --orb-sky: rgba(168, 200, 232, 0.16);
+  /* Default to the editorial light canvas (ElevenLabs-inspired). */
+  --canvas: #f5f5f5;
+  --canvas-soft: #fafafa;
+  --surface-card: #ffffff;
+  --surface-card-soft: #f0efed;
+  --ink: #0c0a09;
+  --body: #4e4e4e;
+  --muted: #777169;
+  --hairline: #e7e5e4;
+  --hairline-strong: #d6d3d1;
+  --primary: #292524;
+  --on-primary: #ffffff;
+
+  --orb-mint: rgba(167, 229, 211, 0.3);
+  --orb-peach: rgba(244, 197, 168, 0.26);
+  --orb-lavender: rgba(200, 184, 224, 0.3);
+  --orb-sky: rgba(168, 200, 232, 0.28);
 }
 
-@media (prefers-color-scheme: light) {
+@media (prefers-color-scheme: dark) {
   :root {
-    --canvas: #f5f5f5;
-    --canvas-soft: #fafafa;
-    --surface-card: #ffffff;
-    --surface-card-soft: #f8fafc;
-    --ink: #0c0a09;
-    --body: #4e4e4e;
-    --muted: #777169;
-    --hairline: #e7e5e4;
-    --hairline-strong: #d6d3d1;
-    --primary: #292524;
-    --on-primary: #ffffff;
-    --orb-mint: rgba(167, 229, 211, 0.3);
-    --orb-peach: rgba(244, 197, 168, 0.26);
-    --orb-lavender: rgba(200, 184, 224, 0.3);
-    --orb-sky: rgba(168, 200, 232, 0.28);
+    /* Warmer dark canvas closer to ElevenLabs' ink-led darkness (no "dev tool" blues). */
+    --canvas: #0c0a09;
+    --canvas-soft: #141110;
+    --surface-card: #1c1917;
+    --surface-card-soft: #26211f;
+    --ink: #fafaf9;
+    --body: #d6d3d1;
+    --muted: #a8a29e;
+    --hairline: #2d2928;
+    --hairline-strong: #44403c;
+    --primary: #fafaf9;
+    --on-primary: #0c0a09;
+
+    --orb-mint: rgba(167, 229, 211, 0.14);
+    --orb-peach: rgba(244, 197, 168, 0.12);
+    --orb-lavender: rgba(200, 184, 224, 0.12);
+    --orb-sky: rgba(168, 200, 232, 0.12);
   }
 }
