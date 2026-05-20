@@ -1,6 +1,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { cache } from "react";
 
 export const CONTENT_ROOT = path.join(process.cwd(), "content");
 
@@ -34,6 +35,31 @@ export type Article = ArticleFrontmatter & {
   readingMinutes: number;
 };
 
+function assertSlug(value: string, filePath: string) {
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value)) {
+    throw new Error(
+      `Invalid slug "${value}" in ${filePath}. Expected: lowercase, hyphen-separated, no spaces/dates.`,
+    );
+  }
+}
+
+function assertNonEmptyString(value: unknown, key: string, filePath: string): string {
+  const str = String(value ?? "").trim();
+  if (!str) {
+    throw new Error(`Invalid frontmatter "${key}" (empty) in ${filePath}`);
+  }
+  return str;
+}
+
+function assertIsoDate(value: unknown, key: string, filePath: string): string {
+  const raw = assertNonEmptyString(value, key, filePath);
+  const ms = Date.parse(raw);
+  if (Number.isNaN(ms)) {
+    throw new Error(`Invalid frontmatter "${key}" (not a date: ${raw}) in ${filePath}`);
+  }
+  return raw;
+}
+
 function assertFrontmatter(data: Record<string, unknown>, filePath: string): ArticleFrontmatter {
   const required = [
     "title",
@@ -66,19 +92,36 @@ function assertFrontmatter(data: Record<string, unknown>, filePath: string): Art
     throw new Error(`Invalid domain \"${domain}\" in ${filePath}`);
   }
 
+  const slug = assertNonEmptyString(data.slug, "slug", filePath);
+  assertSlug(slug, filePath);
+
+  const canonicalGroup = assertNonEmptyString(data.canonicalGroup, "canonicalGroup", filePath);
+  const publishedAt = assertIsoDate(data.publishedAt, "publishedAt", filePath);
+  const updatedAt = assertIsoDate(data.updatedAt, "updatedAt", filePath);
+
+  const tags = Array.isArray(data.tags) ? data.tags.map(String).filter(Boolean) : [];
+  if (tags.length === 0) {
+    throw new Error(`Invalid frontmatter "tags" (must be a non-empty array) in ${filePath}`);
+  }
+
+  const coverImage = data.coverImage ? String(data.coverImage) : undefined;
+  if (coverImage && !coverImage.startsWith("/")) {
+    throw new Error(`Invalid frontmatter "coverImage" (must start with "/") in ${filePath}`);
+  }
+
   return {
-    title: String(data.title),
-    description: String(data.description),
+    title: assertNonEmptyString(data.title, "title", filePath),
+    description: assertNonEmptyString(data.description, "description", filePath),
     locale,
     domain,
-    slug: String(data.slug),
-    canonicalGroup: String(data.canonicalGroup),
-    publishedAt: String(data.publishedAt),
-    updatedAt: String(data.updatedAt),
-    tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
+    slug,
+    canonicalGroup,
+    publishedAt,
+    updatedAt,
+    tags,
     featured: Boolean(data.featured),
     draft: Boolean(data.draft),
-    coverImage: data.coverImage ? String(data.coverImage) : undefined,
+    coverImage,
     coverAlt: data.coverAlt ? String(data.coverAlt) : undefined,
     series: data.series ? String(data.series) : undefined,
     translationOf: data.translationOf ? String(data.translationOf) : undefined,
@@ -115,7 +158,7 @@ async function getMdxFilePaths(): Promise<string[]> {
   return files;
 }
 
-export async function getAllArticles(): Promise<Article[]> {
+export const getAllArticles = cache(async (): Promise<Article[]> => {
   const filePaths = await getMdxFilePaths();
   const articles: Article[] = [];
 
@@ -134,7 +177,7 @@ export async function getAllArticles(): Promise<Article[]> {
   return articles.sort((a, b) =>
     new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
   );
-}
+});
 
 export async function getPublishedArticles(): Promise<Article[]> {
   const all = await getAllArticles();
@@ -142,8 +185,24 @@ export async function getPublishedArticles(): Promise<Article[]> {
 }
 
 export async function getArticleByRoute(locale: Locale, domain: Domain, slug: string): Promise<Article | null> {
-  const articles = await getPublishedArticles();
-  return articles.find((article) => article.locale === locale && article.domain === domain && article.slug === slug) ?? null;
+  // Fast path: read a single file without scanning everything.
+  const filePath = path.join(CONTENT_ROOT, locale, domain, `${slug}.mdx`);
+  try {
+    const raw = await fs.readFile(filePath, "utf8");
+    const parsed = matter(raw);
+    const frontmatter = assertFrontmatter(parsed.data, filePath);
+    if (frontmatter.draft) {
+      return null;
+    }
+
+    return {
+      ...frontmatter,
+      body: parsed.content,
+      readingMinutes: estimateReadingMinutes(parsed.content),
+    };
+  } catch {
+    return null;
+  }
 }
 
 export async function getRelatedArticles(target: Article, limit = 3): Promise<Article[]> {

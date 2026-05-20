@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import rehypePrettyCode from "rehype-pretty-code";
@@ -43,6 +44,16 @@ function formatDate(date: string): string {
     month: "long",
     day: "numeric",
   });
+}
+
+function getCoverImageName(src: string): string {
+  try {
+    const url = new URL(src, "https://example.com");
+    const last = url.pathname.split("/").filter(Boolean).pop();
+    return last ?? "cover";
+  } catch {
+    return "cover";
+  }
 }
 
 export async function generateStaticParams() {
@@ -140,7 +151,19 @@ export default async function ArticlePage({ params }: { params: Promise<RoutePar
 
           {article.coverImage ? (
             <figure className="my-8 overflow-hidden rounded-2xl border border-hairline bg-surface-card-soft">
-              <img src={article.coverImage} alt={article.coverAlt ?? article.title} className="h-auto w-full" />
+              <Image
+                src={article.coverImage}
+                alt={article.coverAlt ?? article.title}
+                width={1600}
+                height={900}
+                priority
+                className="h-auto w-full"
+                sizes="(min-width: 1024px) 900px, 100vw"
+                style={{ objectFit: "cover" }}
+              />
+              <figcaption className="sr-only">
+                {article.coverAlt ?? `Cover image for ${article.title} (${getCoverImageName(article.coverImage)})`}
+              </figcaption>
             </figure>
           ) : null}
 
