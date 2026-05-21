@@ -45,6 +45,12 @@ See:
 - Phase 2 (Design System & Layout Refinement): ✅ implemented
 - Phase 3 (MDX Architecture): ✅ implemented
 - Phase 3.5 (Notion → MDX Sync): ✅ implemented
+- Phase 3.6 (Authoring UI / Notion-first): ✅ implemented (see `/create`)
+
+## Authoring (for editors)
+
+- Open `http://localhost:3000/create` (in dev) for the quick checklist.
+- Canonical reference: `docs/notion-sync.md`
 
 ## Notes
 

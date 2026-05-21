@@ -9,6 +9,7 @@ export const NAV_LINKS = [
   { href: "/fpv-lab", label: "FPV Lab" },
   { href: "/fishkeeping", label: "Fishkeeping" },
   { href: "/drone-portfolio", label: "Drone Portfolio" },
+  { href: "/create", label: "Create" },
   { href: "/projects", label: "Projects" },
   { href: "/tools", label: "Tools" },
   { href: "/about", label: "About" },

@@ -134,6 +134,44 @@ If you need instant publish, go to GitHub Actions and run the workflow manually:
 - The sync is **fail-fast**: if a published page is missing required fields, the workflow should fail.
 - Slugs should be treated as permanent after publishing.
 
+### Reviewer checklist (before setting Draft=false)
+
+Use this checklist to keep publishing consistent:
+
+Metadata:
+- [ ] `Locale` correct (`en` or `id`)
+- [ ] `Domain` correct (`qa`/`fpv`/`fishkeeping`)
+- [ ] `Slug` valid (lowercase-hyphen)
+- [ ] `CanonicalGroup` set (stable ID shared across translations)
+- [ ] `Description` is a clear 1–2 sentence summary
+- [ ] `Tags` non-empty and stable naming
+- [ ] `PublishedAt` and `UpdatedAt` correct
+
+Content:
+- [ ] Title matches content and is editorial (not clickbait)
+- [ ] Headings hierarchy is consistent
+- [ ] Code blocks render (no screenshots of code)
+- [ ] Images (if any) have meaningful captions/alt intent
+
+Bilingual (if applicable):
+- [ ] Translation pair uses same `CanonicalGroup`
+- [ ] Slugs are localized per locale
+- [ ] Publish order decided (primary first, translation later)
+
+### Troubleshooting
+
+If sync fails:
+
+1) Check the GitHub Actions run log (Notion → MDX Sync).
+2) Fix the field mentioned in the error (most failures are missing/invalid metadata).
+3) Re-run the workflow manually.
+
+Common causes:
+- `Draft=false` but required properties are missing
+- invalid `Domain` / `Locale`
+- empty `Tags`
+- invalid `Slug`
+
 ## Required GitHub Actions secrets
 
 Set these in:
