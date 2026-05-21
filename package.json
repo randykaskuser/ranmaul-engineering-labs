@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "notion:sync": "node ./scripts/notion-sync.mjs --write --verbose",
+    "notion:sync:dry": "node ./scripts/notion-sync.mjs --dry-run --verbose",
+    "notion:sync:check": "node ./scripts/notion-sync.mjs --check --verbose"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",

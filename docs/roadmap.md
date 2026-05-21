@@ -127,6 +127,7 @@ This is **not** a redesign phase. It is a publishing pipeline phase.
 
 - define a single Notion database schema for all domains + locales
 - implement Notion → Markdown/MDX conversion
+- map Notion callouts to MDX `<Note/>` / `<Warning/>` where possible
 - generate canonical MDX files into the repo under:
   - `website-elabs/website/content/{locale}/{domain}/{slug}.mdx`
 - implement media handling with stability in mind:
