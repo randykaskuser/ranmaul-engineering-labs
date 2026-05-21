@@ -54,6 +54,13 @@ export default function CreateGuidePage() {
             <li>Only reviewers/admins should set <code>Draft=false</code>.</li>
           </ul>
 
+          <h2>About the “Description” field</h2>
+          <p>
+            The <code>Description</code> property is metadata (used for listing/preview/SEO). It is usually plain text.
+            If you want a formatted intro like Blogger, write it in the Notion page body (e.g. add a “Summary” section)
+            — that’s the rich text editor that will be synced.
+          </p>
+
           <h2>Translation (EN/ID)</h2>
           <ul>
             <li>Make a separate Notion row for each locale.</li>

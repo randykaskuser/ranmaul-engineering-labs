@@ -111,6 +111,15 @@ In your Notion database:
 
 This makes authoring feel like a blog editor but keeps everything in Notion.
 
+#### Note on `Description` (important)
+
+The `Description` property is **metadata**, not the rich-text editor.
+
+- Keep it plain and short (1–2 sentences).
+- Don’t expect formatting (headings/lists/code) here.
+
+If you want a formatted intro/summary like Blogger, write it in the **Notion page body** (e.g. under a “Lede / Summary” heading) — that content will be converted into MDX.
+
 ### 3) Write the body
 
 Write the content inside the Notion page body.
