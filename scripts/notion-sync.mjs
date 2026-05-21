@@ -99,6 +99,95 @@ function extractChildDataSourceIds(database) {
     : [];
 }
 
+function scorePageContract(page) {
+  const required = [
+    "Title",
+    "Description",
+    "Locale",
+    "Domain",
+    "Slug",
+    "CanonicalGroup",
+    "Tags",
+    "PublishedAt",
+    "UpdatedAt",
+  ];
+  let score = 0;
+  for (const key of required) {
+    const prop = getPropertyLoose(page, key);
+    if (!prop) continue;
+    // Count as present if it has the expected type container.
+    if (key === "Title" && prop.type === "title" && (prop.title?.length ?? 0) > 0) score += 1;
+    else if (key === "Description" && prop.type === "rich_text" && (prop.rich_text?.length ?? 0) > 0) score += 1;
+    else if (["Locale", "Domain"].includes(key) && prop.type === "select" && prop.select?.name) score += 1;
+    else if (["Slug", "CanonicalGroup"].includes(key) && prop.type === "rich_text" && (prop.rich_text?.length ?? 0) > 0)
+      score += 1;
+    else if (key === "Tags" && prop.type === "multi_select" && (prop.multi_select?.length ?? 0) > 0) score += 1;
+    else if (["PublishedAt", "UpdatedAt"].includes(key) && prop.type === "date" && prop.date?.start) score += 1;
+  }
+  return score;
+}
+
+async function tryQueryOnePublishedPage(dataSourceId) {
+  const payload = {
+    page_size: 1,
+    filter: {
+      property: "Draft",
+      checkbox: {
+        equals: false,
+      },
+    },
+  };
+  const data = await notionFetch(`/data_sources/${dataSourceId}/query`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  const page = (data?.results ?? [])[0];
+  return page ?? null;
+}
+
+async function autoPickDataSourceId(childIds, options) {
+  // Heuristic: pick the data source whose first published page best matches our content contract.
+  // This avoids having the user guess which data source is the “real” one.
+  const scored = [];
+  for (const id of childIds) {
+    try {
+      const page = await tryQueryOnePublishedPage(id);
+      const score = page ? scorePageContract(page) : 0;
+      scored.push({ id, score, sampleUrl: page?.url ?? null });
+    } catch (err) {
+      scored.push({ id, score: -1, sampleUrl: null, error: err instanceof Error ? err.message : String(err) });
+    }
+  }
+
+  scored.sort((a, b) => b.score - a.score);
+  const best = scored[0];
+  const second = scored[1];
+
+  if (options.verbose) {
+    console.log(
+      `Auto-picked data source candidate scores: ${JSON.stringify(
+        scored.map((s) => ({ id: s.id, score: s.score, sampleUrl: s.sampleUrl })),
+        null,
+        2,
+      )}`,
+    );
+  }
+
+  if (!best || best.score < 0) return null;
+
+  // If multiple are tied, ask user to set env to be explicit.
+  if (second && second.score === best.score) {
+    throw new Error(
+      [
+        `Notion database has multiple data sources with similar scores. Please set NOTION_DATA_SOURCE_ID explicitly.`,
+        `candidates: ${JSON.stringify(scored.map((s) => ({ id: s.id, score: s.score })))}`,
+      ].join("\n"),
+    );
+  }
+
+  return best.id;
+}
+
 async function resolveDataSourceId(databaseId, options) {
   const explicit = process.env.NOTION_DATA_SOURCE_ID;
   if (explicit) {
@@ -117,6 +206,12 @@ async function resolveDataSourceId(databaseId, options) {
   }
 
   if (children.length > 1) {
+    const picked = await autoPickDataSourceId(children, options);
+    if (picked) {
+      if (options.verbose) console.log(`Auto-picked NOTION_DATA_SOURCE_ID=${picked}`);
+      return picked;
+    }
+
     throw new Error(
       [
         `Notion database has multiple data sources. Please set NOTION_DATA_SOURCE_ID.`,
