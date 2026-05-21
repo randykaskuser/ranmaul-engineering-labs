@@ -13,6 +13,23 @@ This doc describes the **publishing automation** layer that syncs a Notion datab
 
 Only pages where `Draft = false` are synced into the repo.
 
+## Notion API note (multi-data-source databases)
+
+Some newer Notion databases are backed by **multiple data sources**. In that case, querying
+`/databases/{id}/query` may fail unless you use a newer Notion API version and/or query a
+specific data source.
+
+This repo’s sync script supports this by:
+
+- using Notion API version `2025-09-03`
+- supporting an optional env var: `NOTION_DATA_SOURCE_ID`
+
+If your sync fails with:
+
+`multiple_data_sources_for_database`
+
+…set `NOTION_DATA_SOURCE_ID` to one of the `child_data_source_ids` shown in the error payload.
+
 ## How to publish a new article (practical workflow)
 
 This is the recommended, low-friction flow to publish via Notion.

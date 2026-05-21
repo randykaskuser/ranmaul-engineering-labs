@@ -25,6 +25,12 @@ const DOMAINS = new Set(["qa", "fpv", "fishkeeping"]);
 
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
+// Notion API compatibility
+// - Older API versions fail on databases that have multiple data sources.
+// - Newer API expects querying via /v1/data_sources/{id}/query.
+// Ref: Notion error: multiple_data_sources_for_database, minimum_api_version=2025-09-03
+const NOTION_API_VERSION = "2025-09-03";
+
 function requiredEnv(name) {
   const value = process.env[name];
   if (!value) {
@@ -50,7 +56,7 @@ async function notionFetch(pathname, init) {
     ...init,
     headers: {
       Authorization: `Bearer ${token}`,
-      "Notion-Version": "2022-06-28",
+      "Notion-Version": NOTION_API_VERSION,
       "Content-Type": "application/json",
       ...(init?.headers ?? {}),
     },
@@ -62,6 +68,66 @@ async function notionFetch(pathname, init) {
   }
 
   return res.json();
+}
+
+function normalizeNotionId(value, label) {
+  const raw = String(value ?? "").trim();
+  if (!raw) return "";
+
+  // Accept raw id, UUID (with hyphens), or full Notion URL.
+  // Strategy: extract all hex chars and use the first 32.
+  const hexOnly = raw.replace(/[^0-9a-fA-F]/g, "");
+  const hex = hexOnly.length >= 32 ? hexOnly.slice(0, 32).toLowerCase() : null;
+  if (!hex) {
+    throw new Error(
+      `Invalid ${label}: expected a Notion id (32 hex chars) or a Notion URL containing an id. Got: ${raw}`,
+    );
+  }
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+
+async function getDatabase(databaseId) {
+  return notionFetch(`/databases/${databaseId}`, { method: "GET" });
+}
+
+function extractChildDataSourceIds(database) {
+  const ids = database?.data_sources ?? database?.child_data_sources ?? [];
+  return Array.isArray(ids)
+    ? ids
+        .map((d) => (typeof d === "string" ? d : d?.id))
+        .filter(Boolean)
+    : [];
+}
+
+async function resolveDataSourceId(databaseId, options) {
+  const explicit = process.env.NOTION_DATA_SOURCE_ID;
+  if (explicit) {
+    const id = normalizeNotionId(explicit, "NOTION_DATA_SOURCE_ID");
+    if (options.verbose) console.log(`Using NOTION_DATA_SOURCE_ID=${id}`);
+    return id;
+  }
+
+  // Try to auto-detect for multi-data-source databases.
+  const db = await getDatabase(databaseId);
+  const children = extractChildDataSourceIds(db).map((id) => normalizeNotionId(id, "data_source_id"));
+
+  if (children.length === 1) {
+    if (options.verbose) console.log(`Auto-detected data source id: ${children[0]}`);
+    return children[0];
+  }
+
+  if (children.length > 1) {
+    throw new Error(
+      [
+        `Notion database has multiple data sources. Please set NOTION_DATA_SOURCE_ID.`,
+        `databaseId: ${databaseId}`,
+        `childDataSourceIds: ${JSON.stringify(children)}`,
+      ].join("\n"),
+    );
+  }
+
+  // Fallback: in some older workspaces, querying a database id may still work.
+  return null;
 }
 
 function getProperty(page, name) {
@@ -493,9 +559,12 @@ async function writeArticleFile(article, options) {
   return { changed: true, outPath };
 }
 
-async function queryPublishedPages(databaseId) {
+async function queryPublishedPages(databaseId, options) {
   const results = [];
   let cursor = undefined;
+
+  const dataSourceId = await resolveDataSourceId(databaseId, options);
+
   do {
     const payload = {
       page_size: 100,
@@ -508,7 +577,9 @@ async function queryPublishedPages(databaseId) {
       },
     };
 
-    const data = await notionFetch(`/databases/${databaseId}/query`, {
+    const queryPath = dataSourceId ? `/data_sources/${dataSourceId}/query` : `/databases/${databaseId}/query`;
+
+    const data = await notionFetch(queryPath, {
       method: "POST",
       body: JSON.stringify(payload),
     });
@@ -521,14 +592,14 @@ async function queryPublishedPages(databaseId) {
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
-  const databaseId = requiredEnv("NOTION_DATABASE_ID");
+  const databaseId = normalizeNotionId(requiredEnv("NOTION_DATABASE_ID"), "NOTION_DATABASE_ID");
 
   if (!options.dryRun && !options.write && !options.check) {
     // default safe mode
     options.dryRun = true;
   }
 
-  const pages = await queryPublishedPages(databaseId);
+  const pages = await queryPublishedPages(databaseId, options);
 
   let changedCount = 0;
   for (const page of pages) {
