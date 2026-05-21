@@ -221,6 +221,26 @@ Set these in:
 - `NOTION_TOKEN`
 - `NOTION_DATABASE_ID`
 
+## Do I need a new database?
+
+No.
+
+Use your **existing** Notion database (the one referenced by `NOTION_DATABASE_ID`).
+
+What you create is:
+
+- a **Database template** named `New Article` (this is not a normal row)
+- and optionally a **Button** property `Publish`
+
+### Template vs Row (important)
+
+- **Template**: appears as a preset under the database “New” button. Use it to create a properly pre-filled page.
+- **Row/page**: the actual article entry.
+
+Workflow:
+1) click `New` → choose template `New Article`
+2) you get a new row/page created from the template
+
 ## Notion database schema (property names)
 
 The sync script expects these property names exactly:

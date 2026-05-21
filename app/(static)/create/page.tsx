@@ -23,8 +23,9 @@ export default function CreateGuidePage() {
           <h2>Make it feel like Blogger (recommended Notion setup)</h2>
           <ul>
             <li>
-              Create a template <strong>New Article</strong> that pre-fills <code>Draft=true</code> and shows the required
-              properties at the top.
+              Use your <strong>existing Notion database</strong> (the one used by sync). Add a <strong>Database template</strong>
+              named <strong>New Article</strong> (this is not a normal row) that pre-fills <code>Draft=true</code> and shows the
+              required properties at the top.
             </li>
             <li>
               Create views: <strong>Draft Queue</strong>, <strong>Ready to Publish</strong>, <strong>Published</strong>.
