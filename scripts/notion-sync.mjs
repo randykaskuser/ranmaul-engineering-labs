@@ -64,10 +64,31 @@ async function notionFetch(pathname, init) {
 
   if (!res.ok) {
     const body = await res.text();
-    throw new Error(`Notion API error ${res.status} ${res.statusText}: ${body}`);
+    const err = new Error(`Notion API error ${res.status} ${res.statusText}: ${body}`);
+    // Attach parsed Notion error payload when possible so callers can branch on it.
+    try {
+      // @ts-ignore
+      err.notion = JSON.parse(body);
+    } catch {
+      // ignore
+    }
+    throw err;
   }
 
   return res.json();
+}
+
+function getNotionErrorType(err) {
+  // @ts-ignore
+  const notion = err?.notion;
+  return notion?.additional_data?.error_type ?? notion?.code ?? null;
+}
+
+function getNotionChildDataSourceIdsFromError(err) {
+  // @ts-ignore
+  const notion = err?.notion;
+  const ids = notion?.additional_data?.child_data_source_ids;
+  return Array.isArray(ids) ? ids : [];
 }
 
 function normalizeNotionId(value, label) {
@@ -674,10 +695,30 @@ async function queryPublishedPages(databaseId, options) {
 
     const queryPath = dataSourceId ? `/data_sources/${dataSourceId}/query` : `/databases/${databaseId}/query`;
 
-    const data = await notionFetch(queryPath, {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
+    let data;
+    try {
+      data = await notionFetch(queryPath, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+    } catch (err) {
+      // Safety fallback: if Notion rejects database query because DB has multiple data sources,
+      // parse child ids from the error payload and retry using /data_sources/{id}/query.
+      if (!dataSourceId && getNotionErrorType(err) === "multiple_data_sources_for_database") {
+        const childIds = getNotionChildDataSourceIdsFromError(err).map((id) => normalizeNotionId(id, "data_source_id"));
+        if (childIds.length > 0) {
+          const picked = await autoPickDataSourceId(childIds, options);
+          if (picked) {
+            if (options.verbose) console.log(`Retrying via data source (from error payload): ${picked}`);
+            data = await notionFetch(`/data_sources/${picked}/query`, {
+              method: "POST",
+              body: JSON.stringify(payload),
+            });
+          }
+        }
+      }
+      if (!data) throw err;
+    }
 
     results.push(...(data.results ?? []));
     cursor = data.has_more ? data.next_cursor : undefined;
