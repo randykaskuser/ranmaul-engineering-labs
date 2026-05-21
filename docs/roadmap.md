@@ -90,6 +90,7 @@ NOT:
 - frontmatter support
 - metadata support
 - syntax highlighting
+- better code block wrapper (readability + copy affordance; optional)
 - category system
 - tag system
 - multilingual article architecture

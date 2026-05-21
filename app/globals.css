@@ -359,3 +359,62 @@ a {
 .article-prose pre code {
   white-space: pre;
 }
+
+/*
+  MDX heading anchors (shareable section links)
+  We avoid extra JS: use CSS-only anchor link shown on hover/focus.
+*/
+
+.article-prose .mdx-heading {
+  position: relative;
+  scroll-margin-top: 6.5rem;
+}
+
+.article-prose .mdx-heading .mdx-anchor {
+  position: absolute;
+  left: -1.25em;
+  top: 0.08em;
+  opacity: 0;
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.article-prose .mdx-heading:hover .mdx-anchor,
+.article-prose .mdx-heading:focus-within .mdx-anchor {
+  opacity: 1;
+}
+
+/*
+  MDX callouts
+*/
+
+.mdx-callout {
+  border: 1px solid var(--hairline);
+  border-radius: 1rem;
+  padding: 1rem 1.1rem;
+  background: var(--surface-card-soft);
+  margin-block: 1.5rem;
+}
+
+.mdx-callout__title {
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 650;
+  color: var(--muted);
+  margin-bottom: 0.65rem;
+}
+
+.mdx-callout__body {
+  color: var(--body);
+}
+
+.mdx-callout--note {
+  border-color: color-mix(in srgb, var(--hairline-strong) 55%, var(--hairline));
+}
+
+.mdx-callout--warning {
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--hairline));
+  background: color-mix(in srgb, var(--surface-card-soft) 88%, var(--primary));
+}
