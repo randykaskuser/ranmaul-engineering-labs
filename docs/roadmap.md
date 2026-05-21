@@ -170,6 +170,47 @@ This phase should NOT add:
 
 ---
 
+# Phase 3.6 — Authoring UI (Notion-first)
+
+## Purpose
+
+Provide a **simple, cross-device, secure authoring experience** without adding a CMS/admin panel inside the website.
+
+Notion is the “UI”, GitHub remains the canonical source-of-truth after sync.
+
+## Goals
+
+- define an authoring workflow that works well on mobile/tablet/desktop
+- provide a clear “draft → ready → publish” pipeline inside Notion using views + templates
+- make publishing safe:
+  - only authorized editors can create/modify drafts
+  - only reviewers can set `Draft=false`
+  - contract violations fail the sync (so bad content cannot silently ship)
+- provide a minimal website guide page for editors (checklist + how-to)
+
+## Deliverables
+
+- Notion database template: “New Article” with the required properties visible + ordered
+- Notion views:
+  - `Draft Queue` (Draft=true)
+  - `Ready to Publish` (Draft=true + required fields not empty)
+  - `Published` (Draft=false)
+- documented bilingual authoring best practice:
+  - stable shared `canonicalGroup`
+  - localized `slug` per locale
+  - optional `translationOf` to link source
+- website page: “Create & publish articles” (mobile-friendly reference)
+
+## Scope boundary
+
+This phase should NOT add:
+- authentication
+- database
+- CMS/admin panel inside the website
+- real-time publish system
+
+---
+
 # Phase 4 — Homepage Maturity
 
 ## Goals

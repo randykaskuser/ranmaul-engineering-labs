@@ -21,6 +21,32 @@ This is the recommended, low-friction flow to publish via Notion.
 
 Create a new row/page inside the Notion database.
 
+Recommended: use a database template called **“New Article”** so the required properties are visible and pre-filled.
+
+### Recommended Notion views (pipeline)
+
+Create these views in the Notion database (works on mobile too):
+
+1) **Draft Queue**
+- Filter: `Draft = true`
+
+2) **Ready to Publish**
+- Filter: `Draft = true`
+- Plus required fields “is not empty”:
+  - `Locale`
+  - `Domain`
+  - `Slug`
+  - `CanonicalGroup`
+  - `Description`
+  - `Tags`
+  - `PublishedAt`
+  - `UpdatedAt`
+
+3) **Published**
+- Filter: `Draft = false`
+
+This structure prevents accidental publishing and makes it easy to work from phone/tablet.
+
 ### 2) Fill required metadata (before publish)
 
 Required properties (must be present when `Draft=false`):
@@ -67,6 +93,29 @@ Set:
 - `Draft = false`
 
 This is the **publish signal**.
+
+#### Security policy (recommended)
+
+To keep authoring secure without building auth into the website:
+
+- Keep the Notion database **private** (not shared publicly).
+- Use Notion roles:
+  - **Editors** can create/edit drafts (`Draft=true`).
+  - **Reviewers/Admins** are the only ones allowed to set `Draft=false`.
+
+This keeps publishing permissioned while still cross-device.
+
+### Bilingual authoring best practice (EN/ID)
+
+- Each locale is a separate MDX entry with a **localized slug**.
+- Pair translations using a stable shared `CanonicalGroup`.
+- Optional but recommended:
+  - `TranslationOf` = canonicalGroup or source slug
+
+Workflow:
+1) publish primary locale first (Draft=false)
+2) create translation row (Draft=true), keep same `CanonicalGroup`
+3) review translation, then publish (Draft=false)
 
 ### 5) Wait for sync
 
