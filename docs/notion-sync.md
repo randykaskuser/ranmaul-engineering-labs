@@ -13,6 +13,78 @@ This doc describes the **publishing automation** layer that syncs a Notion datab
 
 Only pages where `Draft = false` are synced into the repo.
 
+## How to publish a new article (practical workflow)
+
+This is the recommended, low-friction flow to publish via Notion.
+
+### 1) Create
+
+Create a new row/page inside the Notion database.
+
+### 2) Fill required metadata (before publish)
+
+Required properties (must be present when `Draft=false`):
+
+- `Title`
+- `Description`
+- `Locale` (`en` | `id`)
+- `Domain` (`qa` | `fpv` | `fishkeeping`)
+- `Slug` (lowercase, hyphen-separated)
+- `CanonicalGroup`
+- `Tags` (multi-select, **must not be empty**)
+- `Featured` (checkbox)
+- `PublishedAt` (date)
+- `UpdatedAt` (date)
+
+Optional:
+
+- `CoverImage` (Files & media)
+- `CoverAlt`
+- `Series`
+- `TranslationOf`
+- `RelatedCanonicalGroups`
+
+### 3) Write the body
+
+Write the content inside the Notion page body.
+
+Supported blocks (safe subset):
+
+- paragraph
+- headings (H1/H2/H3)
+- lists (including nested)
+- quote
+- code blocks
+- divider
+- image (will be downloaded into this repo)
+- callout (will map to `<Note>` or `<Warning>` depending on icon/text)
+- toggle (mapped to `<details><summary>...`)
+
+### 4) Publish
+
+Set:
+
+- `Draft = false`
+
+This is the **publish signal**.
+
+### 5) Wait for sync
+
+The GitHub Actions workflow runs on schedule (every 15 minutes) and will:
+
+- sync the page into `content/{locale}/{domain}/{slug}.mdx`
+- commit the MDX + downloaded media into `main`
+
+If you need instant publish, go to GitHub Actions and run the workflow manually:
+
+- Actions → **Notion → MDX Sync** → Run workflow
+
+### Notes / gotchas
+
+- Keep `Draft=true` for incomplete pages.
+- The sync is **fail-fast**: if a published page is missing required fields, the workflow should fail.
+- Slugs should be treated as permanent after publishing.
+
 ## Required GitHub Actions secrets
 
 Set these in:

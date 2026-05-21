@@ -258,9 +258,38 @@ async function listBlocks(blockId) {
   return results;
 }
 
+function indentPrefix(level) {
+  return "  ".repeat(Math.max(0, level));
+}
+
+function isWarningCallout(icon, titleText) {
+  const t = String(titleText ?? "").toLowerCase();
+  const emoji = icon?.type === "emoji" ? icon.emoji : "";
+
+  if (["⚠️", "🚨", "❗", "❌", "🛑", "⛔"].includes(emoji)) return true;
+  if (t.startsWith("warning")) return true;
+  if (t.startsWith("caution")) return true;
+  if (t.startsWith("danger")) return true;
+  if (t.startsWith("pitfall")) return true;
+  return false;
+}
+
+async function renderChildBlocks(blockId, ctx) {
+  const children = await listBlocks(blockId);
+  let out = "";
+  for (const child of children) {
+    out += await blockToMdx(child, ctx);
+    if (out && !out.endsWith("\n")) out += "\n";
+    if (!out.endsWith("\n\n")) out += "\n";
+  }
+  return out.trim();
+}
+
 async function blockToMdx(block, ctx) {
   const type = block.type;
   const value = block[type];
+
+  const nextCtx = { ...ctx };
 
   switch (type) {
     case "paragraph": {
@@ -283,12 +312,26 @@ async function blockToMdx(block, ctx) {
 
     case "bulleted_list_item": {
       const txt = renderRichText(value.rich_text ?? []);
-      return txt ? `- ${txt}\n` : "";
+      if (!txt) return "";
+      const prefix = `${indentPrefix(ctx.indent ?? 0)}- `;
+      let out = `${prefix}${txt}\n`;
+      if (block.has_children) {
+        const child = await renderChildBlocks(block.id, { ...nextCtx, indent: (ctx.indent ?? 0) + 1 });
+        if (child) out += `${child}\n`;
+      }
+      return out;
     }
 
     case "numbered_list_item": {
       const txt = renderRichText(value.rich_text ?? []);
-      return txt ? `1. ${txt}\n` : "";
+      if (!txt) return "";
+      const prefix = `${indentPrefix(ctx.indent ?? 0)}1. `;
+      let out = `${prefix}${txt}\n`;
+      if (block.has_children) {
+        const child = await renderChildBlocks(block.id, { ...nextCtx, indent: (ctx.indent ?? 0) + 1 });
+        if (child) out += `${child}\n`;
+      }
+      return out;
     }
 
     case "quote": {
@@ -299,6 +342,18 @@ async function blockToMdx(block, ctx) {
             .map((line) => `> ${line}`)
             .join("\n") + "\n"
         : "";
+    }
+
+    case "toggle": {
+      const summary = renderRichText(value.rich_text ?? []);
+      const inner = block.has_children
+        ? await renderChildBlocks(block.id, { ...nextCtx, indent: ctx.indent ?? 0 })
+        : "";
+
+      if (!summary && !inner) return "";
+
+      // Use HTML details/summary for broad Markdown compatibility.
+      return `\n<details>\n<summary>${summary || "Details"}</summary>\n\n${inner}\n\n</details>\n`;
     }
 
     case "code": {
@@ -329,10 +384,11 @@ async function blockToMdx(block, ctx) {
     }
 
     case "callout": {
-      // Map Notion callout → MDX <Note/> by default.
       const txt = renderRichText(value.rich_text ?? []);
       if (!txt) return "";
-      return `\n<Note>\n\n${txt}\n\n</Note>\n`;
+
+      const tone = isWarningCallout(value.icon, txt) ? "Warning" : "Note";
+      return `\n<${tone}>\n\n${txt}\n\n</${tone}>\n`;
     }
 
     default: {
