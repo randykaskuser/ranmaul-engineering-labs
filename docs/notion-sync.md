@@ -47,6 +47,26 @@ Create these views in the Notion database (works on mobile too):
 
 This structure prevents accidental publishing and makes it easy to work from phone/tablet.
 
+### Optional: “Publish” button inside Notion (Blogger-like)
+
+If you want a single obvious action like Blogger’s publish button, Notion can do this with a **Button** property.
+
+Create a new property:
+
+- `Publish` (Button)
+
+Button actions:
+
+1) Set `Draft` → `false`
+2) Set `UpdatedAt` → `now`
+
+Recommendation:
+
+- Only give permission to reviewers/admins to press this button.
+- Editors keep writing with `Draft=true`.
+
+This keeps the UX “one click publish” while staying permissioned.
+
 ### 2) Fill required metadata (before publish)
 
 Required properties (must be present when `Draft=false`):
@@ -69,6 +89,27 @@ Optional:
 - `Series`
 - `TranslationOf`
 - `RelatedCanonicalGroups`
+
+### Recommended template: “New Article”
+
+In your Notion database:
+
+1) Click `New` → `+ New template`.
+2) Name it: `New Article`.
+3) Pre-fill defaults:
+   - `Draft = true`
+   - `Featured = false`
+   - `Locale` default (optional)
+   - `Domain` default (optional)
+4) In the template body, add a starter structure:
+   - Title line (H1)
+   - “Context” section
+   - “Constraints” section
+   - “Approach” section
+   - “Notes / Data” section
+   - “Takeaways” section
+
+This makes authoring feel like a blog editor but keeps everything in Notion.
 
 ### 3) Write the body
 

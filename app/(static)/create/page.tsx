@@ -16,9 +16,24 @@ export default function CreateGuidePage() {
             <li>Create a new row/page in the Notion database (use “New Article” template).</li>
             <li>Keep <code>Draft=true</code> while writing.</li>
             <li>Fill required metadata fields.</li>
-            <li>When ready, set <code>Draft=false</code> (publish signal).</li>
+            <li>When ready, publish by setting <code>Draft=false</code> (or press the Notion “Publish” button).</li>
             <li>Wait for GitHub Actions sync (or run it manually).</li>
           </ol>
+
+          <h2>Make it feel like Blogger (recommended Notion setup)</h2>
+          <ul>
+            <li>
+              Create a template <strong>New Article</strong> that pre-fills <code>Draft=true</code> and shows the required
+              properties at the top.
+            </li>
+            <li>
+              Create views: <strong>Draft Queue</strong>, <strong>Ready to Publish</strong>, <strong>Published</strong>.
+            </li>
+            <li>
+              (Optional) Add a Notion <strong>Button</strong> property called <code>Publish</code> that sets <code>Draft=false</code>
+              and updates <code>UpdatedAt</code>.
+            </li>
+          </ul>
 
           <h2>Required metadata (must be filled before publish)</h2>
           <ul>
