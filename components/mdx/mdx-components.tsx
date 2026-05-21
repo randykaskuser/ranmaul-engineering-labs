@@ -3,6 +3,7 @@ import type { ComponentProps } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Note, Warning } from "@/components/mdx/callout";
+import { CodeBlock } from "@/components/mdx/code-block";
 
 function slugifyHeading(value: string): string {
   return value
@@ -139,7 +140,7 @@ export const mdxComponents: MDXComponents = {
   img: MdxImage,
   h2: (props) => <MdxHeading {...props} className={["mt-12", props.className ?? ""].join(" ")} />,
   h3: (props) => <MdxHeading3 {...props} className={["mt-10", props.className ?? ""].join(" ")} />,
-  pre: (props) => <pre {...props} className={["not-prose", props.className ?? ""].join(" ")} />,
+  pre: (props) => <CodeBlock {...props} />,
   table: (props) => (
     <div className="not-prose overflow-x-auto rounded-2xl border border-hairline">
       <table {...props} />

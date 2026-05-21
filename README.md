@@ -39,6 +39,13 @@ See:
 - `docs/roadmap.md` (phase plan)
 - `docs/content-model-and-publishing-workflow.md` (content contract)
 
+## Roadmap status (high-level)
+
+- Phase 1 (Foundation): ✅ implemented
+- Phase 2 (Design System & Layout Refinement): ✅ implemented
+- Phase 3 (MDX Architecture): ✅ implemented
+- Phase 3.5 (Notion → MDX Sync): ✅ implemented
+
 ## Notes
 
 This repo intentionally avoids early-phase features like CMS/admin, search, analytics, auth, and heavy animation.

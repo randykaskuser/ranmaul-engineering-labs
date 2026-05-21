@@ -90,9 +90,9 @@ NOT:
 - frontmatter support
 - metadata support
 - syntax highlighting
-- better code block wrapper (readability + copy affordance; optional)
-- category system
-- tag system
+- better code block wrapper (readability; copy affordance optional)
+- lightweight tag browsing (no search)
+- domain index pages (content listing)
 - multilingual article architecture
 
 ## Deliverables

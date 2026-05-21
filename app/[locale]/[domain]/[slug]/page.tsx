@@ -129,8 +129,13 @@ export default async function ArticlePage({ params }: { params: Promise<RoutePar
 
             <ul className="mt-4 flex flex-wrap gap-2">
               {article.tags.map((tag) => (
-                <li key={tag} className="rounded-full border border-hairline px-3 py-1 text-xs text-body">
-                  #{tag}
+                <li key={tag}>
+                  <Link
+                    href={`/${article.locale}/tags/${encodeURIComponent(tag)}`}
+                    className="inline-flex rounded-full border border-hairline px-3 py-1 text-xs text-body hover:text-ink"
+                  >
+                    #{tag}
+                  </Link>
                 </li>
               ))}
             </ul>

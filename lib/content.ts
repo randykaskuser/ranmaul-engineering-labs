@@ -237,3 +237,37 @@ export async function getTranslationsForArticle(target: Article): Promise<Articl
     (article) => article.canonicalGroup === target.canonicalGroup && article.locale !== target.locale,
   );
 }
+
+export type TagInfo = {
+  tag: string;
+  count: number;
+};
+
+export async function getArticlesByDomain(locale: Locale, domain: Domain): Promise<Article[]> {
+  const articles = await getPublishedArticles();
+  return articles.filter((article) => article.locale === locale && article.domain === domain);
+}
+
+export async function getAllTags(locale: Locale): Promise<TagInfo[]> {
+  const articles = await getPublishedArticles();
+  const counts = new Map<string, number>();
+
+  for (const article of articles) {
+    if (article.locale !== locale) continue;
+    for (const tag of article.tags) {
+      counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    }
+  }
+
+  return Array.from(counts.entries())
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+}
+
+export async function getArticlesByTag(locale: Locale, tag: string): Promise<Article[]> {
+  const normalized = tag.trim();
+  if (!normalized) return [];
+
+  const articles = await getPublishedArticles();
+  return articles.filter((article) => article.locale === locale && article.tags.includes(normalized));
+}

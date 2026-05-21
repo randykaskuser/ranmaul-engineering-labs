@@ -254,6 +254,55 @@ a {
   color: var(--body);
 }
 
+.mdx-codeblock {
+  border: 1px solid var(--hairline);
+  border-radius: 1rem;
+  background: var(--surface-card-soft);
+  overflow: hidden;
+  margin-block: 1.5rem;
+}
+
+.mdx-codeblock__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.55rem 0.9rem;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--surface-card);
+}
+
+.mdx-codeblock__lang {
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.mdx-codeblock__copy {
+  border: 1px solid var(--hairline);
+  border-radius: 9999px;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.7rem;
+  font-weight: 550;
+  color: var(--body);
+}
+
+.mdx-codeblock__copy:hover {
+  color: var(--ink);
+  border-color: var(--hairline-strong);
+}
+
+.mdx-codeblock pre {
+  margin: 0;
+  padding: 1rem;
+  overflow-x: auto;
+  background: transparent;
+  font-size: 0.9rem;
+  line-height: 1.75;
+}
+
 @media (min-width: 48rem) {
   .article-prose {
     font-size: 1.125rem;
@@ -347,18 +396,7 @@ a {
   background: color-mix(in srgb, var(--surface-card-soft) 78%, transparent);
 }
 
-.article-prose pre {
-  overflow-x: auto;
-  border: 1px solid var(--hairline);
-  border-radius: 0.85rem;
-  padding: 1rem;
-  margin-block: 1.25rem;
-  background: var(--surface-card-soft);
-}
-
-.article-prose pre code {
-  white-space: pre;
-}
+/* Code blocks are rendered via <CodeBlock/> wrapper (see components/mdx/code-block.tsx). */
 
 /*
   MDX heading anchors (shareable section links)
