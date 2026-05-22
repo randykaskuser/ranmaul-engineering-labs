@@ -13,6 +13,14 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+
+  // Phase 3.7 hardening: prevent common XSS foot-guns from slipping in.
+  {
+    rules: {
+      // Very rare to be acceptable in this repo; require justification if ever needed.
+      "react/no-danger": "error",
+    },
+  },
 ]);
 
 export default eslintConfig;

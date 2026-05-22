@@ -39,6 +39,8 @@ Update (long-term fixes implemented in repo):
 - Media ingestion hardened further: size cap + MIME allowlist for downloaded media.
 - Additional baseline browser isolation: `COOP` + `CORP` headers + disabled `X-Powered-By`.
 - Media download hardened further: request timeout + post-download size cap enforcement.
+- CODEOWNERS added (`.github/CODEOWNERS`) for ownership clarity + future collaborator guardrail.
+- ESLint rule added to prevent `dangerouslySetInnerHTML` usage (`react/no-danger`).
 
 ---
 

@@ -1,0 +1,4 @@
+# Default: require review from the repo owner.
+# This is mostly useful for future collaborators and for clarity in PR ownership.
+
+* @randykaskuser
