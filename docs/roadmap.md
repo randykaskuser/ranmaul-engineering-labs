@@ -16,6 +16,7 @@
 | Phase 3 — MDX Architecture | **Done (already present)** | MDX components + content routes + content folder exist in repo. |
 | Phase 3.5 — Publishing Automation (Notion → MDX Sync) | **Done (shipped)** | Notion sync script + CI workflow in place; hardened for multi-data-source DBs. |
 | Phase 3.6 — Authoring UI (Notion-first) | **In progress** | Repo has guide/docs; Notion-side templates/views are external and need ongoing ops. |
+| Phase 3.7 — Security Hardening & Privacy Audit | **Not started** | Run the `security-hardening-auditor` skill against code + CI/CD + content pipeline; ship prioritized fixes without adding new product scope. |
 | Phase 4 — Homepage Maturity | **Not started / partial** | Some sections/pages exist, but not yet “mature homepage” per deliverables. |
 | Phase 5 — Content Population | **In progress** | Content exists and pipeline works; content volume/coverage is ongoing. |
 | Phase 6 — Drone Portfolio Expansion | **Not started / partial** | Placeholder portfolio pages exist; expansion/case-study system not fully built. |
@@ -229,6 +230,42 @@ This phase should NOT add:
 - database
 - CMS/admin panel inside the website
 - real-time publish system
+
+---
+
+# Phase 3.7 — Security Hardening & Privacy Audit
+
+## Purpose
+
+Reduce security and privacy risk early, while the surface area is still manageable.
+
+This is **not** a feature phase; it is a hardening phase.
+
+## Goals
+
+- run an evidence-based audit using the repo skill: `security-hardening-auditor`
+- cover:
+  - Next.js app attack surface (routing, headers, SSR/CSR boundaries)
+  - dependency risk (npm audit / advisories)
+  - content pipeline + file writes (`scripts/notion-sync.mjs`)
+  - GitHub Actions permissions + secrets exposure
+  - any public media download behavior (SSRF / path traversal checks)
+- produce a prioritized remediation backlog (severity + priority)
+- implement **high-impact / low-risk** fixes only (no new backend systems)
+
+## Deliverables
+
+- security + privacy audit report committed to repo (in docs)
+- a small set of targeted fixes (config / code hardening)
+- documented assumptions + threat model snapshot
+
+## Scope Boundary
+
+This phase should NOT add:
+- authentication
+- databases
+- new services
+- analytics
 
 ---
 
