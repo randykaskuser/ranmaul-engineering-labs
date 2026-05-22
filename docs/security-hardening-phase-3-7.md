@@ -37,6 +37,8 @@ Update (long-term fixes implemented in repo):
 - CSP added in **Report-Only** mode (safe rollout) via `next.config.ts`.
 - Notion sync workflow blast radius reduced (only stages `content/**` + `public/media/notion/**`).
 - Media ingestion hardened further: size cap + MIME allowlist for downloaded media.
+- Additional baseline browser isolation: `COOP` + `CORP` headers + disabled `X-Powered-By`.
+- Media download hardened further: request timeout + post-download size cap enforcement.
 
 ---
 

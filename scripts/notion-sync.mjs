@@ -403,7 +403,13 @@ async function downloadToPublic(url, filenameBase) {
   }
 
   const MAX_MEDIA_BYTES = 12 * 1024 * 1024; // 12 MiB (defense-in-depth)
-  const res = await fetch(parsed);
+  const DOWNLOAD_TIMEOUT_MS = 15_000;
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), DOWNLOAD_TIMEOUT_MS);
+
+  const res = await fetch(parsed, { signal: controller.signal });
+  clearTimeout(timeout);
   if (!res.ok) {
     throw new Error(`Failed to download media: ${url} (${res.status})`);
   }
@@ -419,6 +425,11 @@ async function downloadToPublic(url, filenameBase) {
 
   const arrayBuffer = await res.arrayBuffer();
   const buf = Buffer.from(arrayBuffer);
+
+  // Hardening: if content-length is missing or wrong, enforce a post-download cap too.
+  if (buf.length > MAX_MEDIA_BYTES) {
+    throw new Error(`Blocked media download (too large after download: ${buf.length} bytes)`);
+  }
 
   const contentType = (res.headers.get("content-type") ?? "").toLowerCase();
 
