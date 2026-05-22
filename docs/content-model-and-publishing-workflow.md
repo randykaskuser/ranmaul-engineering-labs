@@ -137,6 +137,14 @@ Canonical handling principles:
 - preserve conceptual grouping through `canonicalGroup`
 - prioritize semantic equivalence, not literal sentence-level translation
 
+### Translation automation note (Phase 3.55)
+
+If translation automation is enabled (ID → EN via OpenRouter), it must still honor the canonical philosophy:
+
+- EN entries are grouped to their ID source via the same stable `canonicalGroup`.
+- EN `slug` is localized and may differ from ID.
+- The auto-generated EN content is a starting point; it may later be edited for better localization.
+
 ---
 
 ## 7) Media Governance (Locked)
@@ -256,6 +264,18 @@ Optional fields:
 ### Step 4 — Publish
 - Set `draft: false`
 - Confirm internal links and related content references
+
+### Step 4.5 — Auto-translation (optional pipeline)
+
+If configured, after an ID page is published and synced, the pipeline can auto-create an EN peer entry:
+
+- Source: ID entry (`locale=id`, `draft=false`)
+- Target: EN entry (`locale=en`, `draft=false`)
+- Required link:
+  - same `canonicalGroup` across both locales
+  - `translationOf` may be set to the source `canonicalGroup` for traceability
+
+This step is a publishing automation feature and should not require a CMS/admin inside the website.
 
 ### Step 5 — Maintenance
 - Update article when workflows/tools change

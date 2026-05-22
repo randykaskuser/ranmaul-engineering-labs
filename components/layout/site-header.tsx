@@ -2,13 +2,30 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { NAV_LINKS } from "@/lib/site";
 import { SiteContainer } from "./site-container";
 import { NavLink } from "./nav-link";
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
-  const [language, setLanguage] = useState<"ID" | "EN">("EN");
+  const pathname = usePathname();
+
+  const locale = pathname?.startsWith("/id") ? "id" : "en";
+  const otherLocale = locale === "en" ? "id" : "en";
+  const localeSwitchHref = (() => {
+    if (!pathname || pathname === "/") {
+      return `/${otherLocale}`;
+    }
+
+    const segments = pathname.split("/").filter(Boolean);
+    if (segments.length > 0 && (segments[0] === "en" || segments[0] === "id")) {
+      segments[0] = otherLocale;
+      return `/${segments.join("/")}`;
+    }
+
+    return `/${otherLocale}${pathname}`;
+  })();
 
   return (
     <header className="sticky top-0 z-40 border-b border-hairline bg-canvas/92 backdrop-blur">
@@ -38,23 +55,12 @@ export function SiteHeader() {
               </ul>
             </nav>
 
-            <div className="inline-flex items-center rounded-full border border-hairline bg-surface-card/70 p-1 text-xs">
-              {(["ID", "EN"] as const).map((lang) => (
-                <button
-                  key={lang}
-                  type="button"
-                  aria-pressed={language === lang}
-                  onClick={() => setLanguage(lang)}
-                  className={`rounded-full px-2.5 py-1 font-medium transition ${
-                    language === lang
-                      ? "bg-primary text-on-primary"
-                      : "text-body hover:text-ink"
-                  }`}
-                >
-                  {lang}
-                </button>
-              ))}
-            </div>
+            <Link
+              href={localeSwitchHref}
+              className="inline-flex items-center rounded-full border border-hairline bg-surface-card/70 px-3 py-1 text-xs font-medium text-body transition hover:border-hairline-strong hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-hairline-strong"
+            >
+              {locale.toUpperCase()} → {otherLocale.toUpperCase()}
+            </Link>
           </div>
         </div>
 
@@ -73,22 +79,14 @@ export function SiteHeader() {
                 </li>
               ))}
             </ul>
-            <div className="mt-4 inline-flex items-center rounded-full border border-hairline bg-surface-card/70 p-1 text-xs">
-              {(["ID", "EN"] as const).map((lang) => (
-                <button
-                  key={lang}
-                  type="button"
-                  aria-pressed={language === lang}
-                  onClick={() => setLanguage(lang)}
-                  className={`rounded-full px-2.5 py-1 font-medium transition ${
-                    language === lang
-                      ? "bg-primary text-on-primary"
-                      : "text-body hover:text-ink"
-                  }`}
-                >
-                  {lang}
-                </button>
-              ))}
+            <div className="mt-4">
+              <Link
+                href={localeSwitchHref}
+                className="inline-flex items-center rounded-full border border-hairline bg-surface-card/70 px-3 py-1 text-xs font-medium text-body transition hover:border-hairline-strong hover:text-ink"
+                onClick={() => setOpen(false)}
+              >
+                {locale.toUpperCase()} → {otherLocale.toUpperCase()}
+              </Link>
             </div>
           </nav>
         ) : null}

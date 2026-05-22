@@ -249,6 +249,14 @@ Set these in:
 - `NOTION_TOKEN`
 - `NOTION_DATABASE_ID`
 
+Translation automation (Phase 3.55):
+
+- `OPENROUTER_API_KEY`
+
+Optional:
+
+- `OPENROUTER_MODEL` (default: `google/gemini-3-flash-preview`)
+
 Optional:
 
 - `NOTION_DATA_SOURCE_ID` (only if you want to override auto-pick)
@@ -322,6 +330,12 @@ Dry-run (no writes):
 npm run notion:sync:dry
 ```
 
+Disable translation automation:
+
+```bash
+npm run notion:sync -- --no-translate
+```
+
 Write changes to `content/`:
 
 ```bash
@@ -333,3 +347,22 @@ CI check mode (fails if repo is out-of-sync):
 ```bash
 npm run notion:sync:check
 ```
+
+## Auto translation (ID → EN) behavior
+
+If translation is enabled and OpenRouter is configured:
+
+- For each published Indonesian page (`Locale=id`, `Draft=false`) successfully synced into `content/id/...`:
+  - the sync script checks if an English page exists for the same `CanonicalGroup`.
+  - if no EN page exists, the script calls OpenRouter to generate:
+    - `Title`, `Description`, `Slug`, `Tags`, and translated body.
+  - then it creates a new Notion page (`Locale=en`) with `Draft=false` (auto-published).
+
+Idempotency:
+
+- It will not create duplicate EN pages for the same `CanonicalGroup`.
+
+Failure behavior:
+
+- OpenRouter calls use timeout + retry with exponential backoff.
+- If translation fails, the sync run fails (so issues are visible) unless we later choose a “soft-fail” policy.

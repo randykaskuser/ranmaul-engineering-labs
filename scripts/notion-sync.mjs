@@ -31,6 +31,104 @@ const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 // Ref: Notion error: multiple_data_sources_for_database, minimum_api_version=2025-09-03
 const NOTION_API_VERSION = "2025-09-03";
 
+// OpenRouter (Translation automation)
+// NOTE: Used to auto-generate EN entries from ID after a successful sync.
+const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
+const OPENROUTER_DEFAULT_MODEL = "google/gemini-3-flash-preview";
+const OPENROUTER_MAX_RETRIES = 3;
+const OPENROUTER_RETRY_DELAY_MS = 1000;
+const OPENROUTER_TIMEOUT_MS = 30_000;
+
+const NOTION_RICH_TEXT_MAX = 2000;
+
+function chunkString(value, maxLen) {
+  const str = String(value ?? "");
+  if (str.length <= maxLen) return [str];
+  const out = [];
+  for (let i = 0; i < str.length; i += maxLen) {
+    out.push(str.slice(i, i + maxLen));
+  }
+  return out;
+}
+
+function toNotionRichText(value) {
+  const chunks = chunkString(value, NOTION_RICH_TEXT_MAX);
+  return chunks.map((content) => ({ type: "text", text: { content } }));
+}
+
+function mdxBodyToNotionBlocks(body) {
+  // Minimal safe conversion: preserve body content as preformatted text.
+  // This keeps code/config intact and avoids unsupported Notion block mapping.
+  // NOTE: The synced MDX will include this content as a fenced code block,
+  //       which is still readable and copyable.
+  const content = String(body ?? "").trim();
+  if (!content) return [];
+  const lines = chunkString(content, 1800);
+  return [
+    {
+      object: "block",
+      type: "callout",
+      callout: {
+        icon: { type: "emoji", emoji: "🤖" },
+        rich_text: toNotionRichText(
+          "Auto-translated by AI during Notion→MDX sync. Review/edit if needed.",
+        ),
+        color: "gray_background",
+      },
+    },
+    {
+      object: "block",
+      type: "code",
+      code: {
+        language: "markdown",
+        rich_text: lines.flatMap((line) => toNotionRichText(line)),
+      },
+    },
+  ];
+}
+
+async function queryPagesByFilter(databaseId, dataSourceId, filter) {
+  const payload = {
+    page_size: 1,
+    filter,
+  };
+  const queryPath = dataSourceId ? `/data_sources/${dataSourceId}/query` : `/databases/${databaseId}/query`;
+  const data = await notionFetch(queryPath, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  return (data?.results ?? [])[0] ?? null;
+}
+
+async function findAnyPageByLocaleAndCanonicalGroup(databaseId, dataSourceId, locale, canonicalGroup, options) {
+  // keep options param for signature symmetry (verbose logging hook in future)
+  void options;
+  const filter = {
+    and: [
+      { property: "Locale", select: { equals: locale } },
+      { property: "CanonicalGroup", rich_text: { equals: canonicalGroup } },
+    ],
+  };
+  return queryPagesByFilter(databaseId, dataSourceId, filter);
+}
+
+async function createNotionPageInDatabase({ databaseId, dataSourceId, properties, children }) {
+  // Notion databases may be backed by multiple data sources.
+  // In that case, Notion requires create to use parent.data_source_id.
+  const parent = dataSourceId
+    ? { data_source_id: dataSourceId }
+    : { database_id: databaseId };
+
+  return notionFetch(`/pages`, {
+    method: "POST",
+    body: JSON.stringify({
+      parent,
+      properties,
+      ...(children?.length ? { children } : {}),
+    }),
+  });
+}
+
 function requiredEnv(name) {
   const value = process.env[name];
   if (!value) {
@@ -46,7 +144,160 @@ function parseArgs(argv) {
     write: args.has("--write"),
     check: args.has("--check"),
     verbose: args.has("--verbose"),
+    translate: !args.has("--no-translate"),
   };
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchWithTimeout(url, init, timeoutMs) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+function safeJsonParse(text) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
+function extractFirstJsonObject(text) {
+  const raw = String(text ?? "");
+  const firstBrace = raw.indexOf("{");
+  const lastBrace = raw.lastIndexOf("}");
+  if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) return null;
+  const slice = raw.slice(firstBrace, lastBrace + 1);
+  return safeJsonParse(slice);
+}
+
+function normalizeSlugCandidate(value) {
+  const lower = String(value ?? "")
+    .trim()
+    .toLowerCase();
+  const normalized = lower
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+  return normalized;
+}
+
+function deterministicSlugFromCanonicalGroup(canonicalGroup) {
+  // canonicalGroup may contain mixed chars; normalize to safe slug-ish.
+  const normalized = normalizeSlugCandidate(canonicalGroup);
+  if (normalized) return normalized;
+  return `entry-${hashString(String(canonicalGroup ?? ""))}`;
+}
+
+function buildTranslationSystemPrompt() {
+  return [
+    "You are an expert bilingual technical editor and translator.",
+    "Translate Indonesian technical editorial content to English.",
+    "Maintain technical accuracy and preserve code/config blocks exactly.",
+    "", 
+    "OUTPUT FORMAT (MANDATORY):", 
+    "Return ONLY valid JSON (no markdown fences, no commentary) with keys:",
+    "- title (string)",
+    "- description (string; 1-2 sentences)",
+    "- slug (string; lowercase-hyphen; no dates)",
+    "- tags (string[]; stable short tags, prefer existing tag intent)",
+    "- body (string; Markdown/MDX body without frontmatter)",
+    "", 
+    "RULES:",
+    "- Do not add marketing fluff.",
+    "- Keep code blocks unchanged.",
+    "- Keep headings structure.",
+    "- Slug must match /^[a-z0-9]+(?:-[a-z0-9]+)*$/.",
+  ].join("\n");
+}
+
+async function openRouterTranslateIdToEn(input, options) {
+  const apiKey = requiredEnv("OPENROUTER_API_KEY");
+  const model = process.env.OPENROUTER_MODEL || OPENROUTER_DEFAULT_MODEL;
+
+  const payload = {
+    model,
+    messages: [
+      { role: "system", content: buildTranslationSystemPrompt() },
+      {
+        role: "user",
+        content: JSON.stringify(
+          {
+            sourceLocale: "id",
+            targetLocale: "en",
+            domain: input.domain,
+            canonicalGroup: input.canonicalGroup,
+            title: input.title,
+            description: input.description,
+            slug: input.slug,
+            tags: input.tags,
+            body: input.body,
+          },
+          null,
+          2,
+        ),
+      },
+    ],
+    temperature: 0.2,
+  };
+
+  let lastErr;
+  for (let attempt = 1; attempt <= OPENROUTER_MAX_RETRIES; attempt++) {
+    try {
+      const res = await fetchWithTimeout(
+        OPENROUTER_API_URL,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify(payload),
+        },
+        OPENROUTER_TIMEOUT_MS,
+      );
+
+      const text = await res.text();
+      if (!res.ok) {
+        throw new Error(`OpenRouter error ${res.status}: ${text}`);
+      }
+
+      const json = safeJsonParse(text);
+      const content = json?.choices?.[0]?.message?.content;
+      const parsed = safeJsonParse(content) ?? extractFirstJsonObject(content);
+      if (!parsed) {
+        throw new Error(`OpenRouter returned non-JSON content: ${String(content ?? "").slice(0, 240)}...`);
+      }
+
+      return {
+        model,
+        title: String(parsed.title ?? "").trim(),
+        description: String(parsed.description ?? "").trim(),
+        slug: String(parsed.slug ?? "").trim(),
+        tags: Array.isArray(parsed.tags) ? parsed.tags.map((t) => String(t).trim()).filter(Boolean) : [],
+        body: String(parsed.body ?? "").trim(),
+      };
+    } catch (err) {
+      lastErr = err;
+      if (options?.verbose) {
+        console.log(`OpenRouter translate attempt ${attempt}/${OPENROUTER_MAX_RETRIES} failed:`, err);
+      }
+      if (attempt < OPENROUTER_MAX_RETRIES) {
+        const delay = OPENROUTER_RETRY_DELAY_MS * Math.pow(2, attempt - 1);
+        await sleep(delay);
+      }
+    }
+  }
+  throw lastErr;
 }
 
 async function notionFetch(pathname, init) {
@@ -705,7 +956,136 @@ async function pageToArticle(page) {
 
   const mdx = `${frontmatterLines.join("\n")}${body.trim()}\n`;
 
-  return { locale, domain, slug, draft, mdx };
+  return {
+    locale,
+    domain,
+    slug,
+    canonicalGroup,
+    title,
+    description,
+    tags,
+    draft,
+    featured,
+    publishedAt,
+    updatedAt,
+    mdx,
+  };
+}
+
+function stripFrontmatter(mdx) {
+  const raw = String(mdx ?? "");
+  if (!raw.startsWith("---")) return raw;
+  const end = raw.indexOf("\n---", 3);
+  if (end === -1) return raw;
+  // remove frontmatter block plus trailing newline(s)
+  return raw.slice(end + "\n---".length).replace(/^\s*\n/, "");
+}
+
+async function maybeAutoTranslateIdToEn(sourceArticle, databaseId, options) {
+  if (!options.translate) return { created: false };
+  if (options.check) return { created: false };
+  if (sourceArticle.locale !== "id") return { created: false };
+
+  const dataSourceId = await resolveDataSourceId(databaseId, options);
+  const existingEn = await findAnyPageByLocaleAndCanonicalGroup(
+    databaseId,
+    dataSourceId,
+    "en",
+    sourceArticle.canonicalGroup,
+    options,
+  );
+  if (existingEn) {
+    if (options.verbose) {
+      console.log(
+        `SKIP translate: EN already exists for canonicalGroup=${sourceArticle.canonicalGroup} -> ${existingEn.url ?? existingEn.id}`,
+      );
+    }
+    return { created: false, reason: "en-exists" };
+  }
+
+  const translation = await openRouterTranslateIdToEn(
+    {
+      domain: sourceArticle.domain,
+      canonicalGroup: sourceArticle.canonicalGroup,
+      title: sourceArticle.title,
+      description: sourceArticle.description,
+      slug: sourceArticle.slug,
+      tags: sourceArticle.tags,
+      body: stripFrontmatter(sourceArticle.mdx),
+    },
+    options,
+  );
+
+  const slugCandidate = normalizeSlugCandidate(translation.slug);
+  const slug = SLUG_RE.test(slugCandidate)
+    ? slugCandidate
+    : deterministicSlugFromCanonicalGroup(sourceArticle.canonicalGroup);
+
+  const tags = translation.tags.length > 0 ? translation.tags : sourceArticle.tags;
+
+  const properties = {
+    Title: {
+      title: [{ type: "text", text: { content: translation.title || sourceArticle.title } }],
+    },
+    Description: {
+      rich_text: toNotionRichText(translation.description || sourceArticle.description),
+    },
+    Locale: {
+      select: { name: "en" },
+    },
+    Domain: {
+      select: { name: sourceArticle.domain },
+    },
+    Slug: {
+      rich_text: toNotionRichText(slug),
+    },
+    CanonicalGroup: {
+      rich_text: toNotionRichText(sourceArticle.canonicalGroup),
+    },
+    Tags: {
+      multi_select: tags.map((name) => ({ name })),
+    },
+    Featured: {
+      checkbox: Boolean(sourceArticle.featured),
+    },
+    Draft: {
+      // As requested: translated by AI and auto-published.
+      checkbox: false,
+    },
+    PublishedAt: {
+      date: { start: sourceArticle.publishedAt },
+    },
+    UpdatedAt: {
+      date: { start: sourceArticle.updatedAt },
+    },
+    TranslationOf: {
+      rich_text: toNotionRichText(sourceArticle.canonicalGroup),
+    },
+  };
+
+  const children = mdxBodyToNotionBlocks(translation.body);
+
+  if (options.dryRun) {
+    if (options.verbose) {
+      console.log(
+        `DRY translate: would create EN page canonicalGroup=${sourceArticle.canonicalGroup} slug=${slug} model=${translation.model}`,
+      );
+    }
+    return { created: true, dryRun: true, slug };
+  }
+
+  const created = await createNotionPageInDatabase({
+    databaseId,
+    dataSourceId,
+    properties,
+    children,
+  });
+  if (options.verbose) {
+    console.log(
+      `CREATE translate: created EN page canonicalGroup=${sourceArticle.canonicalGroup} slug=${slug} model=${translation.model} -> ${created?.url ?? created?.id}`,
+    );
+  }
+  return { created: true, slug, url: created?.url ?? null };
 }
 
 async function writeArticleFile(article, options) {
@@ -819,6 +1199,12 @@ async function main() {
       if (options.verbose) {
         console.log(`${options.check ? "CHECK" : options.dryRun ? "DRY" : "WRITE"}: ${result.outPath}`);
       }
+    }
+
+    // After a successful ID sync, auto-create EN translation (Notion-first).
+    // This runs only in --write mode (not in --check).
+    if (options.write || options.dryRun) {
+      await maybeAutoTranslateIdToEn(article, databaseId, options);
     }
   }
 
