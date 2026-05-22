@@ -32,6 +32,12 @@ Key hardening actions have already been applied as part of this phase:
 
 Remaining high-value work is mostly around CSP, deployment-level HTTPS/HSTS correctness, and dependency vulnerability remediation (PostCSS via Next).
 
+Update (long-term fixes implemented in repo):
+
+- CSP added in **Report-Only** mode (safe rollout) via `next.config.ts`.
+- Notion sync workflow blast radius reduced (only stages `content/**` + `public/media/notion/**`).
+- Media ingestion hardened further: size cap + MIME allowlist for downloaded media.
+
 ---
 
 ## 2. Security Posture Score
@@ -135,13 +141,13 @@ Rubric notes:
 
 ## 5. Hardening Recommendations
 
-1) Add **CSP** (start report-only) and tighten over time.
-2) Consider restricting CI write blast radius: commit only `content/**` + `public/media/notion/**` paths.
+1) Add **CSP** (start report-only) and tighten over time. **(DONE: report-only)**
+2) Consider restricting CI write blast radius: commit only `content/**` + `public/media/notion/**` paths. **(DONE)**
 3) Add media download limits in sync script:
-   - max bytes
-   - allowed MIME types
-   - safe extension mapping
-4) Review HSTS correctness per deployment (must be HTTPS-only).
+   - max bytes **(DONE)**
+   - allowed MIME types **(DONE)**
+   - safe extension mapping (partial; based on allowed MIME types)
+4) Review HSTS correctness per deployment (must be HTTPS-only). (Needs confirmation)
 
 ---
 

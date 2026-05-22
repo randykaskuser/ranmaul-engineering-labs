@@ -402,15 +402,33 @@ async function downloadToPublic(url, filenameBase) {
     throw new Error(`Blocked media download (untrusted host): ${host}`);
   }
 
+  const MAX_MEDIA_BYTES = 12 * 1024 * 1024; // 12 MiB (defense-in-depth)
   const res = await fetch(parsed);
   if (!res.ok) {
     throw new Error(`Failed to download media: ${url} (${res.status})`);
   }
 
+  // Hardening: enforce a size cap to reduce DoS / oversized payload risk.
+  const contentLengthRaw = res.headers.get("content-length");
+  if (contentLengthRaw) {
+    const len = Number(contentLengthRaw);
+    if (Number.isFinite(len) && len > MAX_MEDIA_BYTES) {
+      throw new Error(`Blocked media download (too large: ${len} bytes)`);
+    }
+  }
+
   const arrayBuffer = await res.arrayBuffer();
   const buf = Buffer.from(arrayBuffer);
 
-  const contentType = res.headers.get("content-type") ?? "";
+  const contentType = (res.headers.get("content-type") ?? "").toLowerCase();
+
+  // Hardening: only accept common image types to reduce risk of HTML/SVG/script payloads.
+  // If you need video/PDF later, expand with explicit review.
+  const allowedTypes = ["image/png", "image/jpeg", "image/webp", "image/gif"];
+  const isAllowedType = allowedTypes.some((t) => contentType.includes(t));
+  if (!isAllowedType) {
+    throw new Error(`Blocked media download (content-type not allowed): ${contentType || "(missing)"}`);
+  }
   const ext = contentType.includes("png")
     ? ".png"
     : contentType.includes("jpeg")
