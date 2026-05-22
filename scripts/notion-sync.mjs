@@ -379,7 +379,30 @@ function hashString(value) {
 
 async function downloadToPublic(url, filenameBase) {
   if (!url) return null;
-  const res = await fetch(url);
+
+  // Security hardening (Phase 3.7)
+  // Prevent SSRF by allowing only HTTPS and limiting hosts to Notion-controlled domains.
+  const parsed = new URL(url);
+  if (parsed.protocol !== "https:") {
+    throw new Error(`Blocked media download (non-https): ${parsed.protocol}`);
+  }
+
+  const host = parsed.hostname.toLowerCase();
+  const allowedHosts = [
+    // Notion signed file hosting / images
+    "s3.us-west-2.amazonaws.com",
+    "s3.us-east-1.amazonaws.com",
+    "s3.eu-central-1.amazonaws.com",
+    "prod-files-secure.s3.us-west-2.amazonaws.com",
+    "secure.notion-static.com",
+    "www.notion.so",
+  ];
+  const isAllowed = allowedHosts.some((allowed) => host === allowed || host.endsWith(`.${allowed}`));
+  if (!isAllowed) {
+    throw new Error(`Blocked media download (untrusted host): ${host}`);
+  }
+
+  const res = await fetch(parsed);
   if (!res.ok) {
     throw new Error(`Failed to download media: ${url} (${res.status})`);
   }

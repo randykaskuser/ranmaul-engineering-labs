@@ -16,7 +16,7 @@
 | Phase 3 — MDX Architecture | **Done (already present)** | MDX components + content routes + content folder exist in repo. |
 | Phase 3.5 — Publishing Automation (Notion → MDX Sync) | **Done (shipped)** | Notion sync script + CI workflow in place; hardened for multi-data-source DBs. |
 | Phase 3.6 — Authoring UI (Notion-first) | **Done** | Website has editor guide page + docs; Notion templates/views are specified and reproducible without adding auth/CMS to the site. |
-| Phase 3.7 — Security Hardening & Privacy Audit | **Not started** | Run the `security-hardening-auditor` skill against code + CI/CD + content pipeline; ship prioritized fixes without adding new product scope. |
+| Phase 3.7 — Security Hardening & Privacy Audit | **Done** | Audit report added (`docs/security-hardening-phase-3-7.md`) + quick-win hardening: security headers, SSRF guardrails for Notion media download, pinned GitHub Actions to SHAs. |
 | Phase 4 — Homepage Maturity | **Not started / partial** | Some sections/pages exist, but not yet “mature homepage” per deliverables. |
 | Phase 5 — Content Population | **In progress** | Content exists and pipeline works; content volume/coverage is ongoing. |
 | Phase 6 — Drone Portfolio Expansion | **Not started / partial** | Placeholder portfolio pages exist; expansion/case-study system not fully built. |
