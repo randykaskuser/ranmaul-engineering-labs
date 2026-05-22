@@ -23,12 +23,14 @@ This repo’s sync script supports this by:
 
 - using Notion API version `2025-09-03`
 - supporting an optional env var: `NOTION_DATA_SOURCE_ID`
+- auto-picking the correct data source when a database has multiple data sources
+  (based on the content contract fields)
 
-If your sync fails with:
+In most cases you **do not need** to set `NOTION_DATA_SOURCE_ID`.
 
-`multiple_data_sources_for_database`
-
-…set `NOTION_DATA_SOURCE_ID` to one of the `child_data_source_ids` shown in the error payload.
+Only set it when:
+- auto-pick cannot disambiguate (tie), or
+- you want deterministic behavior for a specific data source.
 
 ## How to publish a new article (practical workflow)
 
@@ -246,6 +248,10 @@ Set these in:
 
 - `NOTION_TOKEN`
 - `NOTION_DATABASE_ID`
+
+Optional:
+
+- `NOTION_DATA_SOURCE_ID` (only if you want to override auto-pick)
 
 ## Do I need a new database?
 
