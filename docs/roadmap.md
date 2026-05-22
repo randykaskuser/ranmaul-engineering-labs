@@ -2,6 +2,27 @@
 
 ---
 
+## Current status (snapshot)
+
+> Status meanings:
+> - **Done**: implemented + used in production code paths.
+> - **In progress**: partially implemented / needs polish or audit.
+> - **Not started**: not implemented yet.
+
+| Phase | Status | Notes |
+|---|---|---|
+| Phase 1 — Foundation | **Done** | Next.js App Router + TS + base layout + locale routing + dark mode baseline + placeholder pages exist. |
+| Phase 2 — Design System & Layout Refinement | **In progress** | Tokens/layout exist, but typography scale + spacing rhythm + editorial width rules + nav polish need final audit to call “Done”. |
+| Phase 3 — MDX Architecture | **Done (already present)** | MDX components + content routes + content folder exist in repo. |
+| Phase 3.5 — Publishing Automation (Notion → MDX Sync) | **Done (shipped)** | Notion sync script + CI workflow in place; hardened for multi-data-source DBs. |
+| Phase 3.6 — Authoring UI (Notion-first) | **In progress** | Repo has guide/docs; Notion-side templates/views are external and need ongoing ops. |
+| Phase 4 — Homepage Maturity | **Not started / partial** | Some sections/pages exist, but not yet “mature homepage” per deliverables. |
+| Phase 5 — Content Population | **In progress** | Content exists and pipeline works; content volume/coverage is ongoing. |
+| Phase 6 — Drone Portfolio Expansion | **Not started / partial** | Placeholder portfolio pages exist; expansion/case-study system not fully built. |
+| Phase 7 — Tools & Utilities | **Not started** | Tools pages exist but utilities not built yet. |
+| Phase 8 — SEO Optimization | **Not started / partial** | Some metadata exists; sitemap/RSS/structured data not fully implemented. |
+| Phase 9 — Ecosystem Expansion | **Not started** | Deferred until content maturity. |
+
 # Phase 1 — Foundation
 
 ## Goals
