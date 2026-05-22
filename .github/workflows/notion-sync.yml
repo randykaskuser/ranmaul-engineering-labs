@@ -44,7 +44,11 @@ jobs:
             git config user.email "notion-sync-bot@users.noreply.github.com"
             # Hardening (Phase 3.7): minimize blast radius of a write-capable workflow.
             # Only stage the generated content and downloaded media outputs.
-            git add -A content public/media/notion
+            # Stage generated content. Only add media directory if it exists to avoid pathspec errors.
+            git add -A content
+            if [ -d public/media/notion ]; then
+              git add -A public/media/notion
+            fi
             git commit -m "chore(content): sync Notion → MDX"
             git push
           else
