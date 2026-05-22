@@ -12,7 +12,7 @@
 | Phase | Status | Notes |
 |---|---|---|
 | Phase 1 — Foundation | **Done** | Next.js App Router + TS + base layout + locale routing + dark mode baseline + placeholder pages exist. |
-| Phase 2 — Design System & Layout Refinement | **In progress** | Tokens/layout exist, but typography scale + spacing rhythm + editorial width rules + nav polish need final audit to call “Done”. |
+| Phase 2 — Design System & Layout Refinement | **Done** | Container system + typography scale + spacing rhythm + editorial prose rules + layout primitives (Section/Grid/Stack) are in place and used across key pages. |
 | Phase 3 — MDX Architecture | **Done (already present)** | MDX components + content routes + content folder exist in repo. |
 | Phase 3.5 — Publishing Automation (Notion → MDX Sync) | **Done (shipped)** | Notion sync script + CI workflow in place; hardened for multi-data-source DBs. |
 | Phase 3.6 — Authoring UI (Notion-first) | **Done** | Website has editor guide page + docs; Notion templates/views are specified and reproducible without adding auth/CMS to the site. |

@@ -67,7 +67,7 @@ async function notionFetch(pathname, init) {
     const err = new Error(`Notion API error ${res.status} ${res.statusText}: ${body}`);
     // Attach parsed Notion error payload when possible so callers can branch on it.
     try {
-      // @ts-ignore
+      // @ts-expect-error - attach parsed Notion error payload for branching (internal script-only).
       err.notion = JSON.parse(body);
     } catch {
       // ignore
@@ -79,13 +79,13 @@ async function notionFetch(pathname, init) {
 }
 
 function getNotionErrorType(err) {
-  // @ts-ignore
+  // @ts-expect-error - custom property attached in notionFetch for branching.
   const notion = err?.notion;
   return notion?.additional_data?.error_type ?? notion?.code ?? null;
 }
 
 function getNotionChildDataSourceIdsFromError(err) {
-  // @ts-ignore
+  // @ts-expect-error - custom property attached in notionFetch for branching.
   const notion = err?.notion;
   const ids = notion?.additional_data?.child_data_source_ids;
   return Array.isArray(ids) ? ids : [];
