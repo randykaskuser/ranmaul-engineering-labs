@@ -86,9 +86,13 @@ type AnchorProps = ComponentProps<"a">;
 function SmartLink({ href, children, ...props }: AnchorProps) {
   const raw = typeof href === "string" ? href : "";
 
-  if (raw.startsWith("/")) {
+  // Safety Hardening: block javascript: and vbscript: URIs to prevent XSS injections.
+  const isDangerous = /^(javascript|vbscript):/i.test(raw.trim());
+  const safeHref = isDangerous ? "#" : raw;
+
+  if (safeHref.startsWith("/")) {
     return (
-      <Link href={raw} className="underline underline-offset-4">
+      <Link href={safeHref} className="underline underline-offset-4">
         {children}
       </Link>
     );
@@ -96,7 +100,7 @@ function SmartLink({ href, children, ...props }: AnchorProps) {
 
   return (
     <a
-      href={raw}
+      href={safeHref}
       className="underline underline-offset-4"
       target="_blank"
       rel="noreferrer"
