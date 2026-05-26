@@ -5,9 +5,7 @@ This file is the **single entrypoint** for agents working in this repo.
 
 ## Global rules (apply to this repo too)
 
-These come from the user’s global rules directory and apply across projects:
-
-- Global rules path: `C:/Users/Randy M/Documents/Cline/Rules/`
+These are user-global rules that apply across all projects (maintained locally, not checked into this repo):
 
 - **Documentation drift prevention**
   - If you modify behavior, update docs describing that behavior in the same task.
