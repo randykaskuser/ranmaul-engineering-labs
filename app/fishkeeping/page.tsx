@@ -1,4 +1,4 @@
-import { PageHero } from "@/components/sections/page-hero";
+import { redirect } from "next/navigation";
 import { createPageMetadata } from "@/lib/page-metadata";
 
 export const metadata = createPageMetadata(
@@ -7,11 +7,5 @@ export const metadata = createPageMetadata(
 );
 
 export default function FishkeepingPage() {
-  return (
-    <PageHero
-      eyebrow="Fishkeeping"
-      title="Aquatic systems engineering and practical habitat operations"
-      description="Placeholder for filtration strategy, water parameter control, maintenance SOPs, and long-term ecosystem reliability logs."
-    />
-  );
+  redirect("/en/fishkeeping");
 }

@@ -6,14 +6,25 @@ import { usePathname } from "next/navigation";
 import { NAV_LINKS } from "@/lib/site";
 import { SiteContainer } from "./site-container";
 import { NavLink } from "./nav-link";
+import { useTranslationContext } from "./translation-context";
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const { alternateUrl } = useTranslationContext();
 
   const locale = pathname?.startsWith("/id") ? "id" : "en";
+  const localizedDomains = ["/qa", "/fpv", "/fishkeeping"];
+  
+  const getLocalizedHref = (href: string) => {
+    if (localizedDomains.includes(href)) {
+      return `/${locale}${href}`;
+    }
+    return href;
+  };
+
   const otherLocale = locale === "en" ? "id" : "en";
-  const localeSwitchHref = (() => {
+  const localeSwitchHref = alternateUrl ?? (() => {
     if (!pathname || pathname === "/") {
       return `/${otherLocale}`;
     }
@@ -49,7 +60,7 @@ export function SiteHeader() {
               <ul className="flex items-center gap-1">
                 {NAV_LINKS.map((link) => (
                   <li key={link.href}>
-                    <NavLink href={link.href}>{link.label}</NavLink>
+                    <NavLink href={getLocalizedHref(link.href)}>{link.label}</NavLink>
                   </li>
                 ))}
               </ul>
@@ -70,7 +81,7 @@ export function SiteHeader() {
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link
-                    href={link.href}
+                    href={getLocalizedHref(link.href)}
                     className="block rounded-2xl border border-transparent px-3 py-2.5 font-medium transition-colors hover:border-hairline hover:bg-surface-card/60 hover:text-ink"
                     onClick={() => setOpen(false)}
                   >

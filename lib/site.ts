@@ -5,8 +5,8 @@ export const SITE_URL = "https://example.com";
 
 export const NAV_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/qa-lab", label: "QA Lab" },
-  { href: "/fpv-lab", label: "FPV Lab" },
+  { href: "/qa", label: "QA Lab" },
+  { href: "/fpv", label: "FPV Lab" },
   { href: "/fishkeeping", label: "Fishkeeping" },
   { href: "/drone-portfolio", label: "Drone Portfolio" },
   { href: "/projects", label: "Projects" },

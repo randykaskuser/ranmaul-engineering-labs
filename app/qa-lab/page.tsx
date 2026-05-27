@@ -1,4 +1,4 @@
-import { PageHero } from "@/components/sections/page-hero";
+import { redirect } from "next/navigation";
 import { createPageMetadata } from "@/lib/page-metadata";
 
 export const metadata = createPageMetadata(
@@ -7,11 +7,5 @@ export const metadata = createPageMetadata(
 );
 
 export default function QALabPage() {
-  return (
-    <PageHero
-      eyebrow="QA Lab"
-      title="Automation engineering, reliability, and troubleshooting systems"
-      description="Placeholder for test framework architecture, debugging workflows, CI diagnostics, and quality engineering experiments."
-    />
-  );
+  redirect("/en/qa");
 }

@@ -1,0 +1,33 @@
+---
+title: "Basic FPV Tuning Guide for Cinematic Footage"
+description: "Field notes on PID tuning for FPV drones to achieve smooth cinematic video footage."
+locale: "en"
+domain: "fpv"
+slug: "fpv-tuning-guide"
+canonicalGroup: "fpv-tuning-guide"
+publishedAt: "2026-05-27T00:00:00.000Z"
+updatedAt: "2026-05-27T00:00:00.000Z"
+tags: ["FPV", "Tuning", "Cinematic", "Drone"]
+featured: true
+draft: false
+---
+
+# FPV Tuning for Cinematic Footage
+
+Getting smooth FPV drone footage requires precise PID (Proportional, Integral, Derivative) tuning. This article documents field constraints and tuning solutions for a 5-inch drone frame.
+
+## Field Challenges
+
+Variable wind and prop-wash are the two main enemies in cinematic flight. When a drone descends through its own exhaust air (prop-wash), the image can shake violently.
+
+<Warning>
+Do not increase the D (Derivative) value too high. Although it can reduce prop-wash, an excessively high D value can cause the motors to become very hot and potentially burn out!
+</Warning>
+
+## Baseline Parameters
+
+Here are the baseline parameters we use as a starting point:
+
+- **Proportional (P):** Slightly lower than freestyle tuning for slower, more controlled movements.
+- **Integral (I):** High enough to maintain the angle and resist strong winds during stable flight (cruising).
+- **Derivative (D):** Kept within safe limits to dampen prop-wash without excessively raising motor temperatures.

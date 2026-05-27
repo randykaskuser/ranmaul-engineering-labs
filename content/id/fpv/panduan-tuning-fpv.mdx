@@ -1,0 +1,33 @@
+---
+title: "Panduan Dasar Tuning FPV untuk Sinematik"
+description: "Catatan lapangan tentang cara melakukan tuning PID pada drone FPV untuk mendapatkan rekaman video sinematik yang mulus."
+locale: "id"
+domain: "fpv"
+slug: "panduan-tuning-fpv"
+canonicalGroup: "fpv-tuning-guide"
+publishedAt: "2026-05-27T00:00:00.000Z"
+updatedAt: "2026-05-27T00:00:00.000Z"
+tags: ["FPV", "Tuning", "Cinematic", "Drone"]
+featured: true
+draft: false
+---
+
+# Tuning FPV untuk Rekaman Sinematik
+
+Mendapatkan rekaman drone FPV yang halus membutuhkan *tuning* PID (Proportional, Integral, Derivative) yang presisi. Artikel ini mendokumentasikan batasan lapangan dan solusi *tuning* untuk rangka drone 5 inci.
+
+## Tantangan Lapangan
+
+Angin variabel dan prop-wash adalah dua musuh utama dalam penerbangan sinematik. Ketika drone turun menembus udara buangannya sendiri (*prop-wash*), gambar dapat bergetar hebat.
+
+<Warning>
+Jangan naikkan nilai D (Derivative) terlalu tinggi. Meskipun dapat mengurangi *prop-wash*, nilai D yang terlalu tinggi dapat menyebabkan motor menjadi sangat panas dan berpotensi terbakar!
+</Warning>
+
+## Parameter Baseline
+
+Berikut adalah parameter *baseline* yang kami gunakan sebagai titik awal:
+
+- **Proportional (P):** Sedikit lebih rendah dari *freestyle tuning* untuk pergerakan yang lebih lambat dan terkendali.
+- **Integral (I):** Cukup tinggi untuk mempertahankan sudut dan menahan angin yang kuat saat terbang stabil (cruising).
+- **Derivative (D):** Dijaga pada batas aman untuk meredam *prop-wash* tanpa meningkatkan suhu motor secara berlebihan.

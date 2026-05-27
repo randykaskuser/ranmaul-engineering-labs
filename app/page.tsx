@@ -10,26 +10,26 @@ export const metadata: Metadata = {
     "Engineering Labs is a systems-oriented technical journal documenting automation reliability, FPV flight engineering, fishkeeping infrastructure, and real-world troubleshooting workflows.",
 };
 
-const categories = [
+const getCategories = (locale: string) => [
   {
     title: "QA Lab",
     description: "Automation architecture, reliability experiments, and test engineering notes.",
-    href: "/qa-lab",
+    href: `/${locale}/qa`,
     detail: "Automation reliability, experiment logs, and decision trade-offs.",
   },
   {
     title: "FPV Lab",
     description: "Build logs, tuning frameworks, and cinematic flight engineering workflows.",
-    href: "/fpv-lab",
+    href: `/${locale}/fpv`,
     detail: "Flight constraints, tuning baselines, and engineering checklists.",
   },
   {
     title: "Fishkeeping Systems",
     description: "Water parameter systems, habitat troubleshooting, and data-backed maintenance.",
-    href: "/fishkeeping",
+    href: `/${locale}/fishkeeping`,
     detail: "Infrastructure notes, maintenance loops, and measurement discipline.",
   },
-] as const;
+];
 
 const droneMedia = [
   {
@@ -88,7 +88,9 @@ const latest = [
   },
 ] as const;
 
-export default function Home() {
+export default function Home({ locale = "en" }: { locale?: string }) {
+  const currentCategories = getCategories(locale);
+
   return (
     <>
       <Section space="xl" divider orb>
@@ -107,7 +109,7 @@ export default function Home() {
                 <Link href="/drone-portfolio" className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-on-primary">
                   Review Flight Case Notes
                 </Link>
-                <Link href="/qa-lab" className="rounded-full border border-hairline-strong px-5 py-2.5 text-sm font-medium text-ink">
+                <Link href={`/${locale}/qa`} className="rounded-full border border-hairline-strong px-5 py-2.5 text-sm font-medium text-ink">
                   Read QA Reliability Logs
                 </Link>
               </div>
@@ -135,7 +137,7 @@ export default function Home() {
             </Link>
           </div>
           <Grid columns={3} gap="md">
-            {categories.map((category) => (
+            {currentCategories.map((category) => (
               <Link key={category.title} href={category.href} className="editorial-card p-6">
                 <p className="type-kicker">Domain</p>
                 <h3 className="mt-3 type-title text-ink">{category.title}</h3>
@@ -192,7 +194,7 @@ export default function Home() {
               </div>
               <Stack gap="sm">
                 {projects.map((project) => (
-                  <Link key={project.title} href={project.href} className="rounded-2xl border border-hairline p-4">
+                  <Link key={project.title} href={project.href} className="block rounded-2xl border border-hairline p-4">
                     <p className="type-kicker">{project.tag}</p>
                     <h3 className="mt-2 text-lg text-ink">{project.title}</h3>
                     <p className="mt-2 text-sm leading-7 text-body">{project.description}</p>
@@ -210,7 +212,7 @@ export default function Home() {
               </div>
               <Stack gap="sm">
                 {latest.map((entry) => (
-                  <Link key={entry.title} href={entry.href} className="rounded-2xl border border-hairline p-4">
+                  <Link key={entry.title} href={entry.href} className="block rounded-2xl border border-hairline p-4">
                     <p className="type-kicker">{entry.meta}</p>
                     <h3 className="mt-2 text-lg text-ink">{entry.title}</h3>
                     <p className="mt-2 text-sm leading-7 text-body">{entry.description}</p>

@@ -4,6 +4,7 @@ import "./globals.css";
 import "../styles/tokens.css";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { TranslationProvider } from "@/components/layout/translation-context";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 
 const inter = Inter({
@@ -51,11 +52,13 @@ export default function RootLayout({
       className={`${inter.variable} ${displaySerif.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-canvas text-ink">
-        <div className="flex min-h-screen flex-col">
-          <SiteHeader />
-          <main className="flex-1">{children}</main>
-          <SiteFooter />
-        </div>
+        <TranslationProvider>
+          <div className="flex min-h-screen flex-col">
+            <SiteHeader />
+            <main className="flex-1">{children}</main>
+            <SiteFooter />
+          </div>
+        </TranslationProvider>
       </body>
     </html>
   );

@@ -6,6 +6,7 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import rehypePrettyCode from "rehype-pretty-code";
 import { mdxComponents } from "@/components/mdx/mdx-components";
+import { TranslationSetter } from "@/components/layout/translation-context";
 import {
   DOMAINS,
   LOCALES,
@@ -110,8 +111,13 @@ export default async function ArticlePage({ params }: { params: Promise<RoutePar
     getTranslationsForArticle(article),
   ]);
 
+  const alternateUrl = translations.length > 0 
+    ? `/${translations[0].locale}/${translations[0].domain}/${translations[0].slug}` 
+    : null;
+
   return (
     <section className="section-space">
+      <TranslationSetter alternateUrl={alternateUrl} />
       <div className="container-wide grid gap-10 lg:grid-cols-[minmax(0,1fr)_18rem]">
         <article className="container-reading">
           <header className="section-divider pb-8">

@@ -1,0 +1,45 @@
+---
+title: "Pengantar QA Lab: Mengotomasi Pengujian Sistem"
+description: "Pengenalan terhadap QA Lab, mencakup strategi pengujian, alat otomatisasi, dan arsitektur pengujian untuk keandalan sistem."
+locale: "id"
+domain: "qa"
+slug: "pengantar-qa-lab"
+canonicalGroup: "qa-lab-intro"
+publishedAt: "2026-05-27T00:00:00.000Z"
+updatedAt: "2026-05-27T00:00:00.000Z"
+tags: ["QA", "Automation", "Testing"]
+featured: true
+draft: false
+---
+
+# Pengantar QA Lab
+
+Di Engineering Labs, QA (Quality Assurance) bukan sekadar mencari bug, tetapi membangun sistem yang secara otomatis mendeteksi masalah sebelum mereka mencapai lingkungan produksi.
+
+## Metodologi
+
+Kami menggunakan pendekatan pengujian berlapis:
+1. **Unit Testing**: Memastikan logika inti berjalan sesuai spesifikasi.
+2. **Integration Testing**: Memvalidasi komunikasi antar komponen.
+3. **End-to-End (E2E) Testing**: Menyimulasikan alur pengguna secara keseluruhan dari antarmuka pengguna.
+
+<Note>
+Otomatisasi pengujian adalah investasi awal yang akan menghemat ratusan jam *debugging* di masa depan.
+</Note>
+
+## Infrastruktur
+
+Infrastruktur *testing* kami dikelola dalam repositori (*infrastructure-as-code*) untuk memastikan reproduktibilitas lingkungan.
+
+```yaml
+# Contoh konfigurasi dasar alur CI
+name: QA Pipeline
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install
+      - run: npm test
+```

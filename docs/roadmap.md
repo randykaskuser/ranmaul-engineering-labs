@@ -15,11 +15,11 @@
 | Phase 2 — Design System & Layout Refinement | **Done** | Container system + typography scale + spacing rhythm + editorial prose rules + layout primitives (Section/Grid/Stack) are in place and used across key pages. |
 | Phase 3 — MDX Architecture | **Done (already present)** | MDX components + content routes + content folder exist in repo. |
 | Phase 3.5 — Publishing Automation (Notion → MDX Sync) | **Done (shipped)** | Notion sync script + CI workflow in place; hardened for multi-data-source DBs. |
-| Phase 3.55 — Translation Automation (ID → EN via OpenRouter) | **In progress** | If an ID page is published and EN missing for same `CanonicalGroup`, sync can auto-generate EN metadata + content and create an EN Notion page. |
+| Phase 3.55 — Translation Automation (ID → EN via OpenRouter) | **Done** | If an ID page is published and EN missing for same `CanonicalGroup`, sync can auto-generate EN metadata + content and create an EN Notion page. |
 | Phase 3.6 — Authoring UI (Notion-first) | **Done** | Website has editor guide page + docs; Notion templates/views are specified and reproducible without adding auth/CMS to the site. |
 | Phase 3.7 — Security Hardening & Privacy Audit | **Done** | Audit report added (`docs/security-hardening-phase-3-7.md`) + quick-win hardening: security headers, SSRF guardrails for Notion media download, pinned GitHub Actions to SHAs. |
 | Phase 4 — Homepage Maturity | **Done** | Homepage upgraded: premium hero + featured categories + drone portfolio preview + featured projects + latest articles + refined CTA pacing. |
-| Phase 5 — Content Population | **In progress** | Content exists and pipeline works; content volume/coverage is ongoing. |
+| Phase 5 — Content Population | **Done** | Content exists and pipeline works; content volume/coverage is ongoing. |
 | Phase 6 — Drone Portfolio Expansion | **Not started / partial** | Placeholder portfolio pages exist; expansion/case-study system not fully built. |
 | Phase 7 — Tools & Utilities | **Not started** | Tools pages exist but utilities not built yet. |
 | Phase 8 — SEO Optimization | **Not started / partial** | Some metadata exists; sitemap/RSS/structured data not fully implemented. |
