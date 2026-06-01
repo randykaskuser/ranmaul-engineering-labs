@@ -15,8 +15,23 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import crypto from "node:crypto";
+import { readFileSync } from "node:fs";
 
 const ROOT = process.cwd();
+
+// Auto-load .env file into process.env to ensure local changes are picked up
+try {
+  const envContent = readFileSync(path.join(ROOT, ".env"), "utf8");
+  for (const line of envContent.split("\n")) {
+    const match = line.match(/^\s*([\w]+)\s*=\s*(.*)\s*$/);
+    if (match) {
+      process.env[match[1]] = match[2].replace(/^['"]|['"]$/g, "");
+    }
+  }
+} catch (err) {
+  // Ignore if .env does not exist
+}
+
 const CONTENT_DIR = path.join(ROOT, "content");
 const MEDIA_DIR = path.join(ROOT, "public", "media", "notion");
 
