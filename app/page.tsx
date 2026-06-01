@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Grid } from "@/components/layout/grid";
 import { Section } from "@/components/layout/section";
 import { Stack } from "@/components/layout/stack";
+import { getRecentArticles, type Locale } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Home",
@@ -73,23 +74,9 @@ const projects = [
   },
 ] as const;
 
-const latest = [
-  {
-    title: "Notion Sync Smoke Test",
-    description: "A minimal published entry used to validate the content contract, routing, and rendering constraints.",
-    href: "/en/qa/notion-sync-smoke-test",
-    meta: "QA · Contract validation",
-  },
-  {
-    title: "Channa Andrao — Field Notes",
-    description: "Fishkeeping system notes captured as a long-form, reproducible log (parameters, constraints, decisions).",
-    href: "/id/fishkeeping/channa-andrao",
-    meta: "Fishkeeping · Systems",
-  },
-] as const;
-
-export default function Home({ locale = "en" }: { locale?: string }) {
+export default async function Home({ locale = "en" }: { locale?: string }) {
   const currentCategories = getCategories(locale);
+  const latestArticles = await getRecentArticles(locale as Locale, 2);
 
   return (
     <>
@@ -206,18 +193,19 @@ export default function Home({ locale = "en" }: { locale?: string }) {
             <article className="editorial-card p-6">
               <div className="mb-6 flex items-end justify-between gap-4">
                 <h2 className="display-title text-3xl text-ink">Latest Articles</h2>
-                <Link href="/en/qa/notion-sync-smoke-test" className="text-sm text-body hover:text-ink">
-                  Open index sample
-                </Link>
               </div>
               <Stack gap="sm">
-                {latest.map((entry) => (
-                  <Link key={entry.title} href={entry.href} className="block rounded-2xl border border-hairline p-4">
-                    <p className="type-kicker">{entry.meta}</p>
-                    <h3 className="mt-2 text-lg text-ink">{entry.title}</h3>
-                    <p className="mt-2 text-sm leading-7 text-body">{entry.description}</p>
-                  </Link>
-                ))}
+                {latestArticles.length > 0 ? (
+                  latestArticles.map((article) => (
+                    <Link key={article.slug} href={`/${article.locale}/${article.domain}/${article.slug}`} className="block rounded-2xl border border-hairline p-4">
+                      <p className="type-kicker uppercase">{article.domain}</p>
+                      <h3 className="mt-2 text-lg text-ink">{article.title}</h3>
+                      <p className="mt-2 text-sm leading-7 text-body">{article.description}</p>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="text-sm text-body">No entries yet.</p>
+                )}
               </Stack>
             </article>
           </Grid>
