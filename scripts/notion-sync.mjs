@@ -1458,15 +1458,21 @@ async function main() {
       const message = err instanceof Error ? err.message : String(err);
       const titleProp = getFirstTitlePropertyName(activePage);
       const propsSummary = summarizeProperties(activePage);
-      throw new Error(
-        [
-          `Notion page failed validation: ${url}`,
-          `pageId: ${String(activePage?.id ?? "")}`,
-          `detectedTitleProperty: ${titleProp ?? "(none)"}`,
-          `properties: ${JSON.stringify(propsSummary)}`,
-          message,
-        ].join("\n"),
-      );
+      
+      if (options.verbose) {
+        console.warn(
+          [
+            `[WARN] Notion page failed validation (skipping): ${url}`,
+            `       pageId: ${String(activePage?.id ?? "")}`,
+            `       detectedTitleProperty: ${titleProp ?? "(none)"}`,
+            `       properties: ${JSON.stringify(propsSummary)}`,
+            `       message: ${message}`,
+          ].join("\n"),
+        );
+      } else {
+        console.warn(`[WARN] Skipping Notion page ${url}: ${message}`);
+      }
+      continue;
     }
 
     // Enforced: only publish when Draft=false.
