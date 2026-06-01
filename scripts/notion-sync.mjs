@@ -231,15 +231,18 @@ function buildTranslationSystemPrompt() {
 function buildAutoFillSystemPrompt() {
   return [
     "You are an expert technical SEO editor for a multilingual engineering blog.",
-    "Given article body content, title, locale, and domain, generate metadata.",
+    "Given article body content, title, and optionally locale/domain, generate metadata.",
     "",
     "OUTPUT FORMAT (MANDATORY):",
     "Return ONLY valid JSON (no markdown fences, no commentary) with keys:",
+    "- title (string; ONLY return if not provided by user, extract from content)",
     "- description (string; 1-2 concise sentences, SEO-optimized, no fluff/marketing)",
     "- slug (string; SEO-friendly, localized to the article locale)",
     "- canonicalGroup (string; stable English-based ID, domain-prefixed, e.g. 'fpv-gyro-jitter-o4')",
     "- tags (string[]; 3-7 flat tags, short, lowercase, relevant to the content)",
     "- coverAlt (string; concise alt text for the cover image if one exists, or empty string)",
+    "- locale (string; ONLY return 'id' or 'en' based on the text language. Omit if already provided by user)",
+    "- domain (string; ONLY return 'qa', 'fpv', or 'fishkeeping' based on the topic. Omit if already provided by user)",
     "",
     "RULES:",
     "- Slug must match /^[a-z0-9]+(?:-[a-z0-9]+)*$/.",
@@ -390,11 +393,14 @@ async function openRouterAutoFillMetadata(input, options) {
 
       return {
         model,
+        title: parsed.title ? String(parsed.title).trim() : null,
         description: String(parsed.description ?? "").trim(),
         slug: String(parsed.slug ?? "").trim(),
         canonicalGroup: String(parsed.canonicalGroup ?? "").trim(),
         tags: Array.isArray(parsed.tags) ? parsed.tags.map((t) => String(t).trim()).filter(Boolean) : [],
         coverAlt: String(parsed.coverAlt ?? "").trim(),
+        locale: parsed.locale ? String(parsed.locale).trim() : null,
+        domain: parsed.domain ? String(parsed.domain).trim() : null,
       };
     } catch (err) {
       lastErr = err;
@@ -510,15 +516,9 @@ function scorePageContract(page) {
 }
 
 async function tryQueryOnePublishedPage(dataSourceId) {
-  const payload = {
-    page_size: 1,
-    filter: {
-      property: "Draft",
-      checkbox: {
-        equals: false,
-      },
-    },
-  };
+    const payload = {
+      page_size: 1,
+    };
   const data = await notionFetch(`/data_sources/${dataSourceId}/query`, {
     method: "POST",
     body: JSON.stringify(payload),
@@ -1014,17 +1014,13 @@ function needsAutoFill(page) {
   const title = getTitleText(page, "Title");
   const locale = getSelect(page, "Locale");
   const domain = getSelect(page, "Domain");
-
-  // Must have minimum manual fields set.
-  if (!title || !locale || !domain) return false;
-
-  // Trigger auto-fill if any key metadata field is empty.
   const description = getRichText(page, "Description");
   const slug = getRichText(page, "Slug");
   const tags = getMultiSelect(page, "Tags");
   const canonicalGroup = getRichText(page, "CanonicalGroup");
 
-  return !description || !slug || tags.length === 0 || !canonicalGroup;
+  // Trigger auto-fill if ANY of these fields are missing.
+  return !title || !locale || !domain || !description || !slug || tags.length === 0 || !canonicalGroup;
 }
 
 async function maybeAutoFillMetadata(page, databaseId, options) {
@@ -1077,6 +1073,11 @@ async function maybeAutoFillMetadata(page, databaseId, options) {
   // Build PATCH payload — only fill fields that are currently empty.
   const properties = {};
 
+  const titlePropName = getFirstTitlePropertyName(page) || "Title";
+  if (!title && generated.title) {
+    properties[titlePropName] = { title: toNotionRichText(generated.title) };
+  }
+
   const currentDescription = getRichText(page, "Description");
   if (!currentDescription && generated.description) {
     properties.Description = { rich_text: toNotionRichText(generated.description) };
@@ -1107,6 +1108,14 @@ async function maybeAutoFillMetadata(page, databaseId, options) {
   const currentCoverAlt = getRichText(page, "CoverAlt");
   if (!currentCoverAlt && coverImageUrl && generated.coverAlt) {
     properties.CoverAlt = { rich_text: toNotionRichText(generated.coverAlt) };
+  }
+
+  if (!locale && generated.locale) {
+    properties.Locale = { select: { name: generated.locale } };
+  }
+
+  if (!domain && generated.domain) {
+    properties.Domain = { select: { name: generated.domain } };
   }
 
   // Auto-fill dates if missing (deterministic, no AI needed).
@@ -1382,12 +1391,6 @@ async function queryPublishedPages(databaseId, options) {
     const payload = {
       page_size: 100,
       start_cursor: cursor,
-      filter: {
-        property: "Draft",
-        checkbox: {
-          equals: false,
-        },
-      },
     };
 
     const queryPath = dataSourceId ? `/data_sources/${dataSourceId}/query` : `/databases/${databaseId}/query`;
