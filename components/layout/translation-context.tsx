@@ -14,13 +14,20 @@ const TranslationContext = createContext<TranslationContextType>({
 });
 
 export function TranslationProvider({ children }: { children: ReactNode }) {
-  const [alternateUrl, setAlternateUrl] = useState<string | null>(null);
   const pathname = usePathname();
 
-  // Reset alternate URL when pathname changes to avoid stale URLs on navigation
-  useEffect(() => {
-    setAlternateUrl(null);
-  }, [pathname]);
+  // Use pathname as a key to automatically reset state on navigation.
+  // React will unmount/remount the inner provider when the key changes,
+  // which resets alternateUrl to null without needing useEffect or refs.
+  return (
+    <TranslationProviderInner key={pathname}>
+      {children}
+    </TranslationProviderInner>
+  );
+}
+
+function TranslationProviderInner({ children }: { children: ReactNode }) {
+  const [alternateUrl, setAlternateUrl] = useState<string | null>(null);
 
   return (
     <TranslationContext.Provider value={{ alternateUrl, setAlternateUrl }}>

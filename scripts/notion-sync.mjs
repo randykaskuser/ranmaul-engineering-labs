@@ -129,6 +129,13 @@ async function createNotionPageInDatabase({ databaseId, dataSourceId, properties
   });
 }
 
+async function updateNotionPageProperties(pageId, properties) {
+  return notionFetch(`/pages/${pageId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ properties }),
+  });
+}
+
 function requiredEnv(name) {
   const value = process.env[name];
   if (!value) {
@@ -145,6 +152,7 @@ function parseArgs(argv) {
     check: args.has("--check"),
     verbose: args.has("--verbose"),
     translate: !args.has("--no-translate"),
+    autofill: !args.has("--no-autofill"),
   };
 }
 
@@ -220,6 +228,32 @@ function buildTranslationSystemPrompt() {
   ].join("\n");
 }
 
+function buildAutoFillSystemPrompt() {
+  return [
+    "You are an expert technical SEO editor for a multilingual engineering blog.",
+    "Given article body content, title, locale, and domain, generate metadata.",
+    "",
+    "OUTPUT FORMAT (MANDATORY):",
+    "Return ONLY valid JSON (no markdown fences, no commentary) with keys:",
+    "- description (string; 1-2 concise sentences, SEO-optimized, no fluff/marketing)",
+    "- slug (string; SEO-friendly, localized to the article locale)",
+    "- canonicalGroup (string; stable English-based ID, domain-prefixed, e.g. 'fpv-gyro-jitter-o4')",
+    "- tags (string[]; 3-7 flat tags, short, lowercase, relevant to the content)",
+    "- coverAlt (string; concise alt text for the cover image if one exists, or empty string)",
+    "",
+    "RULES:",
+    "- Slug must match /^[a-z0-9]+(?:-[a-z0-9]+)*$/.",
+    "- For Indonesian (id) articles: slug uses Indonesian keywords for local SEO.",
+    "- For English (en) articles: slug uses English keywords.",
+    "- CanonicalGroup is ALWAYS English-based regardless of article locale.",
+    "- CanonicalGroup should start with the domain prefix (e.g. 'qa-...', 'fpv-...', 'fishkeeping-...').",
+    "- Description should accurately summarize the technical content.",
+    "- Tags should be stable, reusable across articles (not unique per article).",
+    "- Do not add marketing fluff or exaggerated claims.",
+    "- Keep everything technical and precise.",
+  ].join("\n");
+}
+
 async function openRouterTranslateIdToEn(input, options) {
   const apiKey = requiredEnv("OPENROUTER_API_KEY");
   const model = process.env.OPENROUTER_MODEL || OPENROUTER_DEFAULT_MODEL;
@@ -290,6 +324,82 @@ async function openRouterTranslateIdToEn(input, options) {
       lastErr = err;
       if (options?.verbose) {
         console.log(`OpenRouter translate attempt ${attempt}/${OPENROUTER_MAX_RETRIES} failed:`, err);
+      }
+      if (attempt < OPENROUTER_MAX_RETRIES) {
+        const delay = OPENROUTER_RETRY_DELAY_MS * Math.pow(2, attempt - 1);
+        await sleep(delay);
+      }
+    }
+  }
+  throw lastErr;
+}
+
+async function openRouterAutoFillMetadata(input, options) {
+  const apiKey = requiredEnv("OPENROUTER_API_KEY");
+  const model = process.env.OPENROUTER_MODEL || OPENROUTER_DEFAULT_MODEL;
+
+  const payload = {
+    model,
+    messages: [
+      { role: "system", content: buildAutoFillSystemPrompt() },
+      {
+        role: "user",
+        content: JSON.stringify(
+          {
+            locale: input.locale,
+            domain: input.domain,
+            title: input.title,
+            body: input.body,
+            hasCoverImage: input.hasCoverImage,
+          },
+          null,
+          2,
+        ),
+      },
+    ],
+    temperature: 0.2,
+  };
+
+  let lastErr;
+  for (let attempt = 1; attempt <= OPENROUTER_MAX_RETRIES; attempt++) {
+    try {
+      const res = await fetchWithTimeout(
+        OPENROUTER_API_URL,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify(payload),
+        },
+        OPENROUTER_TIMEOUT_MS,
+      );
+
+      const text = await res.text();
+      if (!res.ok) {
+        throw new Error(`OpenRouter error ${res.status}: ${text}`);
+      }
+
+      const json = safeJsonParse(text);
+      const content = json?.choices?.[0]?.message?.content;
+      const parsed = safeJsonParse(content) ?? extractFirstJsonObject(content);
+      if (!parsed) {
+        throw new Error(`OpenRouter returned non-JSON content: ${String(content ?? "").slice(0, 240)}...`);
+      }
+
+      return {
+        model,
+        description: String(parsed.description ?? "").trim(),
+        slug: String(parsed.slug ?? "").trim(),
+        canonicalGroup: String(parsed.canonicalGroup ?? "").trim(),
+        tags: Array.isArray(parsed.tags) ? parsed.tags.map((t) => String(t).trim()).filter(Boolean) : [],
+        coverAlt: String(parsed.coverAlt ?? "").trim(),
+      };
+    } catch (err) {
+      lastErr = err;
+      if (options?.verbose) {
+        console.log(`OpenRouter autofill attempt ${attempt}/${OPENROUTER_MAX_RETRIES} failed:`, err);
       }
       if (attempt < OPENROUTER_MAX_RETRIES) {
         const delay = OPENROUTER_RETRY_DELAY_MS * Math.pow(2, attempt - 1);
@@ -883,6 +993,161 @@ async function blockToMdx(block, ctx) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Auto-fill metadata via AI
+// ---------------------------------------------------------------------------
+
+function blocksToPlainText(blocks) {
+  const lines = [];
+  for (const block of blocks) {
+    const type = block.type;
+    const value = block[type];
+    if (!value) continue;
+    const richText = value.rich_text ?? value.title ?? [];
+    const text = richText.map((p) => p.plain_text ?? "").join("");
+    if (text) lines.push(text);
+  }
+  return lines.join("\n");
+}
+
+function needsAutoFill(page) {
+  const title = getTitleText(page, "Title");
+  const locale = getSelect(page, "Locale");
+  const domain = getSelect(page, "Domain");
+
+  // Must have minimum manual fields set.
+  if (!title || !locale || !domain) return false;
+
+  // Trigger auto-fill if any key metadata field is empty.
+  const description = getRichText(page, "Description");
+  const slug = getRichText(page, "Slug");
+  const tags = getMultiSelect(page, "Tags");
+  const canonicalGroup = getRichText(page, "CanonicalGroup");
+
+  return !description || !slug || tags.length === 0 || !canonicalGroup;
+}
+
+async function maybeAutoFillMetadata(page, databaseId, options) {
+  if (!options.autofill) return { filled: false, page };
+  if (options.check) return { filled: false, page };
+  if (!needsAutoFill(page)) return { filled: false, page };
+
+  // Gracefully skip if OPENROUTER_API_KEY is not configured (e.g. in CI).
+  if (!process.env.OPENROUTER_API_KEY) {
+    if (options.verbose) {
+      console.log("SKIP autofill: OPENROUTER_API_KEY not set");
+    }
+    return { filled: false, page };
+  }
+
+  // Read the body content for AI context.
+  const blocks = await listBlocks(page.id);
+  const bodyText = blocksToPlainText(blocks);
+
+  if (!bodyText.trim()) {
+    if (options.verbose) {
+      console.log(`SKIP autofill: page has no body content → ${page.url ?? page.id}`);
+    }
+    return { filled: false, page };
+  }
+
+  const title = getTitleText(page, "Title");
+  const locale = getSelect(page, "Locale");
+  const domain = getSelect(page, "Domain");
+  const coverImageUrl = getFilesFirstUrl(page, "CoverImage");
+
+  if (options.verbose) {
+    console.log(`AUTOFILL: generating metadata for "${title}" (${locale}/${domain}) → ${page.url ?? page.id}`);
+  }
+
+  // Truncate body to limit token usage (first ~4000 chars is enough for metadata).
+  const truncatedBody = bodyText.length > 4000 ? bodyText.slice(0, 4000) + "\n[...truncated]" : bodyText;
+
+  const generated = await openRouterAutoFillMetadata(
+    {
+      locale,
+      domain,
+      title,
+      body: truncatedBody,
+      hasCoverImage: Boolean(coverImageUrl),
+    },
+    options,
+  );
+
+  // Build PATCH payload — only fill fields that are currently empty.
+  const properties = {};
+
+  const currentDescription = getRichText(page, "Description");
+  if (!currentDescription && generated.description) {
+    properties.Description = { rich_text: toNotionRichText(generated.description) };
+  }
+
+  const currentSlug = getRichText(page, "Slug");
+  if (!currentSlug && generated.slug) {
+    const slugCandidate = normalizeSlugCandidate(generated.slug);
+    const validSlug = SLUG_RE.test(slugCandidate) ? slugCandidate : normalizeSlugCandidate(title);
+    if (validSlug) {
+      properties.Slug = { rich_text: toNotionRichText(validSlug) };
+    }
+  }
+
+  const currentCanonicalGroup = getRichText(page, "CanonicalGroup");
+  if (!currentCanonicalGroup && generated.canonicalGroup) {
+    const cgCandidate = normalizeSlugCandidate(generated.canonicalGroup);
+    if (cgCandidate) {
+      properties.CanonicalGroup = { rich_text: toNotionRichText(cgCandidate) };
+    }
+  }
+
+  const currentTags = getMultiSelect(page, "Tags");
+  if (currentTags.length === 0 && generated.tags.length > 0) {
+    properties.Tags = { multi_select: generated.tags.map((name) => ({ name })) };
+  }
+
+  const currentCoverAlt = getRichText(page, "CoverAlt");
+  if (!currentCoverAlt && coverImageUrl && generated.coverAlt) {
+    properties.CoverAlt = { rich_text: toNotionRichText(generated.coverAlt) };
+  }
+
+  // Auto-fill dates if missing (deterministic, no AI needed).
+  const currentPublishedAt = getDate(page, "PublishedAt");
+  const currentUpdatedAt = getDate(page, "UpdatedAt");
+  const nowISO = new Date().toISOString();
+  if (!currentPublishedAt) {
+    properties.PublishedAt = { date: { start: nowISO } };
+  }
+  if (!currentUpdatedAt) {
+    properties.UpdatedAt = { date: { start: nowISO } };
+  }
+
+  if (Object.keys(properties).length === 0) {
+    return { filled: false, page };
+  }
+
+  if (options.verbose) {
+    console.log(`AUTOFILL: will set fields: [${Object.keys(properties).join(", ")}] model=${generated.model}`);
+  }
+
+  if (options.dryRun) {
+    if (options.verbose) {
+      console.log(`DRY autofill: would update Notion page → ${page.url ?? page.id}`);
+      console.log(`  description: ${generated.description}`);
+      console.log(`  slug: ${properties.Slug ? generated.slug : "(already set)"}`);
+      console.log(`  canonicalGroup: ${properties.CanonicalGroup ? generated.canonicalGroup : "(already set)"}`);
+      console.log(`  tags: ${generated.tags.join(", ")}`);
+    }
+    return { filled: true, page, dryRun: true };
+  }
+
+  // Write back to Notion.
+  const updatedPage = await updateNotionPageProperties(page.id, properties);
+  if (options.verbose) {
+    console.log(`AUTOFILL: updated Notion page → ${updatedPage?.url ?? page.id}`);
+  }
+
+  return { filled: true, page: updatedPage };
+}
+
 async function pageToArticle(page) {
   const title = assertNonEmpty(getTitleText(page, "Title"), "Title");
   const description = assertNonEmpty(getRichText(page, "Description"), "Description");
@@ -1171,18 +1436,32 @@ async function main() {
 
   let changedCount = 0;
   for (const page of pages) {
+    // Auto-fill empty metadata fields via AI before validation.
+    let activePage = page;
+    try {
+      const fillResult = await maybeAutoFillMetadata(page, databaseId, options);
+      if (fillResult.filled && fillResult.page) {
+        activePage = fillResult.page;
+      }
+    } catch (fillErr) {
+      // Auto-fill failure is non-fatal; continue with the original page.
+      if (options.verbose) {
+        console.log(`AUTOFILL error (skipping): ${fillErr instanceof Error ? fillErr.message : String(fillErr)}`);
+      }
+    }
+
     let article;
     try {
-      article = await pageToArticle(page);
+      article = await pageToArticle(activePage);
     } catch (err) {
-      const url = page?.url ?? `https://www.notion.so/${String(page?.id ?? "")}`;
+      const url = activePage?.url ?? `https://www.notion.so/${String(activePage?.id ?? "")}`;
       const message = err instanceof Error ? err.message : String(err);
-      const titleProp = getFirstTitlePropertyName(page);
-      const propsSummary = summarizeProperties(page);
+      const titleProp = getFirstTitlePropertyName(activePage);
+      const propsSummary = summarizeProperties(activePage);
       throw new Error(
         [
           `Notion page failed validation: ${url}`,
-          `pageId: ${String(page?.id ?? "")}`,
+          `pageId: ${String(activePage?.id ?? "")}`,
           `detectedTitleProperty: ${titleProp ?? "(none)"}`,
           `properties: ${JSON.stringify(propsSummary)}`,
           message,
