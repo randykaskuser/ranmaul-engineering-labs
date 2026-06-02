@@ -7,14 +7,13 @@ export function SiteFooter() {
     <footer className="border-t border-hairline bg-canvas-soft">
       <SiteContainer className="section-space-sm">
         <div className="grid gap-10 md:grid-cols-[1.2fr_1fr] md:gap-12">
-          <div className="space-y-4">
-            <p className="display-title text-2xl text-ink md:text-3xl">Engineering Labs</p>
+          <div className="flex flex-col gap-4 max-w-sm sm:max-w-md">
+            <h3 className="text-xl font-bold tracking-tight">Randy M. Portfolio</h3>
             <p className="max-w-lg text-sm leading-7 text-body md:text-[0.95rem]">
-              A technical editorial platform documenting QA automation, FPV systems,
-              fishkeeping engineering, and cinematic drone field work.
+              Drone projects, engineering notes, and fishkeeping journals from a QA Engineer who enjoys building, flying, and learning.
             </p>
             <p className="text-xs tracking-[0.12em] text-muted">
-              Premium engineering editorial · Minimal by default · Built for long-form readability
+              QA Engineer · FPV Pilot · Tech Enthusiast
             </p>
           </div>
 
@@ -32,8 +31,8 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-hairline pt-6 text-xs text-muted">
-          <p>© {new Date().getFullYear()} Engineering Labs. All notes are published for learning and reuse.</p>
-          <p>Built with Next.js · Content-first architecture</p>
+          <p>© {new Date().getFullYear()} Randy M. All rights reserved.</p>
+          <p>Built with Next.js</p>
         </div>
       </SiteContainer>
     </footer>

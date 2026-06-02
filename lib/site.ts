@@ -1,12 +1,12 @@
-export const SITE_NAME = "Engineering Labs";
+export const SITE_NAME = "Randy M. Portfolio";
 export const SITE_DESCRIPTION =
-  "A premium technical journal for QA engineering, FPV systems, fishkeeping experiments, and cinematic drone documentation.";
+  "Drone projects, engineering notes, and fishkeeping journals from a QA Engineer who enjoys building, flying, and learning.";
 export const SITE_URL = "https://example.com";
 
 export const NAV_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/qa", label: "QA Lab" },
-  { href: "/fpv", label: "FPV Lab" },
+  { href: "/qa", label: "QA Notes" },
+  { href: "/fpv", label: "FPV Flights" },
   { href: "/fishkeeping", label: "Fishkeeping" },
   { href: "/drone-portfolio", label: "Drone Portfolio" },
   { href: "/projects", label: "Projects" },

@@ -11,71 +11,146 @@ export const metadata: Metadata = {
     "Engineering Labs is a systems-oriented technical journal documenting automation reliability, FPV flight engineering, fishkeeping infrastructure, and real-world troubleshooting workflows.",
 };
 
-const getCategories = (locale: string) => [
-  {
-    title: "QA Lab",
-    description: "Automation architecture, reliability experiments, and test engineering notes.",
-    href: `/${locale}/qa`,
-    detail: "Automation reliability, experiment logs, and decision trade-offs.",
+const contentDict = {
+  en: {
+    heroKicker: "Certified Drone Pilot & QA Engineer",
+    heroTitle: "FPV Cinematic Pilot & QA Engineer.",
+    heroLede: "I spend most of my time building test automation, flying FPV drones, and experimenting with new technology. This website is where I share projects, lessons learned, and things I'm currently working on.",
+    btnCollaborate: "Let's Collaborate",
+    btnPortfolio: "View Portfolio",
+    aboutKicker: "Hi, I'm Randy.",
+    aboutBody: "I'm a QA Engineer who enjoys building automation, flying FPV drones, and maintaining predator fish aquariums. Whether I'm tuning a drone for a smooth cinematic shot or debugging a flaky automation test, I enjoy solving problems and understanding how things work. This space is where I document my projects, lessons learned, and hobbies that keep me curious.",
+    aboutTags: "QA Engineer · FPV Pilot · Tech Enthusiast",
+    featuredTitle: "Notes",
+    featuredLink: "Browse all notes",
+    archivesTitle: "Recent Drone Flights",
+    archivesLink: "View video archives",
+    archivesDesc: "A collection of commercial and personal flights, ranging from cinematic FPV runs to aerial footage captured with DJI drones.",
+    projectsTitle: "Personal Projects",
+    projectsLink: "View all",
+    latestTitle: "Latest Articles",
+    noEntries: "No entries yet.",
+    connectKicker: "Get in Touch",
+    connectTitle: "Let's Collaborate",
+    connectBody: "Need a drone pilot for a project? Interested in QA, automation, FPV, or technology in general? Feel free to reach out.",
+    btnWa: "WhatsApp Me",
+    btnLi: "Connect on LinkedIn",
+    btnIg: "Instagram",
+    obj: "Objective",
+    constraint: "Constraint",
+    domain: "Category",
   },
-  {
-    title: "FPV Lab",
-    description: "Build logs, tuning frameworks, and cinematic flight engineering workflows.",
-    href: `/${locale}/fpv`,
-    detail: "Flight constraints, tuning baselines, and engineering checklists.",
-  },
-  {
-    title: "Fishkeeping Systems",
-    description: "Water parameter systems, habitat troubleshooting, and data-backed maintenance.",
-    href: `/${locale}/fishkeeping`,
-    detail: "Infrastructure notes, maintenance loops, and measurement discipline.",
-  },
-];
+  id: {
+    heroKicker: "Certified Drone Pilot & QA Engineer",
+    heroTitle: "FPV Cinematic Pilot & QA Engineer.",
+    heroLede: "Saya menghabiskan banyak waktu membangun test automation, menerbangkan FPV drone, dan bereksperimen dengan teknologi baru. Website ini berisi project, pengalaman, dan berbagai hal yang sedang saya pelajari atau kerjakan.",
+    btnCollaborate: "Mari Berkolaborasi",
+    btnPortfolio: "Lihat Portofolio",
+    aboutKicker: "Halo, saya Randy.",
+    aboutBody: "Saya seorang QA Engineer yang suka membangun test automation, menerbangkan FPV drone, dan merawat aquarium ikan predator. Entah itu tuning drone untuk cinematic shot yang mulus atau debugging flaky test automation, saya suka memecahkan masalah dan mencari tahu cara kerja suatu sistem. Website ini adalah tempat saya mendokumentasikan project, pengalaman, dan hobi yang membuat saya selalu penasaran.",
+    aboutTags: "QA Engineer · FPV Pilot · Tech Enthusiast",
+    featuredTitle: "Catatan",
+    featuredLink: "Lihat semua tulisan",
+    archivesTitle: "Penerbangan Drone Terbaru",
+    archivesLink: "Lihat arsip video",
+    archivesDesc: "Kumpulan penerbangan komersial dan personal, mulai dari FPV cinematic hingga aerial footage menggunakan drone DJI.",
+    projectsTitle: "Personal Projects",
+    projectsLink: "Lihat semua",
+    latestTitle: "Artikel Terbaru",
+    noEntries: "Belum ada tulisan.",
+    connectKicker: "Kontak Saya",
+    connectTitle: "Mari Berkolaborasi",
+    connectBody: "Butuh drone pilot untuk project Anda? Tertarik ngobrol tentang QA, automation, FPV, atau teknologi pada umumnya? Jangan ragu untuk reach out.",
+    btnWa: "Chat via WhatsApp",
+    btnLi: "Connect di LinkedIn",
+    btnIg: "Instagram",
+    obj: "Tujuan",
+    constraint: "Batasan",
+    domain: "Kategori",
+  }
+};
 
-const droneMedia = [
-  {
-    title: "Coastal Ridge Pass",
-    type: "FPV Case Note",
-    objective: "Lock a clean ridge reveal without over-rotating the horizon.",
-    constraint: "Variable wind + narrow recovery zone.",
-  },
-  {
-    title: "Industrial Roof Survey",
-    type: "Documentation Case Note",
-    objective: "Capture reference angles for inspection while staying legal and stable.",
-    constraint: "RF noise + controlled altitude ceiling.",
-  },
-  {
-    title: "Forest Descent",
-    type: "Cinematic Case Note",
-    objective: "Hold consistent exposure during canopy-to-open transitions.",
-    constraint: "High dynamic range + tight pathing.",
-  },
-  {
-    title: "Riverline Orbit",
-    type: "Aerial Case Note",
-    objective: "Maintain orbit geometry and subject framing at mid-speed.",
-    constraint: "Reflective highlights + limited GPS lock.",
-  },
-] as const;
+const getCategories = (locale: string) => {
+  const isId = locale === "id";
+  return [
+    {
+      title: "FPV & Drone Work",
+      description: isId ? "Project drone komersial, penerbangan FPV, dan cerita di balik setiap penerbangan." : "Commercial drone work, FPV flights, and the stories behind each flight.",
+      href: `/${locale}/fpv`,
+      detail: isId ? "Setup alat, kondisi penerbangan, dan pengalaman di lapangan." : "Gear setups, flight conditions, and lessons learned.",
+    },
+    {
+      title: "QA Engineering",
+      description: isId ? "Catatan dari pengalaman membangun automation framework, improve CI/CD pipeline, investigasi production issue, dan meningkatkan reliability software." : "Notes from my experience building automation frameworks, improving CI/CD pipelines, investigating production issues, and increasing software reliability.",
+      href: `/${locale}/qa`,
+      detail: isId ? "Test automation, system design, dan engineering logs." : "Test automation, system design, and engineering logs.",
+    },
+    {
+      title: "Fishkeeping",
+      description: isId ? "Catatan seputar ikan predator, kualitas air, maintenance aquarium, dan berbagai hal yang saya pelajari selama memeliharanya." : "Notes on predator fish, water quality, aquarium maintenance, and everything I've learned from keeping them.",
+      href: `/${locale}/fishkeeping`,
+      detail: isId ? "Setup aquarium, parameter air, dan jadwal maintenance." : "Tank setups, water parameters, and maintenance logs.",
+    },
+  ];
+};
 
-const projects = [
-  {
-    title: "Notion → MDX Publishing Pipeline",
-    description: "A filesystem-first workflow that keeps content reproducible, reviewable, and deployable without a CMS.",
-    href: "/create",
-    tag: "Automation",
-  },
-  {
-    title: "MDX Components + Editorial Code Blocks",
-    description: "Readable technical content primitives with consistent typography, spacing, and code presentation.",
-    href: "/en/qa/notion-sync-smoke-test",
-    tag: "Content System",
-  },
-] as const;
+const getDroneMedia = (locale: string) => {
+  const isId = locale === "id";
+  return [
+    {
+      title: "Pulau Merah Banyuwangi",
+      type: "Cinematic FPV",
+      objective: isId ? "Menyusuri pantai pasir merah dan merekam momen sunset." : "Fly along the red sand coast and capture the sunset.",
+      constraint: isId ? "Angin laut yang kuat dan harus menjaga line of sight." : "Heavy ocean winds and maintaining line of sight.",
+      embedUrl: "https://www.instagram.com/p/DWU4P5AkmYE/embed/",
+    },
+    {
+      title: "Natarasa Heritage Nightscape",
+      type: "Night Aerial Photography",
+      objective: isId ? "Merekam lanskap heritage di malam hari." : "Showcase the heritage landscape at night.",
+      constraint: isId ? "Mengatur noise di tempat minim cahaya dan menyeimbangkan dynamic range." : "Managing low-light noise and balancing dynamic range.",
+      embedUrl: "https://www.instagram.com/p/DFmsdEtywD0/embed/",
+    },
+    {
+      title: "Anyer Coastal Flight",
+      type: "Coastal Aerial",
+      objective: isId ? "Tracking garis pantai Anyer dan merekam ombak pecah." : "Track the Anyer shoreline and capture the breaking waves.",
+      constraint: isId ? "Pantulan silau (glare) dari air dan angin laut yang kencang." : "Reflective water glare and strong sea breezes.",
+      embedUrl: "https://www.instagram.com/p/DOhepMZkppV/embed/",
+    },
+    {
+      title: "Commercial Real Estate Showcase",
+      type: "Aerial Property Showcase",
+      objective: isId ? "Menonjolkan layout properti, fasilitas, dan desain arsitektur." : "Showcase the property layout, facilities, and architectural design.",
+      constraint: isId ? "Menjaga panning tetap mulus dan framing presisi." : "Keeping pans smooth and framing precise for a professional look.",
+      embedUrl: "https://www.instagram.com/p/DF4irx0Sspp/embed/",
+    },
+  ];
+};
+
+const getProjects = (locale: string) => {
+  const isId = locale === "id";
+  return [
+    {
+      title: "Notion → MDX Publishing Pipeline",
+      description: isId ? "Sistem simpel untuk menulis artikel di Notion dan otomatis publish ke website." : "A simple workflow that lets me write in Notion and publish directly to my site.",
+      href: "/create",
+      tag: "Project",
+    },
+    {
+      title: "MDX Components",
+      description: isId ? "Custom UI component agar artikel teknis dan code snippet lebih enak dibaca." : "Custom UI components to make technical content and code snippets easier to read.",
+      href: `/${locale}/qa/notion-sync-smoke-test`,
+      tag: "Project",
+    },
+  ];
+};
 
 export default async function Home({ locale = "en" }: { locale?: string }) {
+  const t = locale === "id" ? contentDict.id : contentDict.en;
   const currentCategories = getCategories(locale);
+  const droneMedia = getDroneMedia(locale);
+  const projects = getProjects(locale);
   const latestArticles = await getRecentArticles(locale as Locale, 2);
 
   return (
@@ -84,31 +159,30 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
         <div className="container">
           <div className="grid gap-10 lg:grid-cols-[1.35fr_0.65fr] lg:items-end">
             <Stack gap="lg">
-              <p className="type-kicker">Engineering Platform</p>
+              <p className="type-kicker">{t.heroKicker}</p>
               <h1 className="display-title max-w-5xl text-4xl text-ink md:text-7xl">
-                Experiments, systems, and field constraints — documented in public.
+                {t.heroTitle}
               </h1>
               <p className="type-lede max-w-[72ch]">
-                A long-term technical journal focused on automation reliability, FPV flight systems, fishkeeping infrastructure,
-                and reproducible troubleshooting logs that preserve the reasoning behind decisions.
+                {t.heroLede}
               </p>
               <div className="flex flex-wrap gap-3">
-                <Link href="/drone-portfolio" className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-on-primary">
-                  Review Flight Case Notes
-                </Link>
-                <Link href={`/${locale}/qa`} className="rounded-full border border-hairline-strong px-5 py-2.5 text-sm font-medium text-ink">
-                  Read QA Reliability Logs
+                <a href="#connect" className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-on-primary">
+                  {t.btnCollaborate}
+                </a>
+                <Link href="/projects" className="rounded-full border border-hairline-strong px-5 py-2.5 text-sm font-medium text-ink">
+                  {t.btnPortfolio}
                 </Link>
               </div>
             </Stack>
 
             <aside className="editorial-card-soft p-5 md:p-6">
-              <p className="type-kicker">Editorial Contract</p>
+              <p className="type-kicker">{t.aboutKicker}</p>
               <p className="mt-4 text-sm leading-7 text-body">
-                Every entry aims to record: objective → constraints → trade-offs → outcome. The goal is reuse, not hype.
+                {t.aboutBody}
               </p>
               <p className="mt-4 text-xs tracking-[0.12em] text-muted">
-                Systems-first · Calm spacing · Long-form ready
+                {t.aboutTags}
               </p>
             </aside>
           </div>
@@ -118,15 +192,15 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
       <Section divider>
         <div className="container">
           <div className="mb-8 flex items-end justify-between gap-4">
-            <h2 className="display-title text-3xl text-ink md:text-5xl">Featured Categories</h2>
+            <h2 className="display-title text-3xl text-ink md:text-5xl">{t.featuredTitle}</h2>
             <Link href="/projects" className="text-sm text-body hover:text-ink">
-              Browse platform notes
+              {t.featuredLink}
             </Link>
           </div>
           <Grid columns={3} gap="md">
             {currentCategories.map((category) => (
               <Link key={category.title} href={category.href} className="editorial-card p-6">
-                <p className="type-kicker">Domain</p>
+                <p className="type-kicker">{t.domain}</p>
                 <h3 className="mt-3 type-title text-ink">{category.title}</h3>
                 <p className="mt-3 text-sm leading-7 text-body">{category.description}</p>
                 <p className="mt-4 text-xs leading-6 text-muted">{category.detail}</p>
@@ -139,27 +213,35 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
       <Section divider tone="soft">
         <div className="container">
           <div className="mb-8 flex items-end justify-between gap-4">
-            <h2 className="display-title text-3xl text-ink md:text-5xl">Drone Portfolio Preview</h2>
+            <h2 className="display-title text-3xl text-ink md:text-5xl">{t.archivesTitle}</h2>
             <Link href="/drone-portfolio" className="text-sm text-body hover:text-ink">
-              Open technical flight archive
+              {t.archivesLink}
             </Link>
           </div>
           <p className="mb-6 max-w-[68ch] text-sm leading-7 text-body md:text-base">
-            Selected flight documentation with objective, field constraints, and technical decisions behind each shot.
+            {t.archivesDesc}
           </p>
           <Grid columns={2} gap="md">
             {droneMedia.map((item) => (
               <article key={item.title} className="editorial-card p-4 md:p-5">
-                <div className="aspect-[16/10] rounded-2xl border border-hairline bg-surface-card-soft" />
+                <div className="aspect-[9/16] w-full overflow-hidden rounded-2xl border border-hairline bg-surface-card-soft">
+                  <iframe
+                    src={item.embedUrl}
+                    className="h-full w-full border-none"
+                    scrolling="no"
+                    allowTransparency={true}
+                    allow="encrypted-media"
+                  />
+                </div>
                 <p className="type-kicker mt-4 tracking-[0.14em]">{item.type}</p>
                 <h3 className="mt-2 text-xl text-ink">{item.title}</h3>
                 <dl className="mt-3 space-y-2 text-sm leading-7 text-body">
                   <div className="grid gap-1">
-                    <dt className="text-xs tracking-[0.12em] text-muted">Objective</dt>
+                    <dt className="text-xs tracking-[0.12em] text-muted">{t.obj}</dt>
                     <dd>{item.objective}</dd>
                   </div>
                   <div className="grid gap-1">
-                    <dt className="text-xs tracking-[0.12em] text-muted">Constraint</dt>
+                    <dt className="text-xs tracking-[0.12em] text-muted">{t.constraint}</dt>
                     <dd>{item.constraint}</dd>
                   </div>
                 </dl>
@@ -174,9 +256,9 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
           <Grid columns={2} gap="md">
             <article className="editorial-card p-6">
               <div className="mb-6 flex items-end justify-between gap-4">
-                <h2 className="display-title text-3xl text-ink">Featured Projects</h2>
+                <h2 className="display-title text-3xl text-ink">{t.projectsTitle}</h2>
                 <Link href="/projects" className="text-sm text-body hover:text-ink">
-                  View all
+                  {t.projectsLink}
                 </Link>
               </div>
               <Stack gap="sm">
@@ -192,7 +274,7 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
 
             <article className="editorial-card p-6">
               <div className="mb-6 flex items-end justify-between gap-4">
-                <h2 className="display-title text-3xl text-ink">Latest Articles</h2>
+                <h2 className="display-title text-3xl text-ink">{t.latestTitle}</h2>
               </div>
               <Stack gap="sm">
                 {latestArticles.length > 0 ? (
@@ -204,7 +286,7 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
                     </Link>
                   ))
                 ) : (
-                  <p className="text-sm text-body">No entries yet.</p>
+                  <p className="text-sm text-body">{t.noEntries}</p>
                 )}
               </Stack>
             </article>
@@ -213,21 +295,23 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
       </Section>
 
       <Section>
-        <div className="container-reading">
+        <div id="connect" className="container-reading">
           <div className="editorial-card p-8 text-center md:p-10">
-            <p className="type-kicker">Call to Practice</p>
-            <h2 className="display-title mt-5 text-3xl text-ink md:text-5xl">Build useful systems. Document the process.</h2>
+            <p className="type-kicker">{t.connectKicker}</p>
+            <h2 className="display-title mt-5 text-3xl text-ink md:text-5xl">{t.connectTitle}</h2>
             <p className="mx-auto mt-4 max-w-[68ch] text-sm leading-7 text-body">
-              This journal exists to publish real engineering thinking across domains — not just results, but the reasoning,
-              constraints, and iteration paths that make outcomes reproducible.
+              {t.connectBody}
             </p>
             <div className="mt-7 flex flex-wrap justify-center gap-3">
-              <Link href="/create" className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-on-primary">
-                Publishing workflow
-              </Link>
-              <Link href="/projects" className="rounded-full border border-hairline-strong px-5 py-2.5 text-sm font-medium text-ink">
-                Platform projects
-              </Link>
+              <a href="#" className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-on-primary">
+                {t.btnWa}
+              </a>
+              <a href="#" className="rounded-full border border-hairline-strong px-5 py-2.5 text-sm font-medium text-ink">
+                {t.btnLi}
+              </a>
+              <a href="#" className="rounded-full border border-hairline-strong px-5 py-2.5 text-sm font-medium text-ink">
+                {t.btnIg}
+              </a>
             </div>
           </div>
         </div>

@@ -36,9 +36,7 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     url: SITE_URL,
   },
-  icons: {
-    icon: "/favicon.ico",
-  },
+  manifest: "/site.webmanifest",
 };
 
 export default function RootLayout({
@@ -50,8 +48,9 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${inter.variable} ${displaySerif.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full bg-canvas text-ink">
+      <body className="min-h-full bg-canvas text-ink" suppressHydrationWarning>
         <TranslationProvider>
           <div className="flex min-h-screen flex-col">
             <SiteHeader />

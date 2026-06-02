@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createPageMetadata } from "@/lib/page-metadata";
 
 export const metadata = createPageMetadata(
-  "QA Lab",
+  "QA Engineering",
   "QA automation engineering notes, experimentation logs, and practical reliability documentation.",
 );
 
