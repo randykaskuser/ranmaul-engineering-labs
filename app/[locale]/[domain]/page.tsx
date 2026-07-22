@@ -7,6 +7,8 @@ import {
   type Domain,
   type Locale,
 } from "@/lib/content";
+import { Reveal } from "@/components/layout/reveal";
+import { Stagger } from "@/components/layout/stagger";
 
 type Params = {
   locale: string;
@@ -33,20 +35,26 @@ export default async function DomainIndexPage({ params }: { params: Promise<Para
     <section className="section-space">
       <div className="container">
         <header className="section-divider pb-8">
-          <p className="type-kicker">{locale.toUpperCase()}</p>
-          <h1 className="display-title mt-4 text-4xl text-ink md:text-6xl">{domain.toUpperCase()}</h1>
-          <p className="type-lede mt-4 max-w-[70ch]">
-            Entries in <span className="text-ink">{domain}</span>.
-          </p>
+          <Reveal>
+            <p className="type-kicker">{locale.toUpperCase()}</p>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <h1 className="display-title mt-4 text-4xl text-ink md:text-6xl">{domain.toUpperCase()}</h1>
+          </Reveal>
+          <Reveal delay={0.2}>
+            <p className="type-lede mt-4 max-w-[70ch]">
+              Entries in <span className="text-ink">{domain}</span>.
+            </p>
+          </Reveal>
         </header>
 
-        <div className="mt-10 grid gap-4">
+        <Stagger className="mt-10 grid gap-4">
           {articles.length > 0 ? (
             articles.map((article) => (
               <Link
                 key={`${article.locale}-${article.domain}-${article.slug}`}
                 href={`/${article.locale}/${article.domain}/${article.slug}`}
-                className="editorial-card p-6"
+                className="editorial-card p-6 transition-all hover:-translate-y-1 hover:shadow-lg hover:border-hairline-strong"
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-3">
                   <h2 className="type-title text-ink">{article.title}</h2>
@@ -65,7 +73,7 @@ export default async function DomainIndexPage({ params }: { params: Promise<Para
           ) : (
             <p className="text-body">No published entries yet.</p>
           )}
-        </div>
+        </Stagger>
       </div>
     </section>
   );

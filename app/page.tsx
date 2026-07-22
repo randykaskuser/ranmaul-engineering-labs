@@ -4,6 +4,8 @@ import { Grid } from "@/components/layout/grid";
 import { Section } from "@/components/layout/section";
 import { Stack } from "@/components/layout/stack";
 import { getRecentArticles, type Locale } from "@/lib/content";
+import { Reveal } from "@/components/layout/reveal";
+import { Stagger } from "@/components/layout/stagger";
 
 export const metadata: Metadata = {
   title: "Home",
@@ -167,7 +169,7 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
                 {t.heroLede}
               </p>
               <div className="flex flex-wrap gap-3">
-                <a href="#connect" className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-on-primary">
+                <a href="#connect" className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium" style={{ color: 'var(--on-primary)' }}>
                   {t.btnCollaborate}
                 </a>
                 <Link href="/projects" className="rounded-full border border-hairline-strong px-5 py-2.5 text-sm font-medium text-ink">
@@ -192,44 +194,53 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
       <Section divider>
         <div className="container">
           <div className="mb-8 flex items-end justify-between gap-4">
-            <h2 className="display-title text-3xl text-ink md:text-5xl">{t.featuredTitle}</h2>
-            <Link href="/projects" className="text-sm text-body hover:text-ink">
-              {t.featuredLink}
-            </Link>
+            <Reveal>
+              <h2 className="display-title text-3xl text-ink md:text-5xl">{t.featuredTitle}</h2>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <Link href="/projects" className="text-sm text-body hover:text-ink">
+                {t.featuredLink}
+              </Link>
+            </Reveal>
           </div>
-          <Grid columns={3} gap="md">
+          <Stagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" stagger={0.15}>
             {currentCategories.map((category) => (
-              <Link key={category.title} href={category.href} className="editorial-card p-6">
+              <Link key={category.title} href={category.href} className="editorial-card p-6 transition-all hover:-translate-y-1 hover:shadow-lg">
                 <p className="type-kicker">{t.domain}</p>
                 <h3 className="mt-3 type-title text-ink">{category.title}</h3>
                 <p className="mt-3 text-sm leading-7 text-body">{category.description}</p>
                 <p className="mt-4 text-xs leading-6 text-muted">{category.detail}</p>
               </Link>
             ))}
-          </Grid>
+          </Stagger>
         </div>
       </Section>
 
       <Section divider tone="soft">
         <div className="container">
           <div className="mb-8 flex items-end justify-between gap-4">
-            <h2 className="display-title text-3xl text-ink md:text-5xl">{t.archivesTitle}</h2>
-            <Link href="/drone-portfolio" className="text-sm text-body hover:text-ink">
-              {t.archivesLink}
-            </Link>
+            <Reveal>
+              <h2 className="display-title text-3xl text-ink md:text-5xl">{t.archivesTitle}</h2>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <Link href="/drone-portfolio" className="text-sm text-body hover:text-ink">
+                {t.archivesLink}
+              </Link>
+            </Reveal>
           </div>
-          <p className="mb-6 max-w-[68ch] text-sm leading-7 text-body md:text-base">
-            {t.archivesDesc}
-          </p>
-          <Grid columns={2} gap="md">
+          <Reveal delay={0.2}>
+            <p className="mb-6 max-w-[68ch] text-sm leading-7 text-body md:text-base">
+              {t.archivesDesc}
+            </p>
+          </Reveal>
+          <Stagger className="grid grid-cols-1 md:grid-cols-2 gap-6" stagger={0.15}>
             {droneMedia.map((item) => (
-              <article key={item.title} className="editorial-card p-4 md:p-5">
-                <div className="aspect-[9/16] w-full overflow-hidden rounded-2xl border border-hairline bg-surface-card-soft">
+              <article key={item.title} className="editorial-card p-4 md:p-5 transition-all hover:-translate-y-1 hover:shadow-lg">
+                <div className="aspect-[4/5] w-full overflow-hidden rounded-2xl border border-hairline bg-surface-card-soft">
                   <iframe
                     src={item.embedUrl}
                     className="h-full w-full border-none"
                     scrolling="no"
-                    allowTransparency={true}
                     allow="encrypted-media"
                   />
                 </div>
@@ -247,73 +258,79 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
                 </dl>
               </article>
             ))}
-          </Grid>
+          </Stagger>
         </div>
       </Section>
 
       <Section divider>
         <div className="container">
           <Grid columns={2} gap="md">
-            <article className="editorial-card p-6">
-              <div className="mb-6 flex items-end justify-between gap-4">
-                <h2 className="display-title text-3xl text-ink">{t.projectsTitle}</h2>
-                <Link href="/projects" className="text-sm text-body hover:text-ink">
-                  {t.projectsLink}
-                </Link>
-              </div>
-              <Stack gap="sm">
-                {projects.map((project) => (
-                  <Link key={project.title} href={project.href} className="block rounded-2xl border border-hairline p-4">
-                    <p className="type-kicker">{project.tag}</p>
-                    <h3 className="mt-2 text-lg text-ink">{project.title}</h3>
-                    <p className="mt-2 text-sm leading-7 text-body">{project.description}</p>
+            <Reveal direction="left">
+              <article className="editorial-card p-6 h-full transition-shadow hover:shadow-lg">
+                <div className="mb-6 flex items-end justify-between gap-4">
+                  <h2 className="display-title text-3xl text-ink">{t.projectsTitle}</h2>
+                  <Link href="/projects" className="text-sm text-body hover:text-ink">
+                    {t.projectsLink}
                   </Link>
-                ))}
-              </Stack>
-            </article>
-
-            <article className="editorial-card p-6">
-              <div className="mb-6 flex items-end justify-between gap-4">
-                <h2 className="display-title text-3xl text-ink">{t.latestTitle}</h2>
-              </div>
-              <Stack gap="sm">
-                {latestArticles.length > 0 ? (
-                  latestArticles.map((article) => (
-                    <Link key={article.slug} href={`/${article.locale}/${article.domain}/${article.slug}`} className="block rounded-2xl border border-hairline p-4">
-                      <p className="type-kicker uppercase">{article.domain}</p>
-                      <h3 className="mt-2 text-lg text-ink">{article.title}</h3>
-                      <p className="mt-2 text-sm leading-7 text-body">{article.description}</p>
+                </div>
+                <Stack gap="sm">
+                  {projects.map((project) => (
+                    <Link key={project.title} href={project.href} className="block rounded-2xl border border-hairline p-4 transition-colors hover:bg-surface-card-soft">
+                      <p className="type-kicker">{project.tag}</p>
+                      <h3 className="mt-2 text-lg text-ink">{project.title}</h3>
+                      <p className="mt-2 text-sm leading-7 text-body">{project.description}</p>
                     </Link>
-                  ))
-                ) : (
-                  <p className="text-sm text-body">{t.noEntries}</p>
-                )}
-              </Stack>
-            </article>
+                  ))}
+                </Stack>
+              </article>
+            </Reveal>
+
+            <Reveal direction="right" delay={0.2}>
+              <article className="editorial-card p-6 h-full transition-shadow hover:shadow-lg">
+                <div className="mb-6 flex items-end justify-between gap-4">
+                  <h2 className="display-title text-3xl text-ink">{t.latestTitle}</h2>
+                </div>
+                <Stack gap="sm">
+                  {latestArticles.length > 0 ? (
+                    latestArticles.map((article) => (
+                      <Link key={article.slug} href={`/${article.locale}/${article.domain}/${article.slug}`} className="block rounded-2xl border border-hairline p-4 transition-colors hover:bg-surface-card-soft">
+                        <p className="type-kicker uppercase">{article.domain}</p>
+                        <h3 className="mt-2 text-lg text-ink">{article.title}</h3>
+                        <p className="mt-2 text-sm leading-7 text-body">{article.description}</p>
+                      </Link>
+                    ))
+                  ) : (
+                    <p className="text-sm text-body">{t.noEntries}</p>
+                  )}
+                </Stack>
+              </article>
+            </Reveal>
           </Grid>
         </div>
       </Section>
 
       <Section>
         <div id="connect" className="container-reading">
-          <div className="editorial-card p-8 text-center md:p-10">
-            <p className="type-kicker">{t.connectKicker}</p>
-            <h2 className="display-title mt-5 text-3xl text-ink md:text-5xl">{t.connectTitle}</h2>
-            <p className="mx-auto mt-4 max-w-[68ch] text-sm leading-7 text-body">
-              {t.connectBody}
-            </p>
-            <div className="mt-7 flex flex-wrap justify-center gap-3">
-              <a href="#" className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-on-primary">
-                {t.btnWa}
-              </a>
-              <a href="#" className="rounded-full border border-hairline-strong px-5 py-2.5 text-sm font-medium text-ink">
-                {t.btnLi}
-              </a>
-              <a href="#" className="rounded-full border border-hairline-strong px-5 py-2.5 text-sm font-medium text-ink">
-                {t.btnIg}
-              </a>
+          <Reveal direction="up" distance={40}>
+            <div className="editorial-card p-8 text-center md:p-10 transition-shadow hover:shadow-xl">
+              <p className="type-kicker">{t.connectKicker}</p>
+              <h2 className="display-title mt-5 text-3xl text-ink md:text-5xl">{t.connectTitle}</h2>
+              <p className="mx-auto mt-4 max-w-[68ch] text-sm leading-7 text-body">
+                {t.connectBody}
+              </p>
+              <div className="mt-7 flex flex-wrap justify-center gap-3">
+                <a href="#" className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium transition-transform hover:scale-105" style={{ color: 'var(--on-primary)' }}>
+                  {t.btnWa}
+                </a>
+                <a href="#" className="rounded-full border border-hairline-strong px-5 py-2.5 text-sm font-medium text-ink transition-all hover:border-ink hover:scale-105">
+                  {t.btnLi}
+                </a>
+                <a href="#" className="rounded-full border border-hairline-strong px-5 py-2.5 text-sm font-medium text-ink transition-all hover:border-ink hover:scale-105">
+                  {t.btnIg}
+                </a>
+              </div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </Section>
     </>
