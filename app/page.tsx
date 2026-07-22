@@ -248,7 +248,7 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
               </p>
             </Reveal>
 
-            <Stagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8" stagger={0.15}>
+            <Stagger className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 max-w-4xl mx-auto" stagger={0.15}>
               {droneMedia.map((item) => (
                 <ConicHoverCard key={item.title}>
                   <div className="aspect-[4/5] w-full overflow-hidden rounded-xl border border-hairline bg-surface-card relative group-hover:shadow-teal-500/20 group-hover:shadow-2xl transition-all duration-500">
@@ -267,14 +267,14 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
                       </span>
                       <span className="absolute inset-0 z-0 bg-[#0D9488] clip-path-0 group-hover:clip-path-full transition-all duration-400 ease-out origin-center rounded-sm"></span>
                     </p>
-                    <h3 className="mt-3 text-lg lg:text-xl text-ink font-medium relative group-hover:text-teal-600 transition-colors duration-300">{item.title}</h3>
-                    <dl className="mt-4 space-y-3 text-xs lg:text-sm leading-6 lg:leading-7 text-body group-hover:text-body transition-colors">
+                    <h3 className="mt-3 text-xl text-ink font-medium relative group-hover:text-teal-600 transition-colors duration-300">{item.title}</h3>
+                    <dl className="mt-4 space-y-3 text-sm leading-7 text-body group-hover:text-body transition-colors">
                       <div className="grid gap-1">
-                        <dt className="text-[10px] lg:text-xs tracking-[0.12em] text-muted font-medium">Objective</dt>
+                        <dt className="text-xs tracking-[0.12em] text-muted font-medium">Objective</dt>
                         <dd>{item.objective}</dd>
                       </div>
                       <div className="grid gap-1">
-                        <dt className="text-[10px] lg:text-xs tracking-[0.12em] text-muted font-medium">Constraint</dt>
+                        <dt className="text-xs tracking-[0.12em] text-muted font-medium">Constraint</dt>
                         <dd>{item.constraint}</dd>
                       </div>
                     </dl>
