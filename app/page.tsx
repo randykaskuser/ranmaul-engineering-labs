@@ -6,6 +6,7 @@ import { Stack } from "@/components/layout/stack";
 import { getRecentArticles, type Locale } from "@/lib/content";
 import { Reveal } from "@/components/layout/reveal";
 import { Stagger } from "@/components/layout/stagger";
+import { MagneticCard } from "@/components/layout/magnetic-card";
 
 export const metadata: Metadata = {
   title: "Home",
@@ -235,13 +236,14 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
           </Reveal>
           <Stagger className="grid grid-cols-1 md:grid-cols-2 gap-6" stagger={0.15}>
             {droneMedia.map((item) => (
-              <article key={item.title} className="editorial-card p-4 md:p-5 transition-all hover:-translate-y-1 hover:shadow-lg">
+              <MagneticCard key={item.title} className="editorial-card p-4 md:p-5" intensity={0.15} hoverColor="var(--ink)">
                 <div className="aspect-[4/5] w-full overflow-hidden rounded-2xl border border-hairline bg-surface-card-soft">
                   <iframe
                     src={item.embedUrl}
-                    className="h-full w-full border-none"
+                    className="h-full w-full border-none pointer-events-none"
                     scrolling="no"
                     allow="encrypted-media"
+                    tabIndex={-1}
                   />
                 </div>
                 <p className="type-kicker mt-4 tracking-[0.14em]">{item.type}</p>
@@ -256,7 +258,7 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
                     <dd>{item.constraint}</dd>
                   </div>
                 </dl>
-              </article>
+              </MagneticCard>
             ))}
           </Stagger>
         </div>
