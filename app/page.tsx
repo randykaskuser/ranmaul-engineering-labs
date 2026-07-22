@@ -6,6 +6,7 @@ import { Stack } from "@/components/layout/stack";
 import { getRecentArticles, type Locale } from "@/lib/content";
 import { Reveal } from "@/components/layout/reveal";
 import { Stagger } from "@/components/layout/stagger";
+import { ConicHoverCard } from "@/components/layout/conic-hover-card";
 
 export const metadata: Metadata = {
   title: "Home",
@@ -235,28 +236,34 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
           </Reveal>
           <Stagger className="grid grid-cols-1 md:grid-cols-2 gap-6" stagger={0.15}>
             {droneMedia.map((item) => (
-              <article key={item.title} className="editorial-card p-4 md:p-5 transition-all hover:-translate-y-1 hover:shadow-lg">
-                <div className="aspect-[4/5] w-full overflow-hidden rounded-2xl border border-hairline bg-surface-card-soft">
+              <ConicHoverCard key={item.title}>
+                <div className="aspect-[4/5] w-full overflow-hidden rounded-xl border border-hairline bg-surface-card-soft">
                   <iframe
                     src={item.embedUrl}
-                    className="h-full w-full border-none"
+                    className="h-full w-full border-none pointer-events-none"
                     scrolling="no"
                     allow="encrypted-media"
+                    tabIndex={-1}
                   />
                 </div>
-                <p className="type-kicker mt-4 tracking-[0.14em]">{item.type}</p>
-                <h3 className="mt-2 text-xl text-ink">{item.title}</h3>
-                <dl className="mt-3 space-y-2 text-sm leading-7 text-body">
-                  <div className="grid gap-1">
-                    <dt className="text-xs tracking-[0.12em] text-muted">{t.obj}</dt>
-                    <dd>{item.objective}</dd>
-                  </div>
-                  <div className="grid gap-1">
-                    <dt className="text-xs tracking-[0.12em] text-muted">{t.constraint}</dt>
-                    <dd>{item.constraint}</dd>
-                  </div>
-                </dl>
-              </article>
+                <div className="flex-1 mt-4">
+                  <p className="type-kicker tracking-[0.14em] relative inline-block group-hover:text-canvas z-10 transition-colors duration-300">
+                    <span className="relative z-10 px-1">{item.type}</span>
+                    <span className="absolute inset-0 z-0 bg-ink clip-path-0 group-hover:clip-path-full transition-all duration-400 ease-out origin-center"></span>
+                  </p>
+                  <h3 className="mt-2 text-xl text-ink">{item.title}</h3>
+                  <dl className="mt-3 space-y-2 text-sm leading-7 text-body">
+                    <div className="grid gap-1">
+                      <dt className="text-xs tracking-[0.12em] text-muted">{t.obj}</dt>
+                      <dd>{item.objective}</dd>
+                    </div>
+                    <div className="grid gap-1">
+                      <dt className="text-xs tracking-[0.12em] text-muted">{t.constraint}</dt>
+                      <dd>{item.constraint}</dd>
+                    </div>
+                  </dl>
+                </div>
+              </ConicHoverCard>
             ))}
           </Stagger>
         </div>

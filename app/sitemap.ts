@@ -4,7 +4,7 @@ import { getPublishedArticles, LOCALES, DOMAINS } from '@/lib/content'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const articles = await getPublishedArticles()
-  
+
   const articleUrls = articles.map((article) => ({
     url: `${SITE_URL}/${article.locale}/${article.domain}/${article.slug}`,
     lastModified: new Date(article.updatedAt),
@@ -12,7 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }))
 
-  const indexUrls = [
+  const indexUrls: MetadataRoute.Sitemap = [
     {
       url: SITE_URL,
       lastModified: new Date(),
