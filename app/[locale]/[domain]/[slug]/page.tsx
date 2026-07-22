@@ -7,6 +7,8 @@ import remarkGfm from "remark-gfm";
 import rehypePrettyCode from "rehype-pretty-code";
 import { mdxComponents } from "@/components/mdx/mdx-components";
 import { TranslationSetter } from "@/components/layout/translation-context";
+import { Reveal } from "@/components/layout/reveal";
+import { Stagger } from "@/components/layout/stagger";
 import {
   DOMAINS,
   LOCALES,
@@ -19,7 +21,7 @@ import {
   type Domain,
   type Locale,
 } from "@/lib/content";
-import { SITE_NAME } from "@/lib/site";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 type RouteParams = {
   locale: string;
@@ -78,17 +80,48 @@ export async function generateMetadata({ params }: { params: Promise<RouteParams
     return {};
   }
 
+  const translations = await getTranslationsForArticle(article);
+  const languages: Record<string, string> = {
+    [article.locale]: `/${article.locale}/${article.domain}/${article.slug}`,
+  };
+  
+  for (const t of translations) {
+    languages[t.locale] = `/${t.locale}/${t.domain}/${t.slug}`;
+  }
+
+  const path = `/${article.locale}/${article.domain}/${article.slug}`;
+  const url = `${SITE_URL}${path}`;
+
   return {
     title: article.title,
     description: article.description,
+    alternates: {
+      canonical: path,
+      languages,
+    },
     openGraph: {
       title: `${article.title} | ${SITE_NAME}`,
       description: article.description,
       type: "article",
+      url,
       locale: article.locale === "id" ? "id_ID" : "en_US",
       publishedTime: article.publishedAt,
       modifiedTime: article.updatedAt,
       tags: article.tags,
+      images: article.coverImage ? [
+        {
+          url: article.coverImage,
+          width: 1600,
+          height: 900,
+          alt: article.coverAlt ?? article.title,
+        }
+      ] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: article.title,
+      description: article.description,
+      images: article.coverImage ? [article.coverImage] : undefined,
     },
   };
 }
@@ -116,128 +149,174 @@ export default async function ArticlePage({ params }: { params: Promise<RoutePar
     : null;
 
   return (
-    <section className="section-space">
+    <>
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: article.title,
+            description: article.description,
+            image: article.coverImage
+              ? `${SITE_URL}${article.coverImage}`
+              : `${SITE_URL}/images/og-default.jpg`,
+            datePublished: article.publishedAt,
+            dateModified: article.updatedAt,
+            author: [
+              {
+                "@type": "Person",
+                name: SITE_NAME,
+                url: SITE_URL,
+              },
+            ],
+          }),
+        }}
+      />
+      <section className="section-space">
       <TranslationSetter alternateUrl={alternateUrl} />
       <div className="container-wide grid gap-10 lg:grid-cols-[minmax(0,1fr)_18rem]">
         <article className="container-reading">
           <header className="section-divider pb-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-              {article.locale.toUpperCase()} · {article.domain.toUpperCase()}
-            </p>
-            <h1 className="display-title mt-4 text-4xl text-ink md:text-6xl">{article.title}</h1>
-            <p className="type-lede mt-5 max-w-[70ch]">{article.description}</p>
+            <Reveal>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                {article.locale.toUpperCase()} · {article.domain.toUpperCase()}
+              </p>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <h1 className="display-title mt-4 text-4xl text-ink md:text-6xl">{article.title}</h1>
+            </Reveal>
+            <Reveal delay={0.2}>
+              <p className="type-lede mt-5 max-w-[70ch]">{article.description}</p>
+            </Reveal>
 
-            <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-body">
-              <p>Published: {formatDate(article.publishedAt)}</p>
-              <p>Updated: {formatDate(article.updatedAt)}</p>
-              <p>{article.readingMinutes} min read</p>
-            </div>
+            <Reveal delay={0.3}>
+              <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-body">
+                <p>Published: {formatDate(article.publishedAt)}</p>
+                <p>Updated: {formatDate(article.updatedAt)}</p>
+                <p>{article.readingMinutes} min read</p>
+              </div>
+            </Reveal>
 
-            <ul className="mt-4 flex flex-wrap gap-2">
+            <Stagger className="mt-4 flex flex-wrap gap-2" delay={0.4}>
               {article.tags.map((tag) => (
-                <li key={tag}>
+                <li key={tag} style={{ listStyle: 'none' }}>
                   <Link
                     href={`/${article.locale}/tags/${encodeURIComponent(tag)}`}
-                    className="inline-flex rounded-full border border-hairline px-3 py-1 text-xs text-body hover:text-ink"
+                    className="inline-flex rounded-full border border-hairline px-3 py-1 text-xs text-body transition hover:text-ink hover:border-hairline-strong hover:bg-surface-card"
                   >
                     #{tag}
                   </Link>
                 </li>
               ))}
-            </ul>
+            </Stagger>
 
             {translations.length > 0 ? (
-              <div className="mt-5 flex flex-wrap gap-2 text-sm">
-                {translations.map((entry) => (
-                  <Link
-                    key={`${entry.locale}-${entry.slug}`}
-                    href={`/${entry.locale}/${entry.domain}/${entry.slug}`}
-                    className="rounded-full border border-hairline px-3 py-1 text-body hover:text-ink"
-                  >
-                    Read {entry.locale.toUpperCase()} version
-                  </Link>
-                ))}
-              </div>
+              <Reveal delay={0.5}>
+                <div className="mt-5 flex flex-wrap gap-2 text-sm">
+                  {translations.map((entry) => (
+                    <Link
+                      key={`${entry.locale}-${entry.slug}`}
+                      href={`/${entry.locale}/${entry.domain}/${entry.slug}`}
+                      className="rounded-full border border-hairline px-3 py-1 text-body transition hover:text-ink hover:border-hairline-strong hover:bg-surface-card"
+                    >
+                      Read {entry.locale.toUpperCase()} version
+                    </Link>
+                  ))}
+                </div>
+              </Reveal>
             ) : null}
           </header>
 
           {article.coverImage ? (
-            <figure className="my-8 overflow-hidden rounded-2xl border border-hairline bg-surface-card-soft">
-              <Image
-                src={article.coverImage}
-                alt={article.coverAlt ?? article.title}
-                width={1600}
-                height={900}
-                priority
-                className="h-auto w-full"
-                sizes="(min-width: 1024px) 900px, 100vw"
-                style={{ objectFit: "cover" }}
-              />
-              <figcaption className="sr-only">
-                {article.coverAlt ?? `Cover image for ${article.title} (${getCoverImageName(article.coverImage)})`}
-              </figcaption>
-            </figure>
+            <Reveal delay={0.2}>
+              <figure className="my-8 overflow-hidden rounded-2xl border border-hairline bg-surface-card-soft">
+                <Image
+                  src={article.coverImage}
+                  alt={article.coverAlt ?? article.title}
+                  width={1600}
+                  height={900}
+                  priority
+                  className="h-auto w-full"
+                  sizes="(min-width: 1024px) 900px, 100vw"
+                  style={{ objectFit: "cover" }}
+                />
+                <figcaption className="sr-only">
+                  {article.coverAlt ?? `Cover image for ${article.title} (${getCoverImageName(article.coverImage)})`}
+                </figcaption>
+              </figure>
+            </Reveal>
           ) : null}
 
-          <div className="article-prose mt-8">
-            <MDXRemote
-              source={article.body}
-              components={mdxComponents}
-              options={{
-                mdxOptions: {
-                  remarkPlugins: [remarkGfm],
-                  rehypePlugins: [[rehypePrettyCode, { theme: prettyCodeTheme }]],
-                },
-              }}
-            />
-          </div>
+          <Reveal delay={0.3}>
+            <div className="article-prose mt-8">
+              <MDXRemote
+                source={article.body}
+                components={mdxComponents}
+                options={{
+                  mdxOptions: {
+                    remarkPlugins: [remarkGfm],
+                    rehypePlugins: [[rehypePrettyCode, { theme: prettyCodeTheme }]],
+                  },
+                }}
+              />
+            </div>
+          </Reveal>
         </article>
 
         <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-          <section className="editorial-card p-5">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted">Related</h2>
-            <ul className="mt-3 space-y-2 text-sm text-body">
-              {relatedArticles.length > 0 ? (
-                relatedArticles.map((entry) => (
+          <Reveal direction="left" delay={0.4}>
+            <section className="editorial-card p-5 transition-shadow hover:shadow-lg">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted">Related</h2>
+              <ul className="mt-3 space-y-2 text-sm text-body">
+                {relatedArticles.length > 0 ? (
+                  relatedArticles.map((entry) => (
+                    <li key={`${entry.locale}-${entry.domain}-${entry.slug}`}>
+                      <Link href={`/${entry.locale}/${entry.domain}/${entry.slug}`} className="transition-colors hover:text-ink">
+                        {entry.title}
+                      </Link>
+                    </li>
+                  ))
+                ) : (
+                  <li>No related entries yet.</li>
+                )}
+              </ul>
+            </section>
+          </Reveal>
+
+          <Reveal direction="left" delay={0.5}>
+            <section className="editorial-card p-5 transition-shadow hover:shadow-lg">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted">Recent</h2>
+              <ul className="mt-3 space-y-2 text-sm text-body">
+                {recentArticles.map((entry) => (
                   <li key={`${entry.locale}-${entry.domain}-${entry.slug}`}>
-                    <Link href={`/${entry.locale}/${entry.domain}/${entry.slug}`} className="hover:text-ink">
+                    <Link href={`/${entry.locale}/${entry.domain}/${entry.slug}`} className="transition-colors hover:text-ink">
                       {entry.title}
                     </Link>
                   </li>
-                ))
-              ) : (
-                <li>No related entries yet.</li>
-              )}
-            </ul>
-          </section>
+                ))}
+              </ul>
+            </section>
+          </Reveal>
 
-          <section className="editorial-card p-5">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted">Recent</h2>
-            <ul className="mt-3 space-y-2 text-sm text-body">
-              {recentArticles.map((entry) => (
-                <li key={`${entry.locale}-${entry.domain}-${entry.slug}`}>
-                  <Link href={`/${entry.locale}/${entry.domain}/${entry.slug}`} className="hover:text-ink">
-                    {entry.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section className="editorial-card p-5">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted">Featured</h2>
-            <ul className="mt-3 space-y-2 text-sm text-body">
-              {featuredArticles.map((entry) => (
-                <li key={`${entry.locale}-${entry.domain}-${entry.slug}`}>
-                  <Link href={`/${entry.locale}/${entry.domain}/${entry.slug}`} className="hover:text-ink">
-                    {entry.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
+          <Reveal direction="left" delay={0.6}>
+            <section className="editorial-card p-5 transition-shadow hover:shadow-lg">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted">Featured</h2>
+              <ul className="mt-3 space-y-2 text-sm text-body">
+                {featuredArticles.map((entry) => (
+                  <li key={`${entry.locale}-${entry.domain}-${entry.slug}`}>
+                    <Link href={`/${entry.locale}/${entry.domain}/${entry.slug}`} className="transition-colors hover:text-ink">
+                      {entry.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </Reveal>
         </aside>
       </div>
     </section>
+    </>
   );
 }
