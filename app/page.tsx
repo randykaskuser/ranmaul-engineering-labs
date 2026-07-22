@@ -7,6 +7,7 @@ import { getRecentArticles, type Locale } from "@/lib/content";
 import { Reveal } from "@/components/layout/reveal";
 import { Stagger } from "@/components/layout/stagger";
 import { ConicHoverCard } from "@/components/layout/conic-hover-card";
+import { BackgroundVideoPlaylist } from "@/components/layout/background-video-playlist";
 
 export const metadata: Metadata = {
   title: "Home",
@@ -218,19 +219,12 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
       </Section>
 
       <Section divider tone="soft" className="relative overflow-hidden">
-        {/* Background Video Layer */}
-        <div className="absolute inset-0 z-0 opacity-30 pointer-events-none">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="h-full w-full object-cover"
-            poster="/images/drone-bg-poster.jpg"
-          >
-            <source src="/videos/drone-bg.mp4" type="video/mp4" />
-          </video>
-        </div>
+        {/* Background Video Layer: Auto-plays list of videos sequentially */}
+        <BackgroundVideoPlaylist
+          videos={["/videos/drone-bg.mp4", "/videos/drone-bg-2.mp4"]}
+          poster="/images/drone-bg-poster.jpg"
+          opacity={0.3}
+        />
 
         <div className="container-wide relative z-10">
           <div className="p-8 md:p-14 lg:p-16 rounded-[2rem] backdrop-blur-xl bg-canvas-soft/40 border border-white/10 shadow-2xl">
