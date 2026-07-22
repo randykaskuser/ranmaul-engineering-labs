@@ -218,7 +218,7 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
         </div>
       </Section>
 
-      <Section divider tone="soft" className="relative overflow-hidden min-h-[80vh] flex flex-col justify-center">
+      <Section divider tone="soft" className="relative overflow-hidden w-full flex flex-col justify-center py-10 md:py-20">
         {/* Background Video Layer: Auto-plays list of videos sequentially */}
         <BackgroundVideoPlaylist
           videos={["/videos/drone-bg.mp4", "/videos/drone-bg-2.mp4"]}
