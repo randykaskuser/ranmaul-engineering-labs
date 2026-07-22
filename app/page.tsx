@@ -217,8 +217,23 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
         </div>
       </Section>
 
-      <Section divider tone="soft">
-        <div className="container">
+      <Section divider tone="soft" className="relative overflow-hidden">
+        {/* Background Video Layer */}
+        <div className="absolute inset-0 z-0 opacity-10 mix-blend-overlay">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="h-full w-full object-cover"
+            poster="/images/drone-bg-poster.jpg"
+          >
+            <source src="/videos/drone-bg.mp4" type="video/mp4" />
+            <source src="/videos/drone-bg.webm" type="video/webm" />
+          </video>
+        </div>
+
+        <div className="container relative z-10">
           <div className="mb-8 flex items-end justify-between gap-4">
             <Reveal>
               <h2 className="display-title text-3xl text-ink md:text-5xl">{t.archivesTitle}</h2>
