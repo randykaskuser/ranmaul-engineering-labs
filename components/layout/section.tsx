@@ -1,8 +1,9 @@
-import type { ReactNode } from "react";
+import type { ReactNode, ElementType } from "react";
 
 type SectionProps = {
   children: ReactNode;
   className?: string;
+  as?: ElementType;
   /**
    * Vertical rhythm preset.
    * - "default": editorial section spacing
@@ -34,6 +35,7 @@ const toneMap = {
 export function Section({
   children,
   className,
+  as: Component = "section",
   space = "default",
   divider = false,
   tone = "default",
@@ -49,5 +51,5 @@ export function Section({
     .filter(Boolean)
     .join(" ");
 
-  return <section className={classes}>{children}</section>;
+  return <Component className={classes}>{children}</Component>;
 }
