@@ -218,7 +218,7 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
         </div>
       </Section>
 
-      <Section divider tone="soft" className="relative overflow-hidden min-h-[80vh] flex flex-col justify-center py-10 md:py-20">
+      <Section divider tone="soft" className="relative overflow-hidden min-h-[80vh] flex flex-col justify-center">
         {/* Background Video Layer: Auto-plays list of videos sequentially */}
         <BackgroundVideoPlaylist
           videos={["/videos/drone-bg.mp4", "/videos/drone-bg-2.mp4"]}
@@ -226,8 +226,8 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
           opacity={0.3}
         />
 
-        <div className="w-full max-w-[96%] mx-auto relative z-10">
-          <div className="p-4 md:p-8 lg:p-10 rounded-[2rem] backdrop-blur-xl bg-canvas-soft/40 border border-white/10 shadow-2xl">
+        <div className="container relative z-10">
+          <div className="p-4 md:p-6 lg:p-8 rounded-[2rem] backdrop-blur-xl bg-canvas-soft/40 border border-white/10 shadow-2xl">
             <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
               <Reveal>
                 <div className="relative group inline-block">
@@ -248,7 +248,7 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
               </p>
             </Reveal>
 
-            <Stagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" stagger={0.15}>
+            <Stagger className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl w-full mx-auto" stagger={0.15}>
               {droneMedia.map((item) => (
                 <ConicHoverCard key={item.title}>
                   <div className="aspect-[4/5] w-full overflow-hidden rounded-xl border border-hairline bg-surface-card relative group-hover:shadow-teal-500/20 group-hover:shadow-2xl transition-all duration-500">
