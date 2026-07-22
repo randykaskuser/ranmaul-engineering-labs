@@ -226,8 +226,8 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
           opacity={0.3}
         />
 
-        <div className="container-wide relative z-10">
-          <div className="p-8 md:p-14 lg:p-16 rounded-[2rem] backdrop-blur-xl bg-canvas-soft/40 border border-white/10 shadow-2xl">
+        <div className="container relative z-10">
+          <div className="p-4 md:p-6 lg:p-8 rounded-[2rem] backdrop-blur-xl bg-canvas-soft/40 border border-white/10 shadow-2xl">
             <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
               <Reveal>
                 <div className="relative group inline-block">
