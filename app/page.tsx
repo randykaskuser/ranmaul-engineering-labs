@@ -7,7 +7,6 @@ import { getRecentArticles, type Locale } from "@/lib/content";
 import { Reveal } from "@/components/layout/reveal";
 import { Stagger } from "@/components/layout/stagger";
 import { ConicHoverCard } from "@/components/layout/conic-hover-card";
-import { MagneticCard } from "@/components/layout/magnetic-card";
 
 export const metadata: Metadata = {
   title: "Home",
