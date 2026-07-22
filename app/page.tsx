@@ -260,10 +260,9 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
                   <div className="aspect-[4/5] w-full overflow-hidden rounded-xl border border-hairline bg-surface-card relative group-hover:shadow-teal-500/20 group-hover:shadow-2xl transition-all duration-500">
                     <iframe
                       src={item.embedUrl}
-                      className="h-full w-full border-none pointer-events-none scale-[1.02] group-hover:scale-100 transition-transform duration-700"
+                      className="h-full w-full border-none scale-[1.02] group-hover:scale-100 transition-transform duration-700"
                       scrolling="no"
                       allow="encrypted-media"
-                      tabIndex={-1}
                     />
                   </div>
                   <div className="flex-1 mt-6 relative z-20">
