@@ -219,7 +219,7 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
 
       <Section divider tone="soft" className="relative overflow-hidden">
         {/* Background Video Layer */}
-        <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
+        <div className="absolute inset-0 z-0 opacity-30 pointer-events-none">
           <video
             autoPlay
             loop
@@ -261,9 +261,9 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
                   />
                 </div>
                 <div className="flex-1 mt-4">
-                  <p className="type-kicker tracking-[0.14em] relative inline-block group-hover:text-canvas z-10 transition-colors duration-300">
+                  <p className="type-kicker tracking-[0.14em] relative inline-block group-hover:text-white z-10 transition-colors duration-300">
                     <span className="relative z-10 px-1">{item.type}</span>
-                    <span className="absolute inset-0 z-0 bg-ink clip-path-0 group-hover:clip-path-full transition-all duration-400 ease-out origin-center"></span>
+                    <span className="absolute inset-0 z-0 bg-[#0D9488] clip-path-0 group-hover:clip-path-full transition-all duration-400 ease-out origin-center"></span>
                   </p>
                   <h3 className="mt-2 text-xl text-ink">{item.title}</h3>
                   <dl className="mt-3 space-y-2 text-sm leading-7 text-body">

@@ -32,10 +32,10 @@ export function ConicHoverCard({
       } as React.CSSProperties}
     >
       {/* Border layer: conic gradient reacting to mouse angle */}
-      <div 
+      <div
         className="absolute inset-0 z-0"
         style={{
-          background: "conic-gradient(from var(--rotation), var(--ink) 0deg, var(--ink) 90deg, var(--hairline) 90deg, var(--hairline) 360deg)"
+          background: "conic-gradient(from var(--rotation), #0D9488 0deg, #0D9488 90deg, var(--hairline) 90deg, var(--hairline) 360deg)"
         }}
       />
       
