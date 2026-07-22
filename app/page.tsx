@@ -248,7 +248,7 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
               </p>
             </Reveal>
 
-            <Stagger className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl w-full mx-auto" stagger={0.15}>
+            <Stagger className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-[96%] lg:max-w-2xl mx-auto" stagger={0.15}>
               {droneMedia.map((item) => (
                 <ConicHoverCard key={item.title}>
                   <div className="aspect-[4/5] w-full overflow-hidden rounded-xl border border-hairline bg-surface-card relative group-hover:shadow-teal-500/20 group-hover:shadow-2xl transition-all duration-500">
