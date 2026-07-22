@@ -232,54 +232,64 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
           </video>
         </div>
 
-        <div className="container relative z-10">
-          <div className="mb-8 flex items-end justify-between gap-4">
-            <Reveal>
-              <h2 className="display-title text-3xl text-ink md:text-5xl">{t.archivesTitle}</h2>
+        <div className="container-wide relative z-10">
+          <div className="p-8 md:p-14 lg:p-16 rounded-[2rem] backdrop-blur-xl bg-canvas-soft/40 border border-white/10 shadow-2xl">
+            <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+              <Reveal>
+                <div className="relative group inline-block">
+                  <span className="absolute -inset-1 bg-gradient-to-r from-teal-600/30 via-emerald-500/30 to-blue-500/30 blur-xl opacity-0 group-hover:opacity-100 transition-all duration-500 animate-pulse"></span>
+                  <h2 className="display-title text-3xl text-ink md:text-5xl relative z-10">{t.archivesTitle}</h2>
+                </div>
+              </Reveal>
+              <Reveal delay={0.1}>
+                <Link href="/drone-portfolio" className="text-sm font-medium text-body hover:text-teal-600 transition-colors">
+                  {t.archivesLink} &rarr;
+                </Link>
+              </Reveal>
+            </div>
+
+            <Reveal delay={0.2}>
+              <p className="mb-10 max-w-[68ch] text-sm leading-8 text-body md:text-base border-l-2 border-teal-500/30 pl-4">
+                {t.archivesDesc}
+              </p>
             </Reveal>
-            <Reveal delay={0.1}>
-              <Link href="/drone-portfolio" className="text-sm text-body hover:text-ink">
-                {t.archivesLink}
-              </Link>
-            </Reveal>
+
+            <Stagger className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12" stagger={0.15}>
+              {droneMedia.map((item) => (
+                <ConicHoverCard key={item.title}>
+                  <div className="aspect-[4/5] w-full overflow-hidden rounded-xl border border-hairline bg-surface-card relative group-hover:shadow-teal-500/20 group-hover:shadow-2xl transition-all duration-500">
+                    <iframe
+                      src={item.embedUrl}
+                      className="h-full w-full border-none pointer-events-none scale-[1.02] group-hover:scale-100 transition-transform duration-700"
+                      scrolling="no"
+                      allow="encrypted-media"
+                      tabIndex={-1}
+                    />
+                  </div>
+                  <div className="flex-1 mt-6 relative z-20">
+                    <p className="type-kicker tracking-[0.14em] relative inline-block text-body group-hover:text-white transition-colors duration-300">
+                      <span className="relative z-10 px-2 py-0.5">
+                        <span className="absolute -inset-0.5 bg-gradient-to-r from-teal-500/20 to-emerald-500/20 blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300"></span>
+                        <span className="relative">{item.type}</span>
+                      </span>
+                      <span className="absolute inset-0 z-0 bg-[#0D9488] clip-path-0 group-hover:clip-path-full transition-all duration-400 ease-out origin-center rounded-sm"></span>
+                    </p>
+                    <h3 className="mt-3 text-xl text-ink font-medium relative group-hover:text-teal-600 transition-colors duration-300">{item.title}</h3>
+                    <dl className="mt-4 space-y-3 text-sm leading-7 text-body group-hover:text-body transition-colors">
+                      <div className="grid gap-1">
+                        <dt className="text-xs tracking-[0.12em] text-muted font-medium">Objective</dt>
+                        <dd>{item.objective}</dd>
+                      </div>
+                      <div className="grid gap-1">
+                        <dt className="text-xs tracking-[0.12em] text-muted font-medium">Constraint</dt>
+                        <dd>{item.constraint}</dd>
+                      </div>
+                    </dl>
+                  </div>
+                </ConicHoverCard>
+              ))}
+            </Stagger>
           </div>
-          <Reveal delay={0.2}>
-            <p className="mb-6 max-w-[68ch] text-sm leading-7 text-body md:text-base">
-              {t.archivesDesc}
-            </p>
-          </Reveal>
-          <Stagger className="grid grid-cols-1 md:grid-cols-2 gap-6" stagger={0.15}>
-            {droneMedia.map((item) => (
-              <ConicHoverCard key={item.title}>
-                <div className="aspect-[4/5] w-full overflow-hidden rounded-xl border border-hairline bg-surface-card-soft">
-                  <iframe
-                    src={item.embedUrl}
-                    className="h-full w-full border-none pointer-events-none"
-                    scrolling="no"
-                    allow="encrypted-media"
-                    tabIndex={-1}
-                  />
-                </div>
-                <div className="flex-1 mt-4">
-                  <p className="type-kicker tracking-[0.14em] relative inline-block group-hover:text-white z-10 transition-colors duration-300">
-                    <span className="relative z-10 px-1">{item.type}</span>
-                    <span className="absolute inset-0 z-0 bg-[#0D9488] clip-path-0 group-hover:clip-path-full transition-all duration-400 ease-out origin-center"></span>
-                  </p>
-                  <h3 className="mt-2 text-xl text-ink">{item.title}</h3>
-                  <dl className="mt-3 space-y-2 text-sm leading-7 text-body">
-                    <div className="grid gap-1">
-                      <dt className="text-xs tracking-[0.12em] text-muted">{t.obj}</dt>
-                      <dd>{item.objective}</dd>
-                    </div>
-                    <div className="grid gap-1">
-                      <dt className="text-xs tracking-[0.12em] text-muted">{t.constraint}</dt>
-                      <dd>{item.constraint}</dd>
-                    </div>
-                  </dl>
-                </div>
-              </ConicHoverCard>
-            ))}
-          </Stagger>
         </div>
       </Section>
 
