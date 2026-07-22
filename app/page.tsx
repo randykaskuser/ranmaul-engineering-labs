@@ -219,7 +219,7 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
 
       <Section divider tone="soft" className="relative overflow-hidden">
         {/* Background Video Layer */}
-        <div className="absolute inset-0 z-0 opacity-10 mix-blend-overlay">
+        <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
           <video
             autoPlay
             loop
@@ -229,7 +229,6 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
             poster="/images/drone-bg-poster.jpg"
           >
             <source src="/videos/drone-bg.mp4" type="video/mp4" />
-            <source src="/videos/drone-bg.webm" type="video/webm" />
           </video>
         </div>
 
