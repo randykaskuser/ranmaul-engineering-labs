@@ -225,6 +225,14 @@ a {
   }
 }
 
+.clip-path-0 {
+  clip-path: polygon(0 50%, 100% 50%, 100% 50%, 0 50%);
+}
+
+.clip-path-full {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+
 .editorial-card {
   border: 1px solid var(--hairline);
   background: var(--surface-card);
