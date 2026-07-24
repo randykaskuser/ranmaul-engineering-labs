@@ -1,145 +1,82 @@
 import { createPageMetadata } from "@/lib/page-metadata";
-import { Grid } from "@/components/layout/grid";
 import { Section } from "@/components/layout/section";
-import { Stack } from "@/components/layout/stack";
 import { Reveal } from "@/components/layout/reveal";
-import { Stagger } from "@/components/layout/stagger";
-import Image from "next/image";
+import { PortfolioGallery } from "@/components/portfolio/portfolio-gallery";
+import { getPortfolioItems } from "@/lib/portfolio";
 
 export const metadata = createPageMetadata(
   "Drone Portfolio",
-  "Technical flight documentation covering FPV and aerial projects with objectives, constraints, and engineering decisions.",
+  "Aerial photography portfolio covering landscapes, cityscapes, and cinematic drone flights."
 );
 
-const portfolioRows = [
-  {
-    label: "Aerial Photography",
-    items: [
-      {
-        title: "Mountain Valley Top-down",
-        image: "/images/portfolio/mountain-valley-web.jpg",
-        objective: "Capture geometric patterns of terraced mountain farms",
-        constraint: "High altitude wind currents and varying light exposures",
-      },
-      {
-        title: "Coastal Breakwater",
-        image: "/images/portfolio/coastal-topdown-web.jpg",
-        objective: "Top-down view of wave breaks against coastal structures",
-        constraint: "Maintaining altitude while avoiding sea spray and glare",
-      },
-      {
-        title: "Merapi Crater Edge",
-        image: "/images/portfolio/merapi-crater-web.jpg",
-        objective: "Proximity flight capturing the active crater ridge",
-        constraint: "Sulphur gasses affecting sensors and unpredictable thermals",
-      },
-      {
-        title: "Heritage Nightscape",
-        image: "/images/portfolio/night-cityscape-web.jpg",
-        objective: "Long exposure of city traffic at night",
-        constraint: "Low light noise management and keeping the drone perfectly still",
-      },
-      {
-        title: "Flight Setup & Gear",
-        image: "/images/portfolio/drone-setup-web.jpg",
-        objective: "Documenting the FPV and cinematic drone fleet",
-        constraint: "Studio lighting and macro focus on carbon frames",
-      }
-    ],
-  },
-  {
-    label: "FPV Cinematic Videos",
-    items: [
-      {
-        title: "Warehouse Pursuit",
-        image: null,
-        objective: "High-speed tracking indoors",
-        constraint: "Signal penetration through concrete walls",
-      },
-      {
-        title: "Forest Valley Dive",
-        image: null,
-        objective: "Proximity flying through dense canopy",
-        constraint: "Video signal multipathing from tree trunks",
-      },
-      {
-        title: "Cliffside Threading Run",
-        image: null,
-        objective: "Diving down a narrow cliff gap",
-        constraint: "Managing momentum and throttle recovery at the bottom",
-      }
-    ],
-  },
-];
+export default async function DronePortfolioPage() {
+  const items = await getPortfolioItems("en");
 
-export default function DronePortfolioPage() {
+  const featuredItem = items.find((item) => item.featured);
+
   return (
     <>
-      <Section space="lg" divider orb>
-        <div className="container">
+      <Section space="xl" className="pt-24 pb-12">
+        <div className="container-wide">
           <Reveal>
-            <Stack gap="md">
-              <p className="type-kicker">Drone Portfolio</p>
-              <h1 className="display-title max-w-4xl text-4xl text-ink md:text-6xl">
-                Flight case notes for cinematic work under real technical constraints
+            <div className="max-w-3xl">
+              <h1 className="font-serif text-5xl md:text-7xl font-normal text-ink tracking-tight leading-[1.1]">
+                Aerial Photography
               </h1>
-              <p className="type-lede max-w-[68ch]">
-                A documentation-first portfolio covering project objective, aircraft setup, flight conditions, and decision-making patterns.
+              <p className="mt-6 text-lg md:text-xl text-body leading-relaxed">
+                A collection of landscapes, cityscapes, and structural geometry captured from the sky.
               </p>
-            </Stack>
+            </div>
           </Reveal>
         </div>
       </Section>
 
-      {portfolioRows.map((row) => (
-        <Section
-          key={row.label}
-          divider
-          tone="soft"
-          className="even:bg-canvas"
-        >
-          <div className="container">
-            <Reveal>
-              <h2 className="display-title text-3xl text-ink md:text-5xl">{row.label}</h2>
-            </Reveal>
-            <div className="mt-8">
-              <Stagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" stagger={0.15}>
-                {row.items.map((item) => (
-                  <article key={item.title} className="editorial-card p-4 md:p-5 transition-shadow hover:shadow-lg">
-                    {item.image ? (
-                      <div className="aspect-[16/10] overflow-hidden rounded-xl border border-hairline bg-surface-card-soft">
-                        <Image
-                          src={item.image}
-                          alt={item.title}
-                          width={800}
-                          height={500}
-                          priority={true}
-                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                        />
-                      </div>
-                    ) : (
-                      <div className="aspect-[16/10] rounded-xl border border-hairline bg-surface-card-soft flex items-center justify-center text-muted">
-                        <span className="text-xs uppercase tracking-widest">Video Pending</span>
-                      </div>
+      {/* Featured Video / Item */}
+      {featuredItem && (
+        <Section space="default" className="pb-16">
+          <div className="container-wide">
+            <Reveal delay={0.1}>
+              <div className="aspect-[21/9] md:aspect-[2.35/1] overflow-hidden rounded-3xl bg-black relative shadow-2xl">
+                {featuredItem.mediaType === "video" && featuredItem.embedUrl ? (
+                  <iframe
+                    src={featuredItem.embedUrl}
+                    className="absolute inset-0 w-full h-full border-0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : featuredItem.image ? (
+                  <img
+                    src={featuredItem.image}
+                    alt={featuredItem.title}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                ) : null}
+                <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-3xl pointer-events-none" />
+
+                {/* Optional gradient overlay and text if we want to show title over image */}
+                {(!featuredItem.mediaType || featuredItem.mediaType === "image") && (
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8 md:p-12 pointer-events-none">
+                    <h2 className="text-3xl md:text-4xl text-white font-medium mb-2">{featuredItem.title}</h2>
+                    {featuredItem.location && (
+                      <p className="text-white/80 flex items-center gap-2 text-sm">
+                        <span aria-hidden="true">📍</span> {featuredItem.location}
+                      </p>
                     )}
-                    <h3 className="mt-5 text-xl text-ink font-medium">{item.title}</h3>
-                    <dl className="mt-4 space-y-3 text-sm leading-6 text-body">
-                      <div className="grid gap-1">
-                        <dt className="text-[11px] tracking-[0.1em] text-ink font-bold uppercase">Objective</dt>
-                        <dd>{item.objective}</dd>
-                      </div>
-                      <div className="grid gap-1">
-                        <dt className="text-[11px] tracking-[0.1em] text-ink font-bold uppercase">Constraint</dt>
-                        <dd>{item.constraint}</dd>
-                      </div>
-                    </dl>
-                  </article>
-                ))}
-              </Stagger>
-            </div>
+                  </div>
+                )}
+              </div>
+            </Reveal>
           </div>
         </Section>
-      ))}
+      )}
+
+      <Section space="default" className="pb-32">
+        <div className="container-wide">
+          <Reveal delay={0.2}>
+            <PortfolioGallery items={items} />
+          </Reveal>
+        </div>
+      </Section>
     </>
   );
 }
