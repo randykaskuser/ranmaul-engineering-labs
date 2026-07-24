@@ -1,68 +1,19 @@
 import { createPageMetadata } from "@/lib/page-metadata";
 import { Section } from "@/components/layout/section";
 import { Reveal } from "@/components/layout/reveal";
-import { Stagger } from "@/components/layout/stagger";
-import Image from "next/image";
+import { PortfolioGallery } from "@/components/portfolio/portfolio-gallery";
+import { getPortfolioItems } from "@/lib/portfolio";
 
 export const metadata = createPageMetadata(
   "Drone Portfolio",
-  "Aerial photography portfolio covering landscapes, cityscapes, and cinematic drone flights.",
+  "Aerial photography portfolio covering landscapes, cityscapes, and cinematic drone flights."
 );
 
-const portfolioItems = [
-  {
-    title: "Batang Rest Area KM 371",
-    subtitle: "Batang, Central Java",
-    description: "An aerial perspective highlighting the geometric alignment of the Trans-Java Toll Road as it approaches the coastal rest area near KM 371.",
-    location: "Batang, Central Java",
-    aircraft: "DJI Air 3",
-    year: "2025",
-    image: "/images/portfolio/coastal-topdown-web.jpg", // Using coastal image for this
-    href: "/drone-portfolio/batang-rest-area",
-  },
-  {
-    title: "Pandawa Beach",
-    subtitle: "South Kuta, Bali",
-    description: "Turquoise water, limestone cliffs, and a narrow coastline viewed from above during calm coastal conditions.",
-    location: "South Kuta, Bali",
-    aircraft: "DJI Air 3",
-    year: "2025",
-    image: "/images/portfolio/merapi-crater-web.jpg", // Using crater image for this placeholder
-    href: "/drone-portfolio/pandawa-beach",
-  },
-  {
-    title: "Ciwidey Highlands",
-    subtitle: "Bandung Regency, West Java",
-    description: "Low clouds drifting across the green hills surrounding the Ciwidey highlands shortly after sunrise.",
-    location: "Ciwidey, West Java",
-    aircraft: "DJI Air 3",
-    year: "2025",
-    image: "/images/portfolio/mountain-valley-web.jpg",
-    href: "/drone-portfolio/ciwidey-highlands",
-  },
-  {
-    title: "South Quarter",
-    subtitle: "Jakarta",
-    description: "A nighttime aerial composition capturing the illuminated office towers of South Quarter against the Jakarta skyline.",
-    location: "Jakarta",
-    aircraft: "DJI Air 3",
-    year: "2025",
-    image: "/images/portfolio/night-cityscape-web.jpg",
-    href: "/drone-portfolio/south-quarter",
-  },
-  {
-    title: "Apex 5",
-    subtitle: "Custom FPV Cinematic Drone",
-    description: "A close-up documentation of my custom-built 5-inch FPV drone configured for cinematic freestyle and aerial filmmaking.",
-    location: "Personal Build",
-    aircraft: "Apex 5",
-    year: "2025",
-    image: "/images/portfolio/drone-setup-web.jpg",
-    href: "/drone-portfolio/apex-5",
-  },
-];
+export default async function DronePortfolioPage() {
+  const items = await getPortfolioItems("en");
 
-export default function DronePortfolioPage() {
+  const featuredItem = items.find((item) => item.featured);
+
   return (
     <>
       <Section space="xl" className="pt-24 pb-12">
@@ -80,57 +31,50 @@ export default function DronePortfolioPage() {
         </div>
       </Section>
 
+      {/* Featured Video / Item */}
+      {featuredItem && (
+        <Section space="default" className="pb-16">
+          <div className="container-wide">
+            <Reveal delay={0.1}>
+              <div className="aspect-[21/9] md:aspect-[2.35/1] overflow-hidden rounded-3xl bg-black relative shadow-2xl">
+                {featuredItem.mediaType === "video" && featuredItem.embedUrl ? (
+                  <iframe
+                    src={featuredItem.embedUrl}
+                    className="absolute inset-0 w-full h-full border-0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : featuredItem.image ? (
+                  <img
+                    src={featuredItem.image}
+                    alt={featuredItem.title}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                ) : null}
+                <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-3xl pointer-events-none" />
+
+                {/* Optional gradient overlay and text if we want to show title over image */}
+                {(!featuredItem.mediaType || featuredItem.mediaType === "image") && (
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8 md:p-12 pointer-events-none">
+                    <h2 className="text-3xl md:text-4xl text-white font-medium mb-2">{featuredItem.title}</h2>
+                    {featuredItem.location && (
+                      <p className="text-white/80 flex items-center gap-2 text-sm">
+                        <span aria-hidden="true">📍</span> {featuredItem.location}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </Reveal>
+          </div>
+        </Section>
+      )}
+
       <Section space="default" className="pb-32">
         <div className="container-wide">
-          <Stagger className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-x-12 md:gap-y-20" stagger={0.15}>
-            {portfolioItems.map((item) => (
-              <a
-                key={item.title}
-                href={item.href}
-                className="group block cursor-pointer"
-              >
-                <div className="aspect-[16/10] overflow-hidden rounded-2xl bg-canvas-soft relative">
-                  <Image
-                    src={item.image}
-                    alt={item.title}
-                    width={1200}
-                    height={750}
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                    priority={true}
-                  />
-                  <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-2xl pointer-events-none transition-shadow duration-500 group-hover:shadow-[inset_0_0_0_1px_rgba(0,0,0,0.1),0_20px_40px_-10px_rgba(0,0,0,0.15)]" />
-                </div>
-
-                <div className="mt-6">
-                  <div className="flex items-baseline justify-between gap-4">
-                    <h2 className="text-xl font-medium text-ink tracking-tight group-hover:text-ink/80 transition-colors">
-                      {item.title}
-                    </h2>
-                    <span className="text-xs text-muted tracking-wider uppercase">
-                      {item.year}
-                    </span>
-                  </div>
-
-                  <p className="text-sm text-body/80 mt-1 mb-4">
-                    {item.subtitle}
-                  </p>
-
-                  <p className="text-[0.95rem] leading-relaxed text-body line-clamp-2">
-                    {item.description}
-                  </p>
-
-                  <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-xs text-muted">
-                    <span className="flex items-center gap-1.5">
-                      <span aria-hidden="true">📍</span> {item.location}
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <span aria-hidden="true">🚁</span> {item.aircraft}
-                    </span>
-                  </div>
-                </div>
-              </a>
-            ))}
-          </Stagger>
+          <Reveal delay={0.2}>
+            <PortfolioGallery items={items} />
+          </Reveal>
         </div>
       </Section>
     </>
