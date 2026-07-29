@@ -12,7 +12,7 @@
     "notion:sync:check": "node ./scripts/notion-sync.mjs --check --verbose",
     "preview": "npm run pages:build && wrangler pages dev .vercel/output/static",
     "deploy": "npm run pages:build && wrangler pages deploy .vercel/output/static --project-name website-elabs",
-    "pages:build": "npx @cloudflare/next-on-pages"
+    "pages:build": "npx @opennextjs/cloudflare"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
