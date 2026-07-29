@@ -2,7 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "website-elabs",
   "compatibility_date": "2024-09-23",
-  "pages_build_output_dir": ".vercel/output/static",
+  "pages_build_output_dir": ".open-next/assets",
   "kv_namespaces": [
     {
       "binding": "NEXT_CACHE_WORKERS_KV",

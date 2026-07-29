@@ -10,9 +10,9 @@
     "notion:sync": "node ./scripts/notion-sync.mjs --write --verbose",
     "notion:sync:dry": "node ./scripts/notion-sync.mjs --dry-run --verbose",
     "notion:sync:check": "node ./scripts/notion-sync.mjs --check --verbose",
-    "preview": "npm run pages:build && wrangler pages dev .vercel/output/static",
-    "deploy": "npm run pages:build && wrangler pages deploy .vercel/output/static --project-name website-elabs",
-    "pages:build": "npx @opennextjs/cloudflare build"
+    "preview": "npm run pages:build && wrangler pages dev .open-next/assets",
+    "deploy": "npm run pages:build && wrangler pages deploy .open-next/assets --project-name website-elabs",
+    "pages:build": "npx @opennextjs/cloudflare build && cp .open-next/worker.js .open-next/assets/_worker.js"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
