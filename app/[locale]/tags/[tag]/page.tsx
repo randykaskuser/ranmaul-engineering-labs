@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { LOCALES, getArticlesByTag, type Locale } from "@/lib/content";
+import { LOCALES, getArticlesByTag, getAllTags, type Locale } from "@/lib/content";
 
 type Params = {
   locale: string;
@@ -11,6 +11,18 @@ type Params = {
 
 function isValidLocale(value: string): value is Locale {
   return LOCALES.includes(value as Locale);
+}
+
+
+export async function generateStaticParams() {
+  const params = [];
+  for (const locale of LOCALES) {
+    const tags = await getAllTags(locale);
+    for (const { tag } of tags) {
+      params.push({ locale, tag });
+    }
+  }
+  return params;
 }
 
 export default async function TagPage({ params }: { params: Promise<Params> }) {

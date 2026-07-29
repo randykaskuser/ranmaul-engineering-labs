@@ -1,3 +1,4 @@
+export const dynamic = 'force-static';
 import { MetadataRoute } from 'next'
 import { SITE_URL } from '@/lib/site'
 import { getPublishedArticles, LOCALES, DOMAINS } from '@/lib/content'

@@ -12,6 +12,11 @@ function isValidLocale(value: string): value is Locale {
   return LOCALES.includes(value as Locale);
 }
 
+
+export async function generateStaticParams() {
+  return LOCALES.map(locale => ({ locale }));
+}
+
 export default async function TagsIndexPage({ params }: { params: Promise<Params> }) {
   const { locale } = await params;
   if (!isValidLocale(locale)) {

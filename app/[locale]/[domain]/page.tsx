@@ -25,6 +25,17 @@ function isValidDomain(value: string): value is Domain {
   return DOMAINS.includes(value as Domain);
 }
 
+
+export async function generateStaticParams() {
+  const params = [];
+  for (const locale of LOCALES) {
+    for (const domain of DOMAINS) {
+      params.push({ locale, domain });
+    }
+  }
+  return params;
+}
+
 export default async function DomainIndexPage({ params }: { params: Promise<Params> }) {
   const { locale, domain } = await params;
   if (!isValidLocale(locale) || !isValidDomain(domain)) {
