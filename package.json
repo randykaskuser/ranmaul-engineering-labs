@@ -12,7 +12,7 @@
     "notion:sync:check": "node ./scripts/notion-sync.mjs --check --verbose",
     "preview": "npm run pages:build && wrangler pages dev .vercel/output/static",
     "deploy": "npm run pages:build && wrangler pages deploy .vercel/output/static --project-name website-elabs",
-    "pages:build": "npx @opennextjs/cloudflare"
+    "pages:build": "npx @opennextjs/cloudflare build"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -32,11 +32,11 @@
     "shiki": "^4.3.1"
   },
   "devDependencies": {
-    "@cloudflare/next-on-pages": "^1.13.16",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "esbuild": "^0.28.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",

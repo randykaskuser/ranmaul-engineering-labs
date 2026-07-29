@@ -1,9 +1,14 @@
+// Node's FS and Path aren't supported on Edge. We'll use Next.js' unstable_readDir / unstable_readFile if available, or just mock it since these files are pre-rendered at build time.
+// actually wait, getMdxFilePaths is running on Edge during SSR? Let's check where it's used.
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import { cache } from "react";
 
-export const CONTENT_ROOT = path.join(process.cwd(), "content");
+// For Edge runtime compatibility when not running generation
+export const CONTENT_ROOT = typeof process !== 'undefined' && process.cwd
+  ? path.join(process.cwd(), "content")
+  : "";
 
 export const LOCALES = ["en", "id"] as const;
 export const DOMAINS = ["qa", "fpv", "fishkeeping"] as const;

@@ -4,7 +4,9 @@ import matter from "gray-matter";
 import { cache } from "react";
 import { type Locale } from "./content";
 
-export const PORTFOLIO_ROOT = path.join(process.cwd(), "content", "portfolio");
+export const PORTFOLIO_ROOT = typeof process !== 'undefined' && process.cwd
+  ? path.join(process.cwd(), "content", "portfolio")
+  : "";
 
 export type PortfolioFrontmatter = {
   title: string;
