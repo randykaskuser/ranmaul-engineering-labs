@@ -24,6 +24,7 @@ function buildCspReportOnly() {
 }
 
 const nextConfig: NextConfig = {
+  transpilePackages: ['next-mdx-remote', 'rehype-pretty-code', 'shiki'],
   poweredByHeader: false,
   // Security hardening (Phase 3.7)
   // Keep defaults secure, reduce browser attack surface.
