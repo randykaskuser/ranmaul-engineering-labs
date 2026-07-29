@@ -28,7 +28,8 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "rehype-pretty-code": "^0.14.3",
-    "remark-gfm": "^4.0.1"
+    "remark-gfm": "^4.0.1",
+    "shiki": "^4.3.1"
   },
   "devDependencies": {
     "@cloudflare/next-on-pages": "^1.13.16",
