@@ -16,4 +16,5 @@ node_modules/
 .env.development.local
 .env.test.local
 .env.production.local
-.open-next/.codebase-memory/
+.open-next/
+.codebase-memory/
