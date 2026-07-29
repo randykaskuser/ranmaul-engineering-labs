@@ -25,7 +25,10 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Build and deploy
+      - name: Build Next.js app
+        run: npx @cloudflare/next-on-pages
+
+      - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -33,5 +36,3 @@ jobs:
           projectName: 'website-elabs'
           directory: '.vercel/output/static'
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          buildCommands: |
-            npm run pages:build
