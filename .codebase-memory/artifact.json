@@ -1,11 +1,11 @@
 {
     "schema_version": 2,
-    "commit": "2b31ba05254915624c8f0173d28a7f4cadd2448c",
-    "indexed_at": "2026-07-29T15:32:08Z",
+    "commit": "f12a908ed24c3b1a86c9f5f9d57361683752b2e2",
+    "indexed_at": "2026-07-29T15:47:11Z",
     "project": "D-Development-website-elabs-website",
-    "nodes": 2801,
-    "edges": 9039,
-    "original_size": 12058624,
-    "compressed_size": 2312631,
+    "nodes": 920,
+    "edges": 1359,
+    "original_size": 3801088,
+    "compressed_size": 507320,
     "compression_level": 3
 }

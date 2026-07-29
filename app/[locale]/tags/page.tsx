@@ -1,3 +1,5 @@
+
+
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LOCALES, getAllTags, type Locale } from "@/lib/content";
