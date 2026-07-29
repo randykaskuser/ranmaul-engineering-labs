@@ -39,11 +39,15 @@
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vercel": "^58.1.0",
+    "vercel": "^58.3.0",
     "wrangler": "^4.115.0"
   },
   "overrides": {
     "postcss": "^8.5.14",
-    "ws": "^8.21.1"
+    "ws": "^8.21.1",
+    "esbuild": "^0.28.1",
+    "tar": "^7.5.22",
+    "@tootallnate/once": "^2.0.1",
+    "undici": "^6.27.0"
   }
 }
