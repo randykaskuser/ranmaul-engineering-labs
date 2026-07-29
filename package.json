@@ -4,15 +4,20 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "cross-env OPENNEXT_DISABLE_SYMLINKS=true next build",
     "start": "next start",
     "lint": "eslint",
     "notion:sync": "node ./scripts/notion-sync.mjs --write --verbose",
     "notion:sync:dry": "node ./scripts/notion-sync.mjs --dry-run --verbose",
-    "notion:sync:check": "node ./scripts/notion-sync.mjs --check --verbose"
+    "notion:sync:check": "node ./scripts/notion-sync.mjs --check --verbose",
+    "preview": "cross-env OPENNEXT_DISABLE_SYMLINKS=true opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "cross-env OPENNEXT_DISABLE_SYMLINKS=true opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "upload": "cross-env OPENNEXT_DISABLE_SYMLINKS=true opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
+    "@opennextjs/aws": "^4.1.0",
     "framer-motion": "^12.42.2",
     "gray-matter": "^4.0.3",
     "gsap": "^3.15.0",
@@ -27,14 +32,17 @@
     "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "^1.20.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cross-env": "^10.1.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.115.0"
   },
   "overrides": {
     "postcss": "^8.5.14"
