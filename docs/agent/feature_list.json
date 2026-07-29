@@ -1,0 +1,22 @@
+{
+  "features": [
+    {
+      "id": "1",
+      "title": "Migrate to OpenNext",
+      "status": "abandoned",
+      "reason": "OpenNext bundles exceeded Cloudflare free/paid worker size limits (15MB+). Switched to pure Static HTML Export instead which bypasses limits and works faster."
+    },
+    {
+      "id": "2",
+      "title": "Convert to Static Export",
+      "status": "completed",
+      "reason": "Site is now 100% static, builds instantly on Cloudflare Pages."
+    },
+    {
+      "id": "3",
+      "title": "Restore Background Videos to R2",
+      "status": "completed",
+      "reason": "Restored from git history and uploaded to Cloudflare R2 bucket."
+    }
+  ]
+}
