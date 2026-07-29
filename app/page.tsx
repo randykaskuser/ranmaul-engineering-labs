@@ -221,7 +221,11 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
       <Section divider tone="soft" className="relative overflow-hidden w-full flex flex-col justify-center py-10 md:py-20">
         {/* Background Video Layer: Auto-plays list of videos sequentially */}
         <BackgroundVideoPlaylist
-          videos={["/videos/drone-bg.mp4", "/videos/drone-bg-2.mp4", "/videos/drone-bg-3.mp4"]}
+          videos={[
+            "https://pub-86099e7507f24efcacb97eff794f5910.r2.dev/drone-bg.mp4",
+            "https://pub-86099e7507f24efcacb97eff794f5910.r2.dev/drone-bg-2.mp4",
+            "https://pub-86099e7507f24efcacb97eff794f5910.r2.dev/drone-bg-3.mp4"
+          ]}
           poster="/images/drone-bg-poster.jpg"
           opacity={0.3}
         />

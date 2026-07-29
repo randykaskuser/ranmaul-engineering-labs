@@ -9,7 +9,10 @@
     "lint": "eslint",
     "notion:sync": "node ./scripts/notion-sync.mjs --write --verbose",
     "notion:sync:dry": "node ./scripts/notion-sync.mjs --dry-run --verbose",
-    "notion:sync:check": "node ./scripts/notion-sync.mjs --check --verbose"
+    "notion:sync:check": "node ./scripts/notion-sync.mjs --check --verbose",
+    "preview": "npm run pages:build && wrangler pages dev .vercel/output/static",
+    "deploy": "npm run pages:build && wrangler pages deploy .vercel/output/static --project-name website-elabs",
+    "pages:build": "npx @cloudflare/next-on-pages"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -27,6 +30,7 @@
     "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
+    "@cloudflare/next-on-pages": "^1.13.16",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -34,7 +38,9 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vercel": "^58.1.0",
+    "wrangler": "^4.115.0"
   },
   "overrides": {
     "postcss": "^8.5.14"
