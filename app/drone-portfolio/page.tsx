@@ -1,82 +1,120 @@
-import { createPageMetadata } from "@/lib/page-metadata";
-import { Section } from "@/components/layout/section";
-import { Reveal } from "@/components/layout/reveal";
-import { PortfolioGallery } from "@/components/portfolio/portfolio-gallery";
-import { getPortfolioItems } from "@/lib/portfolio";
+import { createPageMetadata } from "@/lib/page-metadata"
+import { Section } from "@/components/layout/section"
+import { Reveal } from "@/components/layout/reveal"
+import { HeroSlideshow } from "@/components/portfolio/hero-slideshow"
+import { PhotoGallery } from "@/components/portfolio/photo-gallery"
+import { VideoGallery } from "@/components/portfolio/video-gallery"
+import { getPortfolioItems } from "@/lib/portfolio"
+import { getRecentArticles } from "@/lib/content"
+import Link from "next/link"
 
 export const metadata = createPageMetadata(
   "Drone Portfolio",
   "Aerial photography portfolio covering landscapes, cityscapes, and cinematic drone flights."
-);
+)
 
 export default async function DronePortfolioPage() {
-  const items = await getPortfolioItems("en");
-
-  const featuredItem = items.find((item) => item.featured);
+  const items = await getPortfolioItems("en")
+  const stories = await getRecentArticles("en", 3)
+  
+  // Need to ensure featured arrays filter correctly based on boolean
+  const featured = items.filter(item => item.featured === true)
+  const photos = items.filter(item => item.mediaType !== "video")
+  const videos = items.filter(item => item.mediaType === "video")
 
   return (
     <>
-      <Section space="xl" className="pt-24 pb-12">
+      <HeroSlideshow featured={featured} />
+
+      <Section space="xl" className="pt-24 pb-12 bg-white dark:bg-black">
         <div className="container-wide">
           <Reveal>
-            <div className="max-w-3xl">
-              <h1 className="font-serif text-5xl md:text-7xl font-normal text-ink tracking-tight leading-[1.1]">
-                Aerial Photography
-              </h1>
-              <p className="mt-6 text-lg md:text-xl text-body leading-relaxed">
-                A collection of landscapes, cityscapes, and structural geometry captured from the sky.
-              </p>
+            <div className="max-w-3xl mb-16">
+              <h2 className="text-sm font-semibold tracking-widest uppercase text-neutral-500 mb-4">Photography</h2>
+              <h3 className="font-serif text-4xl md:text-5xl font-normal text-black dark:text-white tracking-tight">
+                Aerial Stills
+              </h3>
+            </div>
+            <PhotoGallery photos={photos} />
+          </Reveal>
+        </div>
+      </Section>
+
+      <Section space="xl" className="py-24 bg-neutral-50 dark:bg-neutral-950 border-y border-neutral-200 dark:border-neutral-800">
+        <div className="container-wide">
+          <Reveal>
+            <div className="max-w-3xl mb-16">
+              <h2 className="text-sm font-semibold tracking-widest uppercase text-neutral-500 mb-4">Cinematography</h2>
+              <h3 className="font-serif text-4xl md:text-5xl font-normal text-black dark:text-white tracking-tight">
+                Recent Reels
+              </h3>
+            </div>
+            <VideoGallery videos={videos} />
+          </Reveal>
+        </div>
+      </Section>
+
+      <Section space="xl" className="py-24 bg-white dark:bg-black border-b border-neutral-200 dark:border-neutral-800">
+        <div className="container-wide">
+          <Reveal>
+            <div className="max-w-3xl mb-16">
+              <h2 className="text-sm font-semibold tracking-widest uppercase text-neutral-500 mb-4">Arsenal</h2>
+              <h3 className="font-serif text-4xl md:text-5xl font-normal text-black dark:text-white tracking-tight">
+                Equipment
+              </h3>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {['DJI Mavic 3 Pro', 'DJI Mini 3 Pro', 'GoPro Hero 11', 'Custom FPV 5"'].map((gear) => (
+                <div key={gear} className="p-6 border border-neutral-200 dark:border-neutral-800 flex items-center justify-center text-center h-32 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors">
+                  <span className="font-medium text-neutral-700 dark:text-neutral-300">{gear}</span>
+                </div>
+              ))}
             </div>
           </Reveal>
         </div>
       </Section>
 
-      {/* Featured Video / Item */}
-      {featuredItem && (
-        <Section space="default" className="pb-16">
-          <div className="container-wide">
-            <Reveal delay={0.1}>
-              <div className="aspect-[21/9] md:aspect-[2.35/1] overflow-hidden rounded-3xl bg-black relative shadow-2xl">
-                {featuredItem.mediaType === "video" && featuredItem.embedUrl ? (
-                  <iframe
-                    src={featuredItem.embedUrl}
-                    className="absolute inset-0 w-full h-full border-0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : featuredItem.image ? (
-                  <img
-                    src={featuredItem.image}
-                    alt={featuredItem.title}
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                ) : null}
-                <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-3xl pointer-events-none" />
-
-                {/* Optional gradient overlay and text if we want to show title over image */}
-                {(!featuredItem.mediaType || featuredItem.mediaType === "image") && (
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8 md:p-12 pointer-events-none">
-                    <h2 className="text-3xl md:text-4xl text-white font-medium mb-2">{featuredItem.title}</h2>
-                    {featuredItem.location && (
-                      <p className="text-white/80 flex items-center gap-2 text-sm">
-                        <span aria-hidden="true">📍</span> {featuredItem.location}
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
-            </Reveal>
-          </div>
-        </Section>
-      )}
-
-      <Section space="default" className="pb-32">
+      <Section space="xl" className="py-24 bg-neutral-50 dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-800">
         <div className="container-wide">
-          <Reveal delay={0.2}>
-            <PortfolioGallery items={items} />
+          <Reveal>
+            <div className="max-w-3xl mb-16">
+              <h2 className="text-sm font-semibold tracking-widest uppercase text-neutral-500 mb-4">Locations</h2>
+              <h3 className="font-serif text-4xl md:text-5xl font-normal text-black dark:text-white tracking-tight">
+                Flight Map
+              </h3>
+            </div>
+            <div className="w-full aspect-[21/9] bg-neutral-200 dark:bg-neutral-800 relative overflow-hidden flex items-center justify-center">
+              {/* Placeholder for actual map */}
+              <p className="text-neutral-500 dark:text-neutral-400 font-medium tracking-widest uppercase">Interactive Map Coming Soon</p>
+            </div>
+          </Reveal>
+        </div>
+      </Section>
+
+      <Section space="xl" className="py-24 bg-white dark:bg-black">
+        <div className="container-wide">
+          <Reveal>
+            <div className="max-w-3xl mb-16">
+              <h2 className="text-sm font-semibold tracking-widest uppercase text-neutral-500 mb-4">Journal</h2>
+              <h3 className="font-serif text-4xl md:text-5xl font-normal text-black dark:text-white tracking-tight">
+                Latest Stories
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {stories.map(story => (
+                <Link key={story.slug} href={`/en/${story.domain}/${story.slug}`} className="group block">
+                  <div className="aspect-[3/2] w-full bg-neutral-100 dark:bg-neutral-900 relative mb-4 overflow-hidden">
+                     {/* Mocked thumbnail image placeholder */}
+                     <div className="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 group-hover:scale-105 transition-transform duration-500" />
+                  </div>
+                  <h4 className="text-lg font-medium group-hover:underline">{story.title}</h4>
+                  <p className="text-neutral-500 dark:text-neutral-400 mt-2 text-sm">{new Date(story.publishedAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</p>
+                </Link>
+              ))}
+            </div>
           </Reveal>
         </div>
       </Section>
     </>
-  );
+  )
 }
