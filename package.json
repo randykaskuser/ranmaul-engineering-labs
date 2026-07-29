@@ -11,8 +11,8 @@
     "notion:sync:dry": "node ./scripts/notion-sync.mjs --dry-run --verbose",
     "notion:sync:check": "node ./scripts/notion-sync.mjs --check --verbose",
     "preview": "npm run pages:build && wrangler pages dev .open-next/assets",
-    "deploy": "npm run pages:build && wrangler pages deploy .open-next/assets --project-name website-elabs",
-    "pages:build": "npx @opennextjs/cloudflare build && cp .open-next/worker.js .open-next/assets/_worker.js"
+    "deploy": "npm run pages:build && wrangler deploy",
+    "pages:build": "npx @opennextjs/cloudflare build"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
