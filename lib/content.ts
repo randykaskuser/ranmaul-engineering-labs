@@ -110,8 +110,8 @@ function assertFrontmatter(data: Record<string, unknown>, filePath: string): Art
   }
 
   const coverImage = data.coverImage ? String(data.coverImage) : undefined;
-  if (coverImage && !coverImage.startsWith("/")) {
-    throw new Error(`Invalid frontmatter "coverImage" (must start with "/") in ${filePath}`);
+  if (coverImage && !coverImage.startsWith("/") && !coverImage.startsWith("http")) {
+    throw new Error(`Invalid frontmatter "coverImage" (must start with "/" or "http") in ${filePath}`);
   }
 
   return {
