@@ -39,7 +39,6 @@
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vercel": "^58.3.0",
     "wrangler": "^4.115.0"
   },
   "overrides": {
@@ -50,8 +49,6 @@
     "@tootallnate/once": "^2.0.1",
     "undici": "^6.27.0",
     "minimatch": "^10.2.6",
-    "@vercel/python-analysis": {
-      "js-yaml": "^4.3.0"
-    }
+    "sharp": "^0.35.3"
   }
 }
