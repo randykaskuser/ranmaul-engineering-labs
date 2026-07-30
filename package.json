@@ -48,6 +48,10 @@
     "esbuild": "^0.28.1",
     "tar": "^7.5.22",
     "@tootallnate/once": "^2.0.1",
-    "undici": "^6.27.0"
+    "undici": "^6.27.0",
+    "minimatch": "^10.2.6",
+    "@vercel/python-analysis": {
+      "js-yaml": "^4.3.0"
+    }
   }
 }
