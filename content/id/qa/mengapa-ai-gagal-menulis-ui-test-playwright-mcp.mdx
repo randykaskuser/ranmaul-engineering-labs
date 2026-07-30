@@ -1,29 +1,52 @@
 ---
-title: Mengapa AI Gagal Menulis UI Test dengan Playwright MCP
-description: Menjelaskan mengapa model bahasa besar mengalami kesulitan pada UI testing dan bagaimana Playwright MCP menyelesaikannya.
-locale: id
-domain: qa
-slug: mengapa-ai-gagal-menulis-ui-test-playwright-mcp
-canonicalGroup: ai-fails-ui-testing-playwright-mcp
+title: "Mengapa AI Gagal Menulis UI Test (Dan Solusinya dengan Playwright MCP)"
+description: "LLM menulis UI test yang rapuh karena mereka menebak CSS selector. Solusinya adalah memaksa AI membaca accessibility tree langsung menggunakan Playwright MCP. Ini workflow-nya."
+locale: "id"
+domain: "qa"
+slug: "mengapa-ai-gagal-menulis-ui-test-playwright-mcp"
+canonicalGroup: "qa-playwright-mcp-robot-skill"
 coverImage: "https://images.elabs.web.id/playwright-mcp-ai-ui-testing.png"
-publishedAt: 2026-07-30
-updatedAt: 2026-07-30
-tags:
-  - ai
-  - playwright
-  - mcp
-  - testing
-featured: false
+publishedAt: "2026-07-30"
+updatedAt: "2026-07-30"
+tags: ["QA", "Automation", "Playwright", "AI", "Testing"]
+featured: true
 draft: false
 ---
 
-# Mengapa AI Gagal Menulis UI Test dengan Playwright MCP
+# Mengapa AI Sering Gagal Menulis UI Test
 
-AI‑generated UI tests sering gagal karena AI menebak selector berdasarkan snapshot HTML statis. Model bahasa tidak dapat melihat DOM yang hidup, sehingga mereka memilih jalur CSS rapuh yang berubah setiap deploy.
+LLM sangat ahli dalam menulis unit test. Berikan sebuah fungsi JavaScript murni kepada AI, dan ia akan dengan mudah mem-mock dependensi, menguji edge cases, dan memberikan assertion yang tepat.
 
-Playwright MCP menjembatani kesenjangan ini. Ia memungkinkan AI **memeriksa pohon aksesibilitas yang hidup**, menangkap locator yang tahan lama (`getByRole`, `getByText`, `getByLabel`) dan menghasilkan tes TypeScript berbasis Page Object Model (POM) yang auto‑wait dan self‑heal.
+Namun, ketika kita meminta AI untuk menulis End-to-End (E2E) UI test, hasilnya hampir selalu berantakan dan rapuh. Masalah intinya sederhana: **LLM tidak bisa melihat DOM.**
 
-## Alur Kerja Skill
+Saat AI menulis UI test tanpa konteks visual, ia akan menebak berdasarkan standar umum. Ia berhalusinasi menggunakan selector seperti `#submit-btn` atau `.login-form`. Ketika aplikasi aslinya ternyata menggunakan Tailwind utility classes atau React ID yang dinamis, test tersebut akan langsung gagal saat dijalankan.
+
+## Solusi: Playwright MCP & Accessibility Trees
+
+Untuk menulis E2E test yang solid, automation engineer mengandalkan semantic locators—menargetkan elemen persis seperti bagaimana assistive technologies melihatnya. Playwright mewajibkan pendekatan ini melalui locator seperti `getByRole('button', { name: 'Submit' })`.
+
+Agar AI bisa menulis test dengan cara ini, kita harus menjembatani gap antara kode yang ia tulis dan aplikasi yang sedang berjalan. Di sinilah **Model Context Protocol (MCP)** mengubah segalanya.
+
+Dengan menghubungkan Claude ke server Playwright MCP, kita memberi AI sebuah browser tak terlihat. Alih-alih menebak selector, AI dapat menggunakan perintah `browser_snapshot` untuk menangkap **Accessibility Tree** halaman secara live. Ia bisa "melihat" aplikasi, menemukan peran (role) semantik dari setiap elemen, dan menulis locator kuat yang sesuai dengan best practices Playwright.
+
+## Workflow Playwright Robot
+
+Hanya memberi AI akses ke browser tidaklah cukup; jika dibiarkan, ia mungkin akan langsung melompat untuk menulis kode. Untuk menerapkan metodologi QA engineering yang benar, saya membuat custom Claude Code skill bernama `playwright-robot`.
+
+Skill ini menerapkan 4 langkah workflow yang sangat ketat:
+
+1. **Requirement Analysis:** Robot membedah core user journey dan menentukan edge cases sebelum melakukan hal lain.
+2. **Live Inspection:** Robot *dipaksa* untuk membuka URL live dan mengambil snapshot accessibility tree untuk mencari semantic locators. Menebak selector sangat dilarang.
+3. **Code Generation:** Ia menulis TypeScript kelas produksi, memisahkan interaksi UI ke dalam Page Object Models (POM), dan menyimpan file di direktori monorepo yang tepat.
+4. **Run, Validate & Self-Fix:** Fitur andalannya. Robot menjalankan `npx playwright test` di terminal. Jika gagal, ia membaca log, menginspeksi ulang halaman via MCP, memperbaiki kode, dan mengulang loop ini hingga test berhasil (pass).
+
+## Dapatkan Skill Ini
+
+Skill ini adalah bagian dari koleksi agen QA saya di GitHub. Anda dapat mengimplementasikannya di lingkungan Claude Code Anda sendiri.
+
+### Instalasi
+1. Buat direktori `.claude/skills/playwright-robot/` di workspace Anda.
+2. Simpan konten berikut sebagai `SKILL.md` di dalam direktori tersebut.
 
 ```markdown
 ---
@@ -73,5 +96,7 @@ The job is not done until the test passes.
 ## Getting Started
 When invoked, begin immediately with Step 1 and present your Requirement Analysis to the user before proceeding to Step 2.
 ```
+
+Dengan memaksa AI untuk melihat aplikasi persis seperti screen reader (atau Playwright) melihatnya, dan menerapkan loop perbaikan mandiri, kita mengubah tebakan AI yang rapuh menjadi test automation yang handal dan siap produksi.
 
 Anda juga bisa menemukan skill ini dan agen QA lainnya di [Repositori GitHub Claude Code Skills](https://github.com/randykaskuser/qa-agent-skills) saya.
