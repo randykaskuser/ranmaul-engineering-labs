@@ -22,6 +22,18 @@ npm run dev
 
 Open http://localhost:3000
 
+## Deployment (Cloudflare Pages)
+
+The project is built as a **pure Static HTML Export** and deployed via Cloudflare Pages. 
+
+```bash
+# Preview build locally
+npm run preview
+
+# Deploy to Cloudflare Pages
+npm run deploy
+```
+
 Key paths:
 - `app/` — Next.js App Router routes
 - `content/{locale}/{domain}/{slug}.mdx` — article source files
