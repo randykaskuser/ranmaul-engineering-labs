@@ -15,17 +15,15 @@ coverAlt: "Alur diagnosis stabilisasi FPV"
 translationOf: "o4-pro-stabilization-jitter-under-low-frequency-vibration"
 ---
 
-Ada indikasi kuat bahwa batch DJI O4 Pro terbaru memiliki masalah sensitivitas hardware pada getaran frekuensi rendah. Jangan buru-buru menyalahkan tuning drone.
-
-Berikut adalah log investigasi masalah stabilisasi tersebut.
+Ada indikasi kuat bahwa batch DJI O4 Pro terbaru memiliki masalah sensitivitas hardware pada getaran frekuensi rendah, jadi jangan buru-buru menyalahkan tuning drone.
 
 ## Apa Yang Kita Ketahui
 
-Sistem O4 Pro menjanjikan stabilisasi gambar bawaan yang unggul. Tampilan live feed terlihat sangat mulus di kacamata FPV. Namun, hasil rekaman akhir sering menunjukkan micro-jitter. Masalah ini merusak rekaman sinematik.
+Sistem O4 Pro menjanjikan stabilisasi gambar bawaan yang unggul. Tampilan live feed terlihat mulus di kacamata FPV. Hasil rekaman akhir sering menunjukkan micro-jitter. Masalah ini merusak rekaman sinematik.
 
 ## Apa Yang Kita Observasi
 
-Gejala micro-jitter muncul spesifik pada unit produksi terbaru. Rekaman menunjukkan getaran halus yang sulit terlihat sekilas. Masalah ini memuncak saat proses editing. Efek speed-ramp memperjelas keberadaan micro-jitter. Getaran ini sangat sulit dihilangkan pada post-production.
+Gejala micro-jitter muncul spesifik pada unit produksi terbaru. Rekaman menunjukkan getaran halus. Masalah memuncak saat proses editing. Efek speed-ramp memperjelas micro-jitter. Editor sulit menghilangkan getaran ini pada post-production.
 
 ## Apa Yang Konsisten
 
@@ -33,15 +31,15 @@ Kemunculan jitter memiliki pola pasti. Getaran terjadi saat drone melakukan manu
 
 ## Apa Yang Tidak Konsisten
 
-Solusi konvensional memberikan hasil acak. Mengencangkan baut stack kadang justru memperburuk micro-jitter. Mengganti material damping ke versi lunak memang meredam micro-jitter. Sayangnya, penggunaan damping lunak memunculkan horizon lag. Menaikkan nilai low-pass filter secara ekstrem menutupi jitter visual. Namun, kompromi filter berat membuat respons drone menjadi lambat.
+Solusi konvensional memberikan hasil acak. Mengencangkan baut stack kadang memperburuk micro-jitter. Mengganti material damping ke versi lunak meredam micro-jitter. Penggunaan damping lunak memunculkan horizon lag. Menaikkan nilai low-pass filter menutupi jitter visual. Kompromi filter berat membuat respons drone menjadi lambat.
 
 ## Hipotesis
 
-Akar masalah bukan besaran getaran total. Revisi hardware pada O4 Pro tampak sangat sensitif terhadap pita getaran frekuensi rendah. Energi getaran bergeser cepat saat pilot melakukan perubahan throttle. Algoritma stabilisasi kesulitan merespons pergeseran spektrum frekuensi secara instan.
+Akar masalah bukan besaran getaran total. Revisi hardware pada O4 Pro sangat sensitif terhadap pita getaran frekuensi rendah. Energi getaran bergeser cepat saat pilot melakukan perubahan throttle. Algoritma stabilisasi kesulitan merespons pergeseran spektrum frekuensi secara instan.
 
 ## Apa Yang Belum Terkonfirmasi
 
-Kita belum mengetahui komponen hardware spesifik yang memicu sensitivitas ini. Opsi rollback firmware sangat terbatas. Pengujian A/B murni sulit dieksekusi karena variabel angin terus berubah di lapangan. Belum ada konfirmasi resmi dari pabrikan mengenai revisi komponen pada batch terbaru.
+Kita belum mengetahui komponen hardware spesifik pemicu sensitivitas ini. Opsi rollback firmware sangat terbatas. Kita sulit mengeksekusi pengujian A/B murni karena variabel angin terus berubah di lapangan. Pabrikan belum merilis konfirmasi resmi mengenai revisi komponen pada batch terbaru.
 
 ## Langkah Praktis
 
@@ -55,4 +53,4 @@ Jangan langsung mengubah parameter software. Gunakan pendekatan mekanis terlebih
 6. Bandingkan log blackbox untuk melihat energi gyro.
 7. Lakukan uji terbang terstruktur pada rute yang identik.
 
-Proses tuning selalu menuntut pengorbanan. Anda harus memilih keseimbangan antara video bebas jitter dan respons drone yang tajam. Isolasi variabel fisik sebelum menyentuh filter software.
+Proses tuning selalu menuntut pengorbanan. Pilot harus memilih keseimbangan antara video bebas jitter dan respons drone yang tajam. Isolasi variabel fisik sebelum menyentuh filter software.
