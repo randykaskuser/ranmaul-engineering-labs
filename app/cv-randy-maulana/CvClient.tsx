@@ -103,9 +103,52 @@ export default function CvClient() {
       `}} />
 
       <main className="max-w-[1200px] mx-auto px-6 py-12 md:py-16 md:px-12">
-         <div data-testid="bento-container" className="space-y-6">
-            {/* Grid will be populated in next tasks */}
-         </div>
+         {/* HERO BENTO */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+          <section className="bento-card lg:col-span-8 p-10 md:p-14 relative overflow-hidden flex flex-col justify-end min-h-[360px]">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-100 rounded-bl-[100px] -z-10 opacity-50 blur-3xl pointer-events-none" />
+
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tighter leading-[0.95] text-[#18181B] mb-6 whitespace-pre-line">
+              {CV_DATA.name}
+            </h1>
+            <h2 className="text-xl md:text-2xl font-medium tracking-tight text-[#64748B] mb-4">
+              {CV_DATA.title} <span className="mx-2 text-slate-300">|</span> <span className="text-[#2563EB]">{CV_DATA.domain}</span>
+            </h2>
+            <p className="text-lg leading-relaxed text-slate-700 font-medium max-w-2xl mt-4">
+               {CV_DATA.summary}
+            </p>
+          </section>
+
+          <section className="bento-card lg:col-span-4 p-8 flex flex-col justify-between min-h-[360px] bg-[#18181B] text-white border-none relative overflow-hidden">
+             {/* 8+ Years Badge */}
+            <div className="absolute top-8 right-8 z-20 bg-white/10 backdrop-blur-md text-white p-4 rounded-xl flex flex-col items-center border border-white/20">
+              <span className="text-2xl font-bold mb-0.5">8<span className="text-[#65A30D]">+</span></span>
+              <span className="text-[9px] font-mono tracking-widest text-slate-300 uppercase">Years</span>
+            </div>
+
+            <div>
+              <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mb-6">
+                <Mail className="w-5 h-5 text-blue-400" />
+              </div>
+              <h3 className="text-2xl font-semibold mb-2">Let's Connect</h3>
+            </div>
+
+            <div className="space-y-3 font-mono text-sm z-10">
+              <a href={`mailto:${CV_DATA.contact.email}`} className="flex items-center gap-3 text-slate-300 hover:text-white transition-colors">
+                 {CV_DATA.contact.email}
+              </a>
+              <div className="flex items-center gap-3 text-slate-300">
+                 {CV_DATA.contact.location}
+              </div>
+              <a href={CV_DATA.contact.linkedin} className="flex items-center gap-3 text-blue-400 hover:text-blue-300 transition-colors mt-4">
+                 LinkedIn <ArrowUpRight className="w-3 h-3" />
+              </a>
+            </div>
+             {/* Portrait Placeholder (Background) */}
+             <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-slate-800 rounded-full blur-3xl opacity-50"></div>
+             {/* Note: Add <img src="/assets/profile.png" /> here later if needed, absolutely positioned bottom-right */}
+          </section>
+        </div>
       </main>
     </div>
   );
