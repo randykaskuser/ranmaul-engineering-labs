@@ -149,7 +149,69 @@ export default function CvClient() {
              {/* Note: Add <img src="/assets/profile.png" /> here later if needed, absolutely positioned bottom-right */}
           </section>
         </div>
+
+        {/* MIDDLE GRID: EXPERIENCE (Left) & EXPERTISE/HIGHLIGHTS (Right) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+           {/* Experience List (8 cols) */}
+           <section className="bento-card lg:col-span-8 p-8 md:p-10">
+              <h3 className="text-sm font-bold tracking-[0.15em] uppercase text-slate-400 mb-8">Work Experience</h3>
+              <div className="space-y-10">
+                {CV_DATA.experience.map((job, index) => (
+                  <div key={index} className="relative">
+                    <div className="flex flex-col md:flex-row md:items-start justify-between mb-4 gap-2">
+                      <div>
+                        <h4 className="text-xl font-bold tracking-tight text-[#18181B]">{job.company}</h4>
+                        <h5 className="text-md font-medium text-[#2563EB]">{job.role}</h5>
+                      </div>
+                      <div className="px-3 py-1 bg-slate-50 text-slate-500 text-xs font-bold font-mono uppercase tracking-widest rounded-full shrink-0 border border-slate-200">
+                        {job.period}
+                      </div>
+                    </div>
+                    <ul className="space-y-3">
+                      {job.bullets.map((bullet, i) => (
+                        <li key={i} className="text-slate-600 text-[14px] leading-relaxed pl-5 relative before:absolute before:left-0 before:top-2 before:w-1.5 before:h-1.5 before:bg-[#2563EB] before:rounded-full">
+                          {bullet}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+           </section>
+
+           {/* Expertise & Highlights (4 cols) */}
+           <div className="lg:col-span-4 flex flex-col gap-6">
+              {/* Expertise */}
+              <section className="bento-card p-8 flex-1">
+                 <h3 className="text-sm font-bold tracking-[0.15em] uppercase text-slate-400 mb-6">Core Expertise</h3>
+                 <div className="flex flex-col gap-3">
+                    {CV_DATA.expertise.map((skill, index) => (
+                      <div key={index} className="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
+                        <span className="font-semibold text-slate-700 text-sm">{skill.name}</span>
+                        <span className="text-[10px] font-mono font-bold text-[#2563EB] bg-blue-50 px-2 py-1 rounded">
+                           {skill.level}
+                        </span>
+                      </div>
+                    ))}
+                 </div>
+              </section>
+
+              {/* Highlights */}
+              <section className="bento-card p-8 bg-slate-50 border-none">
+                 <h3 className="text-sm font-bold tracking-[0.15em] uppercase text-slate-400 mb-6">Highlights</h3>
+                 <div className="flex flex-col gap-5">
+                    {CV_DATA.highlights.map((highlight, index) => (
+                      <div key={index} className="flex flex-col">
+                        <div className="text-lg font-bold text-[#18181B]">{highlight.metric}</div>
+                        <div className="text-xs text-slate-500">{highlight.desc}</div>
+                      </div>
+                    ))}
+                 </div>
+              </section>
+           </div>
+        </div>
       </main>
+
     </div>
   );
 }
