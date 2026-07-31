@@ -210,6 +210,39 @@ export default function CvClient() {
               </section>
            </div>
         </div>
+
+        {/* FEATURED PROJECTS (Bottom Row) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+           {CV_DATA.projects.map((project, index) => (
+              <section key={index} className="bento-card p-6 flex flex-col">
+                 <div className="mb-4">
+                    <span className="text-[9px] font-mono font-bold tracking-widest uppercase text-[#65A30D] bg-green-50 px-2 py-1 rounded border border-green-100">
+                      {project.badge}
+                    </span>
+                 </div>
+                 <h4 className="text-lg font-bold text-[#18181B] mb-2">{project.title}</h4>
+                 <p className="text-sm text-slate-500 leading-relaxed flex-1">
+                    {project.desc}
+                 </p>
+              </section>
+           ))}
+        </div>
+
+        {/* CTA FOOTER */}
+        <section className="bg-[#111827] rounded-[24px] p-10 md:p-14 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#FFFFFF 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+
+          <div className="relative z-10 text-center md:text-left">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2">Ready to scale quality?</h2>
+            <p className="text-[#94A3B8] text-sm">Let's connect and build reliable products together.</p>
+          </div>
+
+          <div className="relative z-10 shrink-0">
+             <a href={`mailto:${CV_DATA.contact.email}`} className="flex items-center gap-2 bg-[#16A34A] text-white px-6 py-3.5 rounded-xl font-medium hover:bg-[#15803d] transition-colors shadow-lg">
+                <Mail className="w-4 h-4" /> Schedule a Call
+             </a>
+          </div>
+        </section>
       </main>
 
     </div>
