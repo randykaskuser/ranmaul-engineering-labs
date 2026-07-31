@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 concurrency:
   group: notion-sync
@@ -38,20 +39,17 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: npm run notion:sync
 
-      - name: Commit changes (if any)
-        run: |
-          if [ -n "$(git status --porcelain)" ]; then
-            git config user.name "notion-sync-bot"
-            git config user.email "notion-sync-bot@users.noreply.github.com"
-            # Hardening (Phase 3.7): minimize blast radius of a write-capable workflow.
-            # Only stage the generated content and downloaded media outputs.
-            # Stage generated content. Only add media directory if it exists to avoid pathspec errors.
-            git add -A content
-            if [ -d public/media/notion ]; then
-              git add -A public/media/notion
-            fi
-            git commit -m "chore(content): sync Notion → MDX"
-            git push
-          else
-            echo "No changes to commit."
-          fi
+      - name: Create Pull Request (if any)
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore(content): sync Notion → MDX"
+          title: "chore(content): sync Notion → MDX"
+          body: "Automated content sync from Notion."
+          branch: "bot/notion-sync"
+          base: "main"
+          author: "notion-sync-bot <notion-sync-bot@users.noreply.github.com>"
+          committer: "notion-sync-bot <notion-sync-bot@users.noreply.github.com>"
+          add-paths: |
+            content/**
+            public/media/notion/**
