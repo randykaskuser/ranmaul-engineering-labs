@@ -72,34 +72,122 @@ function toNotionRichText(value) {
 }
 
 function mdxBodyToNotionBlocks(body) {
-  // Minimal safe conversion: preserve body content as preformatted text.
-  // This keeps code/config intact and avoids unsupported Notion block mapping.
-  // NOTE: The synced MDX will include this content as a fenced code block,
-  //       which is still readable and copyable.
   const content = String(body ?? "").trim();
   if (!content) return [];
-  const lines = chunkString(content, 1800);
-  return [
-    {
-      object: "block",
-      type: "callout",
-      callout: {
-        icon: { type: "emoji", emoji: "🤖" },
-        rich_text: toNotionRichText(
-          "Auto-translated by AI during Notion→MDX sync. Review/edit if needed.",
-        ),
-        color: "gray_background",
-      },
-    },
-    {
-      object: "block",
-      type: "code",
-      code: {
-        language: "markdown",
-        rich_text: lines.flatMap((line) => toNotionRichText(line)),
-      },
-    },
-  ];
+
+  const blocks = [];
+  const lines = content.split('\n');
+  let currentBlockType = null;
+  let currentBlockLines = [];
+  let inCodeBlock = false;
+  let codeLang = '';
+
+  function flushBlock() {
+    if (currentBlockLines.length === 0) return;
+    const text = currentBlockLines.join('\n');
+
+    if (currentBlockType === 'code') {
+      let safeLang = codeLang.toLowerCase();
+      if (!['abap', 'arduino', 'bash', 'basic', 'c', 'clojure', 'coffeescript', 'c++', 'c#', 'css', 'dart', 'diff', 'docker', 'elixir', 'elm', 'erlang', 'flow', 'fortran', 'f#', 'gherkin', 'glsl', 'go', 'graphql', 'groovy', 'haskell', 'html', 'java', 'javascript', 'json', 'julia', 'kotlin', 'latex', 'less', 'lisp', 'livescript', 'lua', 'makefile', 'markdown', 'markup', 'matlab', 'mermaid', 'nix', 'objective-c', 'ocaml', 'pascal', 'perl', 'php', 'plain text', 'powershell', 'prolog', 'protobuf', 'python', 'r', 'reason', 'ruby', 'rust', 'sass', 'scala', 'scheme', 'scss', 'shell', 'sql', 'swift', 'typescript', 'vb.net', 'verilog', 'vhdl', 'visual basic', 'webassembly', 'xml', 'yaml', 'java/c/c++/c#'].includes(safeLang)) {
+        safeLang = 'plain text';
+      }
+      blocks.push({
+        object: 'block',
+        type: 'code',
+        code: { language: safeLang, rich_text: toNotionRichText(text) }
+      });
+    } else if (currentBlockType === 'heading_1') {
+      blocks.push({ object: 'block', type: 'heading_1', heading_1: { rich_text: toNotionRichText(text.replace(/^#\s+/, '')) } });
+    } else if (currentBlockType === 'heading_2') {
+      blocks.push({ object: 'block', type: 'heading_2', heading_2: { rich_text: toNotionRichText(text.replace(/^##\s+/, '')) } });
+    } else if (currentBlockType === 'heading_3') {
+      blocks.push({ object: 'block', type: 'heading_3', heading_3: { rich_text: toNotionRichText(text.replace(/^###\s+/, '')) } });
+    } else if (currentBlockType === 'quote') {
+      blocks.push({ object: 'block', type: 'quote', quote: { rich_text: toNotionRichText(text.replace(/^>\s?/gm, '')) } });
+    } else if (currentBlockType === 'bulleted_list_item') {
+      blocks.push({ object: 'block', type: 'bulleted_list_item', bulleted_list_item: { rich_text: toNotionRichText(text.replace(/^-\s+/, '')) } });
+    } else if (currentBlockType === 'numbered_list_item') {
+      blocks.push({ object: 'block', type: 'numbered_list_item', numbered_list_item: { rich_text: toNotionRichText(text.replace(/^\d+\.\s+/, '')) } });
+    } else if (currentBlockType === 'divider') {
+      blocks.push({ object: 'block', type: 'divider', divider: {} });
+    } else {
+      blocks.push({ object: 'block', type: 'paragraph', paragraph: { rich_text: toNotionRichText(text) } });
+    }
+    currentBlockLines = [];
+    currentBlockType = null;
+  }
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    if (inCodeBlock) {
+      if (line.trim() === '```') {
+        flushBlock();
+        inCodeBlock = false;
+      } else {
+        currentBlockLines.push(line);
+      }
+      continue;
+    }
+
+    if (line.trim().startsWith('```')) {
+      flushBlock();
+      inCodeBlock = true;
+      codeLang = line.trim().slice(3).trim();
+      currentBlockType = 'code';
+      continue;
+    }
+
+    if (line.trim() === '---') {
+      flushBlock();
+      currentBlockType = 'divider';
+      currentBlockLines.push(line);
+      flushBlock();
+      continue;
+    }
+
+    if (line.trim() === '') {
+      flushBlock();
+      continue;
+    }
+
+    if (currentBlockLines.length === 0) {
+      if (line.startsWith('# ')) currentBlockType = 'heading_1';
+      else if (line.startsWith('## ')) currentBlockType = 'heading_2';
+      else if (line.startsWith('### ')) currentBlockType = 'heading_3';
+      else if (line.startsWith('> ')) currentBlockType = 'quote';
+      else if (line.match(/^-\s+/)) currentBlockType = 'bulleted_list_item';
+      else if (line.match(/^\d+\.\s+/)) currentBlockType = 'numbered_list_item';
+      else currentBlockType = 'paragraph';
+    } else {
+      if (currentBlockType === 'bulleted_list_item' && line.match(/^-\s+/)) {
+        flushBlock();
+        currentBlockType = 'bulleted_list_item';
+      } else if (currentBlockType === 'numbered_list_item' && line.match(/^\d+\.\s+/)) {
+        flushBlock();
+        currentBlockType = 'numbered_list_item';
+      }
+    }
+    currentBlockLines.push(line);
+  }
+
+  flushBlock();
+
+  blocks.push({
+    object: 'block',
+    type: 'paragraph',
+    paragraph: {
+      rich_text: [
+        {
+          type: "text",
+          text: { content: "Auto-translated by AI during Notion→MDX sync. Review/edit if needed." },
+          annotations: { italic: true, color: "gray" }
+        }
+      ]
+    }
+  });
+
+  return blocks;
 }
 
 async function queryPagesByFilter(databaseId, dataSourceId, filter) {
