@@ -1,6 +1,11 @@
 'use client';
 
 import { Mail, ArrowUpRight, Code2, PlaySquare, Workflow, FileText } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+
+gsap.registerPlugin(useGSAP);
 
 const CV_DATA = {
   name: "Randy\nMaulana",
@@ -81,8 +86,22 @@ const CV_DATA = {
 };
 
 export default function CvClient() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    // Subtle, fast UI reveal typical of modern SaaS dashboards
+    gsap.from('.bento-card', {
+      y: 20,
+      opacity: 0,
+      duration: 0.5,
+      stagger: 0.05,
+      ease: 'power2.out',
+      delay: 0.1
+    });
+  }, { scope: containerRef });
+
   return (
-    <div className="min-h-screen bg-[#FDFDFD] text-[#09090B] font-sans selection:bg-[#2563EB] selection:text-white pb-24">
+    <div ref={containerRef} className="min-h-screen bg-[#FDFDFD] text-[#09090B] font-sans selection:bg-[#2563EB] selection:text-white pb-24">
       {/* Hide global nav */}
       <style dangerouslySetInnerHTML={{__html: `
         header, footer { display: none !important; }
