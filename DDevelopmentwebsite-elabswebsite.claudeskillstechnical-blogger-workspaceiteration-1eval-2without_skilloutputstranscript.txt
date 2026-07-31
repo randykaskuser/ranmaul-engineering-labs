@@ -1,0 +1,35 @@
+Task [receive] [user request].
+Article [draft] [migrate Jest to Playwright API testing].
+
+# Migrate Jest to Playwright API Testing
+
+Jest [good] [unit tests]. Playwright [better] [API testing]. Playwright [have] [built-in network intercept, isolated contexts].
+
+## Why Migrate?
+1. Speed. Playwright [fast] [parallel execution].
+2. Context. Playwright [isolate] [state].
+3. Tools. Playwright [include] [trace viewer].
+
+## How Migrate
+1. Install Playwright. `npm init playwright@latest`
+2. Remove Jest. `npm uninstall jest`
+3. Update tests. Change `expect` syntax. Use `request` context.
+
+```javascript
+// Jest
+test('get users', async () => {
+  const res = await axios.get('/api/users');
+  expect(res.status).toBe(200);
+});
+
+// Playwright
+import { test, expect } from '@playwright/test';
+
+test('get users', async ({ request }) => {
+  const res = await request.get('/api/users');
+  expect(res.status()).toBe(200);
+});
+```
+
+Migration [complete]. 
+Next step: run `npx playwright test`.

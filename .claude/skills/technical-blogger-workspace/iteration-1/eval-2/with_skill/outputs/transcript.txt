@@ -1,0 +1,14 @@
+## Phase 1 — Audience Analysis
+- **Target reader**: QA engineers, backend developers, SDETs.
+- **Assumed experience level**: Intermediate. Familiar with JS/TS, REST APIs, and Jest.
+- **Prerequisites**: Existing knowledge of Jest and basic API testing concepts.
+- **Intent**: Show why Playwright's APIRequestContext is superior to Jest + Supertest, and provide a clear migration path.
+
+## Phase 2 — Extract Core Idea
+- **Central problem**: Scaling API integration tests in Jest requires gluing together external libraries (Supertest, Axios), lacks built-in network tracing, and struggles with parallel execution efficiency.
+- **Why it matters**: As API test suites grow, debugging failures via console logs becomes painful and execution slows down.
+- **Common misconceptions**: Playwright is strictly for browser/UI testing.
+- **Pain points**: Flaky tests, complex global setup/teardown, unreadable error logs for failed requests.
+- **What readers will learn**: How to replace Jest+Supertest with Playwright API testing, leverage built-in tracing/UI mode for debugging, and structure tests for parallel execution.
+
+Do you approve this analysis and core idea? If yes, I will proceed to Phase 3 (Build Story Structure).

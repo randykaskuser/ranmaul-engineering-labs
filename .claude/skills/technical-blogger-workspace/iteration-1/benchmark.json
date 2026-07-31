@@ -1,0 +1,71 @@
+{
+  "skill_name": "technical-blogger",
+  "configurations": ["with_skill", "without_skill"],
+  "summary": {
+    "with_skill": {
+      "pass_rate": 1.0,
+      "avg_duration_seconds": 31.0,
+      "avg_tokens": 0
+    },
+    "without_skill": {
+      "pass_rate": 0.0,
+      "avg_duration_seconds": 47.7,
+      "avg_tokens": 0
+    }
+  },
+  "evals": [
+    {
+      "eval_id": 1,
+      "eval_name": "react-server-components",
+      "results": {
+        "with_skill": {
+          "passed": 2,
+          "total": 2,
+          "duration_seconds": 29.0,
+          "tokens": 0,
+          "assertions": [
+            {"text": "Does not jump to code", "passed": true, "evidence": "Transcript stops after Phase 2 and explicitly asks 'Proceed to Phase 3 (Outline)?'"},
+            {"text": "Phases explicitly stated", "passed": true, "evidence": "Output contains 'Phase 1 — Audience Analysis' and 'Phase 2 — Extract Core Idea'"}
+          ]
+        },
+        "without_skill": {
+          "passed": 0,
+          "total": 2,
+          "duration_seconds": 40.6,
+          "tokens": 0,
+          "assertions": [
+            {"text": "Does not jump to code", "passed": false, "evidence": "Output was the final generated article instead of stopping at Phase 2."},
+            {"text": "Phases explicitly stated", "passed": false, "evidence": "Output did not mention Phase 1 or Phase 2."}
+          ]
+        }
+      }
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "jest-to-playwright",
+      "results": {
+        "with_skill": {
+          "passed": 2,
+          "total": 2,
+          "duration_seconds": 33.0,
+          "tokens": 0,
+          "assertions": [
+            {"text": "Does not jump to code", "passed": true, "evidence": "Transcript stops after Phase 2 and explicitly asks 'Do you approve this analysis...?'"},
+            {"text": "Phases explicitly stated", "passed": true, "evidence": "Output contains 'Phase 1 — Audience Analysis' and 'Phase 2 — Extract Core Idea'"}
+          ]
+        },
+        "without_skill": {
+          "passed": 0,
+          "total": 2,
+          "duration_seconds": 54.7,
+          "tokens": 0,
+          "assertions": [
+            {"text": "Does not jump to code", "passed": false, "evidence": "Output was the final generated article instead of stopping at Phase 2."},
+            {"text": "Phases explicitly stated", "passed": false, "evidence": "Output did not mention Phase 1 or Phase 2."}
+          ]
+        }
+      }
+    }
+  ],
+  "analysis": "The skill perfectly enforces the unbreakable workflow. In both test cases, the with_skill runs successfully halted after printing Phase 1 and Phase 2, asking the user for permission to proceed. In contrast, the without_skill baseline runs immediately dumped out complete blog posts, violating the progressive disclosure and approval constraints."
+}

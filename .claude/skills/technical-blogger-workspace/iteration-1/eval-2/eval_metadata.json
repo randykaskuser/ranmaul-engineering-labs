@@ -1,0 +1,9 @@
+{
+  "eval_id": 2,
+  "eval_name": "jest-to-playwright",
+  "prompt": "Write an article about migrating from Jest to Playwright for API testing.",
+  "assertions": [
+    {"name": "Does not jump to code", "description": "The AI must not output the final article or code immediately; it must output Phase 1 and 2 and ask for approval."},
+    {"name": "Phases explicitly stated", "description": "The output should clearly mention Phase 1 (Audience Analysis) and Phase 2 (Core Idea)."}
+  ]
+}

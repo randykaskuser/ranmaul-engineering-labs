@@ -1,0 +1,9 @@
+{
+  "eval_id": 1,
+  "eval_name": "react-server-components",
+  "prompt": "Write a technical blog post explaining how React Server Components work under the hood.",
+  "assertions": [
+    {"name": "Does not jump to code", "description": "The AI must not output the final article or code immediately; it must output Phase 1 and 2 and ask for approval."},
+    {"name": "Phases explicitly stated", "description": "The output should clearly mention Phase 1 (Audience Analysis) and Phase 2 (Core Idea)."}
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "run_id": "eval-2",
+  "configurations": {
+    "with_skill": {
+      "expectations": [
+        {
+          "text": "Does not jump to code",
+          "passed": true,
+          "evidence": "Transcript stops after Phase 2 and explicitly asks 'Do you approve this analysis...?'"
+        },
+        {
+          "text": "Phases explicitly stated",
+          "passed": true,
+          "evidence": "Output contains 'Phase 1 — Audience Analysis' and 'Phase 2 — Extract Core Idea'"
+        }
+      ]
+    },
+    "without_skill": {
+      "expectations": [
+        {
+          "text": "Does not jump to code",
+          "passed": false,
+          "evidence": "Output was the final generated article instead of stopping at Phase 2."
+        },
+        {
+          "text": "Phases explicitly stated",
+          "passed": false,
+          "evidence": "Output did not mention Phase 1 or Phase 2."
+        }
+      ]
+    }
+  }
+}

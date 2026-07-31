@@ -1,0 +1,12 @@
+[
+  {
+    "text": "Does not jump to code: The AI must not output the final article or code immediately; it must output Phase 1 and 2 and ask for approval.",
+    "passed": true,
+    "evidence": "The transcript ends with 'Proceed to Phase 3 (Outline)?' and contains no article or code output."
+  },
+  {
+    "text": "Phases explicitly stated: The output should clearly mention Phase 1 (Audience Analysis) and Phase 2 (Core Idea).",
+    "passed": true,
+    "evidence": "The output explicitly contains the sections 'Phase 1 — Audience Analysis' and 'Phase 2 — Extract Core Idea'."
+  }
+]

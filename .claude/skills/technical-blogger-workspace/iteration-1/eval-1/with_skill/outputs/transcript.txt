@@ -1,0 +1,16 @@
+Phase 1 & 2 analysis complete.
+
+Phase 1 — Audience Analysis
+- Target reader: Intermediate to senior frontend engineer.
+- Assumed experience level: Comfortable with React (hooks, components, state) and standard client-side rendering (CSR) concepts.
+- Prerequisites: Basic understanding of how traditional React renders in the browser and what a Node.js server does.
+- Intent: Demystify React Server Components (RSC) by explaining the underlying mechanics (the "wire format", rendering lifecycle, and hydration shift) rather than just API usage.
+
+Phase 2 — Extract Core Idea
+- Central problem: The gap between "I know how to write `async function MyComponent()`" and "I understand how this actually gets from the server to the browser without sending JavaScript."
+- Why it matters: Developers treat RSCs as magic. When things break or performance degrades, they can't debug effectively because they don't know the execution model.
+- Common misconceptions: RSCs are just SSR (Server-Side Rendering). RSCs replace CSR completely. You can't use state anymore.
+- Pain points: Confusing error messages about serializability, mixing client and server boundaries, and bundle size confusion.
+- What readers will learn: How RSCs generate a specialized UI description (the RSC payload), how this payload streams to the browser, and how the client reconciles it with Client Components.
+
+Proceed to Phase 3 (Outline)?
