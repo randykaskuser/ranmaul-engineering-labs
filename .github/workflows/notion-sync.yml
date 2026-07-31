@@ -39,6 +39,13 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: npm run notion:sync
 
+      - name: Ensure notion media path exists
+        run: |
+          mkdir -p public/media/notion
+          if [ -z "$(ls -A public/media/notion 2>/dev/null)" ]; then
+            touch public/media/notion/.gitkeep
+          fi
+
       - name: Create Pull Request (if any)
         uses: peter-evans/create-pull-request@v7
         with:
