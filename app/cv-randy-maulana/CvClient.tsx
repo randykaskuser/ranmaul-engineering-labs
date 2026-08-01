@@ -1,11 +1,13 @@
 'use client';
 
-import { Mail, ArrowUpRight, Code2, PlaySquare, Workflow, FileText } from 'lucide-react';
+import { Mail, ArrowUpRight, Download, FileText, Code2, PlaySquare, Workflow, MapPin } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 
 gsap.registerPlugin(useGSAP);
+
+function LinkedinIcon({className="w-4 h-4"}: {className?: string}) { return <svg className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg> }
 
 const CV_DATA = {
   name: "Randy\nMaulana",
@@ -138,34 +140,55 @@ export default function CvClient() {
             </p>
           </section>
 
-          <section className="bento-card lg:col-span-4 p-8 flex flex-col justify-between min-h-[360px] bg-[#18181B] text-white border-none relative overflow-hidden">
+          <section className="bento-card lg:col-span-4 p-8 flex flex-col justify-between min-h-[360px] bg-[#18181B] text-white border-none relative overflow-hidden group">
+             {/* Background glow behind portrait */}
+             <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-950 z-0"></div>
+             <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl z-0 transition-transform duration-700 group-hover:scale-110"></div>
+
              {/* 8+ Years Badge */}
-            <div className="absolute top-8 right-8 z-20 bg-white/10 backdrop-blur-md text-white p-4 rounded-xl flex flex-col items-center border border-white/20">
-              <span className="text-2xl font-bold mb-0.5">8<span className="text-[#65A30D]">+</span></span>
-              <span className="text-[9px] font-mono tracking-widest text-slate-300 uppercase">Years</span>
+            <div className="absolute top-6 right-6 z-30 bg-white/10 backdrop-blur-md text-white px-5 py-3 rounded-2xl flex flex-col items-center border border-white/10 shadow-xl">
+              <span className="text-2xl font-bold mb-0.5 leading-none">8<span className="text-[#65A30D]">+</span></span>
+              <span className="text-[9px] font-mono tracking-widest text-slate-300 uppercase mt-1">Years</span>
             </div>
 
-            <div>
-              <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mb-6">
-                <Mail className="w-5 h-5 text-blue-400" />
+             {/* Actual Portrait - Scaled to fill the bottom area and masked to blend perfectly */}
+             <div className="absolute inset-x-0 bottom-0 top-[15%] z-10 pointer-events-none flex items-end justify-center">
+               <img
+                 src="/assets/profile.png"
+                 alt="Randy Maulana"
+                 className="w-full h-full object-cover object-bottom drop-shadow-2xl transition-transform duration-500 group-hover:scale-105 opacity-90"
+                 style={{
+                   maskImage: 'linear-gradient(to top, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)',
+                   WebkitMaskImage: 'linear-gradient(to top, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)'
+                 }}
+               />
+               {/* Dark gradient overlay at the very bottom to ensure text readability */}
+               <div className="absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-[#18181B] via-[#18181B]/80 to-transparent pointer-events-none"></div>
+             </div>
+
+            {/* Header Content */}
+            <div className="relative z-20 pointer-events-none">
+              <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center mb-4 backdrop-blur-md border border-white/5 shadow-lg">
+                <Mail className="w-4 h-4 text-blue-400" />
               </div>
-              <h3 className="text-2xl font-semibold mb-2">Let's Connect</h3>
+              <h3 className="text-2xl font-semibold mb-2 drop-shadow-lg">Let's Connect</h3>
             </div>
 
-            <div className="space-y-3 font-mono text-sm z-10">
-              <a href={`mailto:${CV_DATA.contact.email}`} className="flex items-center gap-3 text-slate-300 hover:text-white transition-colors">
+            {/* Contact Pills - Placed nicely within glass panel */}
+            <div className="space-y-3 font-mono text-sm z-30 relative bg-slate-900/40 p-5 rounded-xl backdrop-blur-md border border-white/10 mt-auto shadow-2xl pointer-events-auto">
+              <a href={`mailto:${CV_DATA.contact.email}`} className="flex items-center gap-3 text-slate-100 hover:text-white transition-colors drop-shadow-md font-bold relative z-40">
+                 <Mail className="w-4 h-4 shrink-0 text-blue-400" />
                  {CV_DATA.contact.email}
               </a>
-              <div className="flex items-center gap-3 text-slate-300">
+              <div className="flex items-center gap-3 text-slate-200 drop-shadow-md relative z-40">
+                 <MapPin className="w-4 h-4 shrink-0 text-blue-400" />
                  {CV_DATA.contact.location}
               </div>
-              <a href={CV_DATA.contact.linkedin} className="flex items-center gap-3 text-blue-400 hover:text-blue-300 transition-colors mt-4">
+              <a href={CV_DATA.contact.linkedin} className="flex items-center gap-3 text-blue-300 hover:text-blue-200 transition-colors mt-4 drop-shadow-md relative z-40">
+                 <LinkedinIcon className="w-4 h-4 shrink-0" />
                  LinkedIn <ArrowUpRight className="w-3 h-3" />
               </a>
             </div>
-             {/* Portrait Placeholder (Background) */}
-             <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-slate-800 rounded-full blur-3xl opacity-50"></div>
-             {/* Note: Add <img src="/assets/profile.png" /> here later if needed, absolutely positioned bottom-right */}
           </section>
         </div>
 
