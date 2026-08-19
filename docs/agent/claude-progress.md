@@ -20,3 +20,9 @@
   - Grouped navigation into "Engineering" and "Explore" dropdowns on desktop.
   - Implemented accordion-style collapsible groups in mobile menu.
   - Added Lucide icons to dropdown items.
+
+- Refactored footer layout:
+  - Implemented 4-column responsive CSS grid layout matching the main navigation groups (Engineering, Explore, Elsewhere).
+  - Built custom `<LinkedinIcon>` and `<InstagramIcon>` inline SVG components.
+  - Added subtle hover interactions with `<ArrowUpRight>` on links.
+  - Simplified bottom bar.
