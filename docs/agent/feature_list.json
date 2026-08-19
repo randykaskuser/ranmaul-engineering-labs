@@ -23,6 +23,12 @@
       "title": "Add Notes Domain and Layoff Article",
       "status": "completed",
       "reason": "Added notes domain, published bilingual layoff article, fixed article CSS list styles. PR #23 created."
+    },
+    {
+      "id": "5",
+      "title": "Add Dark Mode and Restructure Header",
+      "status": "completed",
+      "reason": "Installed next-themes, implemented ThemeProvider, updated token CSS, moved EN/ID toggle next to ThemeToggle outside mobile menu."
     }
   ]
 }
