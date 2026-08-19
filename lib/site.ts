@@ -93,7 +93,7 @@ export const getFlatNavLinks = (): NavItem[] => {
   });
 };
 
-export const MOBILE_NAV_GROUPS: NavGroup[] = [
+export const MOBILE_NAV_GROUPS: NavEntry[] = [
   {
     label: "Engineering",
     children: [

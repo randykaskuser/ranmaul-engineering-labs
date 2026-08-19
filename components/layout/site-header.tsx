@@ -4,14 +4,14 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Minus, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { NAV_LINKS, MOBILE_NAV_GROUPS } from "@/lib/site";
 import { SiteContainer } from "./site-container";
 import { NavLink } from "./nav-link";
 import { NavDropdown } from "./nav-dropdown";
 import { useTranslationContext } from "./translation-context";
 import { ThemeToggle } from "./theme-toggle";
-import { LinkedinIcon, InstagramIcon } from "@/components/icons/social-icons";
+
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
@@ -57,7 +57,7 @@ export function SiteHeader() {
     );
   };
 
-  const mobileGroups = MOBILE_NAV_GROUPS;
+
 
   return (
     <header className="sticky top-0 z-40 border-b border-hairline bg-canvas/92 backdrop-blur">
@@ -142,7 +142,7 @@ export function SiteHeader() {
               aria-label="Mobile"
             >
               <ul className="grid gap-2 py-4 text-[0.95rem] text-body">
-                {NAV_LINKS.map((entry) => {
+                {MOBILE_NAV_GROUPS.map((entry) => {
                   if ("children" in entry) {
                     const isExpanded = expandedGroups.includes(entry.label);
                     return (

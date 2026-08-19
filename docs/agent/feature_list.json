@@ -41,6 +41,12 @@
       "title": "Refactor Footer Layout",
       "status": "completed",
       "reason": "Converted the flat link list in the footer to a 4-column structured layout mirroring the header's navigation groups. Added social icons and hover interactions."
+    },
+    {
+      "id": 8,
+      "title": "Export Mobile Nav Groups",
+      "status": "completed",
+      "reason": "Extracted MOBILE_NAV_GROUPS to lib/site.ts to keep mobile header grouping clean without breaking desktop flat rendering."
     }
   ]
 }
