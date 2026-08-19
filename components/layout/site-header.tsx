@@ -7,6 +7,7 @@ import { NAV_LINKS } from "@/lib/site";
 import { SiteContainer } from "./site-container";
 import { NavLink } from "./nav-link";
 import { useTranslationContext } from "./translation-context";
+import { ThemeToggle } from "./theme-toggle";
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
@@ -15,7 +16,7 @@ export function SiteHeader() {
 
   const locale = pathname?.startsWith("/id") ? "id" : "en";
   const localizedDomains = ["/qa", "/fpv", "/fishkeeping", "/notes"];
-  
+
   const getLocalizedHref = (href: string) => {
     if (localizedDomains.includes(href)) {
       return `/${locale}${href}`;
@@ -46,15 +47,28 @@ export function SiteHeader() {
             Engineering Labs
           </Link>
 
-          <button
-            type="button"
-            aria-label="Toggle menu"
-            className="rounded-full border border-hairline bg-surface-card/60 px-3 py-1.5 text-sm font-medium text-body md:hidden"
-            onClick={() => setOpen((value) => !value)}
-          >
-            Menu
-          </button>
+          {/* Mobile Right Section */}
+          <div className="flex items-center gap-2 md:hidden">
+            <Link
+              href={localeSwitchHref}
+              className="inline-flex h-8 items-center rounded-full border border-hairline bg-surface-card/70 px-3 text-xs font-medium text-body transition hover:border-hairline-strong hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-hairline-strong"
+            >
+              {locale.toUpperCase()}
+            </Link>
 
+            <ThemeToggle />
+
+            <button
+              type="button"
+              aria-label="Toggle menu"
+              className="ml-1 rounded-full border border-hairline bg-surface-card/60 px-3 py-1.5 text-sm font-medium text-body"
+              onClick={() => setOpen((value) => !value)}
+            >
+              Menu
+            </button>
+          </div>
+
+          {/* Desktop Right Section */}
           <div className="hidden items-center gap-3 md:flex">
             <nav aria-label="Primary">
               <ul className="flex items-center gap-1">
@@ -66,15 +80,20 @@ export function SiteHeader() {
               </ul>
             </nav>
 
-            <Link
-              href={localeSwitchHref}
-              className="inline-flex items-center rounded-full border border-hairline bg-surface-card/70 px-3 py-1 text-xs font-medium text-body transition hover:border-hairline-strong hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-hairline-strong"
-            >
-              {locale.toUpperCase()} → {otherLocale.toUpperCase()}
-            </Link>
+            <div className="ml-2 flex items-center gap-2 border-l border-hairline pl-4">
+              <Link
+                href={localeSwitchHref}
+                className="inline-flex h-8 items-center rounded-full border border-hairline bg-surface-card/70 px-3 text-xs font-medium text-body transition hover:border-hairline-strong hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-hairline-strong"
+              >
+                {locale.toUpperCase()} → {otherLocale.toUpperCase()}
+              </Link>
+
+              <ThemeToggle />
+            </div>
           </div>
         </div>
 
+        {/* Mobile Menu Dropdown */}
         {open ? (
           <nav className="border-t border-hairline py-4 md:hidden" aria-label="Mobile">
             <ul className="grid gap-2 text-[0.95rem] text-body">
@@ -90,15 +109,6 @@ export function SiteHeader() {
                 </li>
               ))}
             </ul>
-            <div className="mt-4">
-              <Link
-                href={localeSwitchHref}
-                className="inline-flex items-center rounded-full border border-hairline bg-surface-card/70 px-3 py-1 text-xs font-medium text-body transition hover:border-hairline-strong hover:text-ink"
-                onClick={() => setOpen(false)}
-              >
-                {locale.toUpperCase()} → {otherLocale.toUpperCase()}
-              </Link>
-            </div>
           </nav>
         ) : null}
       </SiteContainer>

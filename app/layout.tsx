@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { TranslationProvider } from "@/components/layout/translation-context";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
+import { ThemeProvider } from "next-themes";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -51,13 +52,15 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full bg-canvas text-ink" suppressHydrationWarning>
-        <TranslationProvider>
-          <div className="flex min-h-screen flex-col">
-            <SiteHeader />
-            <main className="flex-1">{children}</main>
-            <SiteFooter />
-          </div>
-        </TranslationProvider>
+        <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
+          <TranslationProvider>
+            <div className="flex min-h-screen flex-col">
+              <SiteHeader />
+              <main className="flex-1">{children}</main>
+              <SiteFooter />
+            </div>
+          </TranslationProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

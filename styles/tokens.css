@@ -18,8 +18,28 @@
   --orb-sky: rgba(168, 200, 232, 0.28);
 }
 
+:root[data-theme='dark'] {
+  /* Warmer dark canvas closer to ElevenLabs' ink-led darkness (no "dev tool" blues). */
+  --canvas: #0c0a09;
+  --canvas-soft: #141110;
+  --surface-card: #1c1917;
+  --surface-card-soft: #26211f;
+  --ink: #fafaf9;
+  --body: #d6d3d1;
+  --muted: #a8a29e;
+  --hairline: #2d2928;
+  --hairline-strong: #44403c;
+  --primary: #fafaf9;
+  --on-primary: #0c0a09;
+
+  --orb-mint: rgba(167, 229, 211, 0.14);
+  --orb-peach: rgba(244, 197, 168, 0.12);
+  --orb-lavender: rgba(200, 184, 224, 0.12);
+  --orb-sky: rgba(168, 200, 232, 0.12);
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     /* Warmer dark canvas closer to ElevenLabs' ink-led darkness (no "dev tool" blues). */
     --canvas: #0c0a09;
     --canvas-soft: #141110;
