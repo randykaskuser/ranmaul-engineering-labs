@@ -34,7 +34,7 @@ Required fields:
 - `title`
 - `description`
 - `locale` (`en` | `id`)
-- `domain` (`qa` | `fpv` | `fishkeeping`)
+- `domain` (`qa` | `fpv` | `fishkeeping` | `notes`)
 - `slug`
 - `canonicalGroup`
 - `publishedAt`

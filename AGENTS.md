@@ -183,7 +183,7 @@ These are repeated here only as a **short safety checklist**. The full source of
 
 - Article routes: `/{locale}/{domain}/{slug}`
 - `locale`: `en` | `id`
-- `domain`: `qa` | `fpv` | `fishkeeping`
+- `domain`: `qa` | `fpv` | `fishkeeping` | `notes`
 - No new top-level categories.
 - Tags are flat; avoid taxonomy explosion.
 
@@ -193,7 +193,7 @@ Every MDX entry must include:
 
 - `title`, `description`
 - `locale` (`en` | `id`)
-- `domain` (`qa` | `fpv` | `fishkeeping`)
+- `domain` (`qa` | `fpv` | `fishkeeping` | `notes`)
 - `slug` (localized per locale)
 - `canonicalGroup` (stable shared id across locales)
 - `publishedAt`, `updatedAt`
