@@ -11,3 +11,4 @@
   - Restructured mobile and desktop layouts for clearer accessibility.
 - Fixed React warnings related to `useTheme` hydration and unescaped entities in CV component.
 - Added `eslint-plugin-react` to fix CI linting errors caused by missing dependencies.
+- Fixed 11 ESLint warnings across components and scripts.
