@@ -18,3 +18,7 @@ node_modules/
 .env.production.local
 .open-next/
 .codebase-memory/
+
+# tools
+.playwright-mcp/
+.wrangler/
