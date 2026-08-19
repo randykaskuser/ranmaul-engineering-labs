@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { NAV_LINKS } from "@/lib/site";
+import { getFlatNavLinks } from "@/lib/site";
 import { SiteContainer } from "./site-container";
 
 export function SiteFooter() {
+  const flatLinks = getFlatNavLinks();
+
   return (
     <footer className="border-t border-hairline bg-canvas-soft">
       <SiteContainer className="section-space-sm">
@@ -19,7 +21,7 @@ export function SiteFooter() {
 
           <nav aria-label="Footer" className="md:justify-self-end">
             <ul className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm text-body">
-              {NAV_LINKS.map((link) => (
+              {flatLinks.map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="transition-colors hover:text-ink focus-visible:text-ink">
                     {link.label}

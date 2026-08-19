@@ -13,3 +13,10 @@
 - Added `eslint-plugin-react` to fix CI linting errors caused by missing dependencies.
 - Fixed 11 ESLint warnings across components and scripts.
 - Cleaned up root directory by moving script files to temporary/scripts/ and removing unused directories.
+
+- Refactored header navigation:
+  - Replaced flat `NAV_LINKS` with grouped structure in `lib/site.ts`.
+  - Built custom mega-dropdown component (`<NavDropdown>`) using `framer-motion`.
+  - Grouped navigation into "Engineering" and "Explore" dropdowns on desktop.
+  - Implemented accordion-style collapsible groups in mobile menu.
+  - Added Lucide icons to dropdown items.

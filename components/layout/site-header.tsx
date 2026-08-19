@@ -3,14 +3,18 @@
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 import { NAV_LINKS } from "@/lib/site";
 import { SiteContainer } from "./site-container";
 import { NavLink } from "./nav-link";
+import { NavDropdown } from "./nav-dropdown";
 import { useTranslationContext } from "./translation-context";
 import { ThemeToggle } from "./theme-toggle";
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
   const pathname = usePathname();
   const { alternateUrl } = useTranslationContext();
 
@@ -25,25 +29,41 @@ export function SiteHeader() {
   };
 
   const otherLocale = locale === "en" ? "id" : "en";
-  const localeSwitchHref = alternateUrl ?? (() => {
-    if (!pathname || pathname === "/") {
-      return `/${otherLocale}`;
-    }
+  const localeSwitchHref =
+    alternateUrl ??
+    (() => {
+      if (!pathname || pathname === "/") {
+        return `/${otherLocale}`;
+      }
 
-    const segments = pathname.split("/").filter(Boolean);
-    if (segments.length > 0 && (segments[0] === "en" || segments[0] === "id")) {
-      segments[0] = otherLocale;
-      return `/${segments.join("/")}`;
-    }
+      const segments = pathname.split("/").filter(Boolean);
+      if (
+        segments.length > 0 &&
+        (segments[0] === "en" || segments[0] === "id")
+      ) {
+        segments[0] = otherLocale;
+        return `/${segments.join("/")}`;
+      }
 
-    return `/${otherLocale}${pathname}`;
-  })();
+      return `/${otherLocale}${pathname}`;
+    })();
+
+  const toggleGroup = (label: string) => {
+    setExpandedGroups((prev) =>
+      prev.includes(label)
+        ? prev.filter((g) => g !== label)
+        : [...prev, label]
+    );
+  };
 
   return (
     <header className="sticky top-0 z-40 border-b border-hairline bg-canvas/92 backdrop-blur">
       <SiteContainer>
         <div className="flex h-16 items-center justify-between gap-4 md:h-[4.25rem]">
-          <Link href="/" className="display-title text-xl tracking-tight text-ink">
+          <Link
+            href="/"
+            className="display-title text-xl tracking-tight text-ink"
+          >
             Engineering Labs
           </Link>
 
@@ -72,11 +92,25 @@ export function SiteHeader() {
           <div className="hidden items-center gap-3 md:flex">
             <nav aria-label="Primary">
               <ul className="flex items-center gap-1">
-                {NAV_LINKS.map((link) => (
-                  <li key={link.href}>
-                    <NavLink href={getLocalizedHref(link.href)}>{link.label}</NavLink>
-                  </li>
-                ))}
+                {NAV_LINKS.map((entry) => {
+                  if ("children" in entry) {
+                    return (
+                      <li key={entry.label}>
+                        <NavDropdown
+                          group={entry}
+                          getLocalizedHref={getLocalizedHref}
+                        />
+                      </li>
+                    );
+                  }
+                  return (
+                    <li key={entry.href}>
+                      <NavLink href={getLocalizedHref(entry.href)}>
+                        {entry.label}
+                      </NavLink>
+                    </li>
+                  );
+                })}
               </ul>
             </nav>
 
@@ -94,23 +128,79 @@ export function SiteHeader() {
         </div>
 
         {/* Mobile Menu Dropdown */}
-        {open ? (
-          <nav className="border-t border-hairline py-4 md:hidden" aria-label="Mobile">
-            <ul className="grid gap-2 text-[0.95rem] text-body">
-              {NAV_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={getLocalizedHref(link.href)}
-                    className="block rounded-2xl border border-transparent px-3 py-2.5 font-medium transition-colors hover:border-hairline hover:bg-surface-card/60 hover:text-ink"
-                    onClick={() => setOpen(false)}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        ) : null}
+        <AnimatePresence>
+          {open && (
+            <motion.nav
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="overflow-hidden border-t border-hairline md:hidden"
+              aria-label="Mobile"
+            >
+              <ul className="grid gap-2 py-4 text-[0.95rem] text-body">
+                {NAV_LINKS.map((entry) => {
+                  if ("children" in entry) {
+                    const isExpanded = expandedGroups.includes(entry.label);
+                    return (
+                      <li key={entry.label}>
+                        <button
+                          type="button"
+                          className="flex w-full items-center justify-between rounded-2xl border border-transparent px-3 py-2.5 font-medium transition-colors hover:bg-surface-card/60 hover:text-ink"
+                          onClick={() => toggleGroup(entry.label)}
+                        >
+                          {entry.label}
+                          <ChevronDown
+                            className={`size-4 transition-transform duration-200 ${
+                              isExpanded ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
+                        <AnimatePresence>
+                          {isExpanded && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="overflow-hidden"
+                            >
+                              <ul className="mt-1 flex flex-col gap-1 pl-4 pr-2">
+                                {entry.children.map((child) => (
+                                  <li key={child.href}>
+                                    <Link
+                                      href={getLocalizedHref(child.href)}
+                                      className="block rounded-xl px-3 py-2 text-sm transition-colors hover:bg-surface-card/60 hover:text-ink"
+                                      onClick={() => setOpen(false)}
+                                    >
+                                      {child.label}
+                                    </Link>
+                                  </li>
+                                ))}
+                              </ul>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </li>
+                    );
+                  }
+
+                  return (
+                    <li key={entry.href}>
+                      <Link
+                        href={getLocalizedHref(entry.href)}
+                        className="block rounded-2xl border border-transparent px-3 py-2.5 font-medium transition-colors hover:border-hairline hover:bg-surface-card/60 hover:text-ink"
+                        onClick={() => setOpen(false)}
+                      >
+                        {entry.label}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </motion.nav>
+          )}
+        </AnimatePresence>
       </SiteContainer>
     </header>
   );

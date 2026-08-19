@@ -29,6 +29,12 @@
       "title": "Add Dark Mode and Restructure Header",
       "status": "completed",
       "reason": "Installed next-themes, implemented ThemeProvider, updated token CSS, moved EN/ID toggle next to ThemeToggle outside mobile menu. Fixed UI hydration errors during SSG build."
+    },
+    {
+      "id": 6,
+      "title": "Refactor Header to Mega-Dropdowns",
+      "status": "completed",
+      "reason": "Restructured NAV_LINKS into groups, implemented framer-motion dropdowns, and grouped mobile accordion."
     }
   ]
 }
