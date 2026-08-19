@@ -10,14 +10,14 @@ try {
       process.env[match[1]] = match[2].replace(/^['"]|['"]$/g, "");
     }
   }
-} catch (err) {}
+} catch {}
 
 // Extract hex for normalize
-function normalizeNotionId(value) {
-  const hexOnly = String(value).replace(/[^0-9a-fA-F]/g, "");
-  const hex = hexOnly.slice(0, 32).toLowerCase();
-  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
-}
+// function normalizeNotionId(value) {
+//   const hexOnly = String(value).replace(/[^0-9a-fA-F]/g, "");
+//   const hex = hexOnly.slice(0, 32).toLowerCase();
+//   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+// }
 
 async function notionFetch(pathname, init) {
   const token = process.env.NOTION_TOKEN;
@@ -38,7 +38,7 @@ async function notionFetch(pathname, init) {
 }
 
 async function fix() {
-  const dbId = normalizeNotionId(process.env.NOTION_DATABASE_ID);
+  // const dbId = normalizeNotionId(process.env.NOTION_DATABASE_ID);
   // From previous log: Using NOTION_DATA_SOURCE_ID=36552ebc-a28d-8056-8c30-000ba81c965f
   const dsId = "36552ebc-a28d-8056-8c30-000ba81c965f";
   

@@ -28,7 +28,7 @@ try {
       process.env[match[1]] = match[2].replace(/^['"]|['"]$/g, "");
     }
   }
-} catch (err) {
+} catch {
   // Ignore if .env does not exist
 }
 
@@ -426,7 +426,7 @@ async function openRouterTranslateIdToEn(input, options) {
         tags: Array.isArray(parsed.tags) ? parsed.tags.map((t) => String(t).trim()).filter(Boolean) : [],
         body: String(parsed.body ?? "").trim(),
       };
-    } catch (err) {
+    } catch {
       lastErr = err;
       if (options?.verbose) {
         console.log(`OpenRouter translate attempt ${attempt}/${OPENROUTER_MAX_RETRIES} failed:`, err);
@@ -505,7 +505,7 @@ async function openRouterAutoFillMetadata(input, options) {
         locale: parsed.locale ? String(parsed.locale).trim() : null,
         domain: parsed.domain ? String(parsed.domain).trim() : null,
       };
-    } catch (err) {
+    } catch {
       lastErr = err;
       if (options?.verbose) {
         console.log(`OpenRouter autofill attempt ${attempt}/${OPENROUTER_MAX_RETRIES} failed:`, err);
@@ -639,7 +639,7 @@ async function autoPickDataSourceId(childIds, options) {
       const page = await tryQueryOnePublishedPage(id);
       const score = page ? scorePageContract(page) : 0;
       scored.push({ id, score, sampleUrl: page?.url ?? null });
-    } catch (err) {
+    } catch {
       scored.push({ id, score: -1, sampleUrl: null, error: err instanceof Error ? err.message : String(err) });
     }
   }
@@ -1504,7 +1504,7 @@ async function queryPublishedPages(databaseId, options) {
         method: "POST",
         body: JSON.stringify(payload),
       });
-    } catch (err) {
+    } catch {
       // Safety fallback: if Notion rejects database query because DB has multiple data sources,
       // parse child ids from the error payload and retry using /data_sources/{id}/query.
       if (!dataSourceId && getNotionErrorType(err) === "multiple_data_sources_for_database") {
@@ -1559,7 +1559,7 @@ async function main() {
     let article;
     try {
       article = await pageToArticle(activePage);
-    } catch (err) {
+    } catch {
       const url = activePage?.url ?? `https://www.notion.so/${String(activePage?.id ?? "")}`;
       const message = err instanceof Error ? err.message : String(err);
       const titleProp = getFirstTitlePropertyName(activePage);
