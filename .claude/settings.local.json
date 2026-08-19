@@ -4,7 +4,13 @@
       "PowerShell(gh auth *)",
       "PowerShell(winget install *)",
       "PowerShell(& \"C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe\" auth status)",
-      "PowerShell(& \"C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe\" repo create ranmaul-engineering-labs --public --source . --remote=origin --push)"
+      "PowerShell(& \"C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe\" repo create ranmaul-engineering-labs --public --source . --remote=origin --push)",
+      "WebFetch(domain:lapakasik.bpjsketenagakerjaan.go.id)",
+      "WebFetch(domain:siapkerja.kemnaker.go.id)",
+      "Bash(rm d:/Development/website-elabs/website/update_layoff_articles.py)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
     ]
   }
 }
