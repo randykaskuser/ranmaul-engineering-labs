@@ -12,3 +12,4 @@
 - Fixed React warnings related to `useTheme` hydration and unescaped entities in CV component.
 - Added `eslint-plugin-react` to fix CI linting errors caused by missing dependencies.
 - Fixed 11 ESLint warnings across components and scripts.
+- Cleaned up root directory by moving script files to temporary/scripts/ and removing unused directories.
