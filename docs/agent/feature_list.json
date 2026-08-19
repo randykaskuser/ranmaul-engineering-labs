@@ -28,7 +28,7 @@
       "id": "5",
       "title": "Add Dark Mode and Restructure Header",
       "status": "completed",
-      "reason": "Installed next-themes, implemented ThemeProvider, updated token CSS, moved EN/ID toggle next to ThemeToggle outside mobile menu."
+      "reason": "Installed next-themes, implemented ThemeProvider, updated token CSS, moved EN/ID toggle next to ThemeToggle outside mobile menu. Fixed UI hydration errors during SSG build."
     }
   ]
 }
