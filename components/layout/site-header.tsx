@@ -43,21 +43,22 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-hairline bg-canvas/92 backdrop-blur">
       <SiteContainer>
         <div className="flex h-16 items-center justify-between gap-4 md:h-[4.25rem]">
-          <Link href="/" className="display-title text-xl tracking-tight text-ink">
-            Engineering Labs
-          </Link>
-
-          {/* Mobile Right Section */}
-          <div className="flex items-center gap-2 md:hidden">
+          <div className="flex flex-1 items-center gap-2 md:hidden">
             <Link
               href={localeSwitchHref}
               className="inline-flex h-8 items-center rounded-full border border-hairline bg-surface-card/70 px-3 text-xs font-medium text-body transition hover:border-hairline-strong hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-hairline-strong"
             >
               {locale.toUpperCase()}
             </Link>
-
             <ThemeToggle />
+          </div>
 
+          <Link href="/" className="display-title flex-1 text-center text-xl tracking-tight text-ink md:text-left">
+            Engineering Labs
+          </Link>
+
+          {/* Mobile Right Section */}
+          <div className="flex flex-1 justify-end items-center gap-2 md:hidden">
             <button
               type="button"
               aria-label="Toggle menu"
