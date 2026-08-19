@@ -26,3 +26,6 @@
   - Built custom `<LinkedinIcon>` and `<InstagramIcon>` inline SVG components.
   - Added subtle hover interactions with `<ArrowUpRight>` on links.
   - Simplified bottom bar.
+- Refactored `lib/site.ts` to export `MOBILE_NAV_GROUPS`.
+  - Allowed SiteHeader to use `MOBILE_NAV_GROUPS` for cleaner mobile rendering.
+  - Added `ChevronDown` import to `site-header.tsx`.
