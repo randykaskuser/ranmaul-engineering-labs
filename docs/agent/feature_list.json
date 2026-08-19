@@ -17,6 +17,12 @@
       "title": "Restore Background Videos to R2",
       "status": "completed",
       "reason": "Restored from git history and uploaded to Cloudflare R2 bucket."
+    },
+    {
+      "id": "4",
+      "title": "Add Notes Domain and Layoff Article",
+      "status": "completed",
+      "reason": "Added notes domain, published bilingual layoff article, fixed article CSS list styles. PR #23 created."
     }
   ]
 }
