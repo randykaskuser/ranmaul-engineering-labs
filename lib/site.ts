@@ -8,6 +8,7 @@ export const NAV_LINKS = [
   { href: "/qa", label: "QA Notes" },
   { href: "/fpv", label: "FPV Flights" },
   { href: "/fishkeeping", label: "Fishkeeping" },
+  { href: "/notes", label: "Notes" },
   { href: "/drone-portfolio", label: "Drone Portfolio" },
   { href: "/projects", label: "Projects" },
   { href: "/tools", label: "Tools" },

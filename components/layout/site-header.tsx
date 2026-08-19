@@ -14,7 +14,7 @@ export function SiteHeader() {
   const { alternateUrl } = useTranslationContext();
 
   const locale = pathname?.startsWith("/id") ? "id" : "en";
-  const localizedDomains = ["/qa", "/fpv", "/fishkeeping"];
+  const localizedDomains = ["/qa", "/fpv", "/fishkeeping", "/notes"];
   
   const getLocalizedHref = (href: string) => {
     if (localizedDomains.includes(href)) {

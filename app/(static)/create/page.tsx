@@ -43,7 +43,7 @@ export default function CreateGuidePage() {
               <strong>Locale</strong>: <code>en</code> | <code>id</code>
             </li>
             <li>
-              <strong>Domain</strong>: <code>qa</code> | <code>fpv</code> | <code>fishkeeping</code>
+              <strong>Domain</strong>: <code>qa</code> | <code>fpv</code> | <code>fishkeeping</code> | <code>notes</code>
             </li>
             <li>
               <strong>Slug</strong> (lowercase hyphen)

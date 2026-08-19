@@ -36,7 +36,7 @@ const CONTENT_DIR = path.join(ROOT, "content");
 const MEDIA_DIR = path.join(ROOT, "public", "media", "notion");
 
 const LOCALES = new Set(["en", "id"]);
-const DOMAINS = new Set(["qa", "fpv", "fishkeeping"]);
+const DOMAINS = new Set(["qa", "fpv", "fishkeeping", "notes"]);
 
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -345,14 +345,14 @@ function buildAutoFillSystemPrompt() {
     "- tags (string[]; 3-7 flat tags, short, lowercase, relevant to the content)",
     "- coverAlt (string; concise alt text for the cover image if one exists, or empty string)",
     "- locale (string; ONLY return 'id' or 'en' based on the text language. Omit if already provided by user)",
-    "- domain (string; ONLY return 'qa', 'fpv', or 'fishkeeping' based on the topic. Omit if already provided by user)",
+    "- domain (string; ONLY return 'qa', 'fpv', 'fishkeeping', or 'notes' based on the topic. Omit if already provided by user)",
     "",
     "RULES:",
     "- Slug must match /^[a-z0-9]+(?:-[a-z0-9]+)*$/.",
     "- For Indonesian (id) articles: slug uses Indonesian keywords for local SEO.",
     "- For English (en) articles: slug uses English keywords.",
     "- CanonicalGroup is ALWAYS English-based regardless of article locale.",
-    "- CanonicalGroup should start with the domain prefix (e.g. 'qa-...', 'fpv-...', 'fishkeeping-...').",
+    "- CanonicalGroup should start with the domain prefix (e.g. 'qa-...', 'fpv-...', 'fishkeeping-...', 'notes-...').",
     "- Description should accurately summarize the technical content.",
     "- Tags should be stable, reusable across articles (not unique per article).",
     "- Do not add marketing fluff or exaggerated claims.",

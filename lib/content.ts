@@ -11,7 +11,7 @@ export const CONTENT_ROOT = typeof process !== 'undefined' && process.cwd
   : "";
 
 export const LOCALES = ["en", "id"] as const;
-export const DOMAINS = ["qa", "fpv", "fishkeeping"] as const;
+export const DOMAINS = ["qa", "fpv", "fishkeeping", "notes"] as const;
 
 export type Locale = (typeof LOCALES)[number];
 export type Domain = (typeof DOMAINS)[number];
