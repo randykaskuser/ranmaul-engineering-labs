@@ -54,7 +54,7 @@ function formatDate(date: string): string {
 
 function getCoverImageName(src: string): string {
   try {
-    const url = new URL(src, "https://example.com");
+    const url = new URL(src, "https://ranmaul.com");
     const last = url.pathname.split("/").filter(Boolean).pop();
     return last ?? "cover";
   } catch {
