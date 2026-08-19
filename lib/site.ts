@@ -5,6 +5,10 @@ import {
   Plane,
   Video,
   Fish,
+  Home,
+  BookOpen,
+  User,
+  Mail,
   type LucideIcon,
 } from "lucide-react";
 
@@ -88,3 +92,36 @@ export const getFlatNavLinks = (): NavItem[] => {
     return entry;
   });
 };
+
+export const MOBILE_NAV_GROUPS: NavGroup[] = [
+  {
+    label: "Engineering",
+    children: [
+      { href: "/qa", label: "QA Engineering", icon: ShieldCheck },
+      { href: "/projects", label: "Projects", icon: FolderGit2 },
+      { href: "/tools", label: "Tools", icon: Wrench },
+    ],
+  },
+  {
+    label: "Explore",
+    children: [
+      { href: "/fpv", label: "FPV & Drone", icon: Plane },
+      { href: "/drone-portfolio", label: "Drone Portfolio", icon: Video },
+      { href: "/fishkeeping", label: "Fishkeeping", icon: Fish },
+    ],
+  },
+  {
+    label: "Elsewhere",
+    children: [
+      { href: "/", label: "Home", icon: Home },
+      { href: "/notes", label: "Notes", icon: BookOpen },
+      { href: "/about", label: "About", icon: User },
+    ],
+  },
+  {
+    label: "Connect",
+    children: [
+      { href: "/contact", label: "Contact", icon: Mail },
+    ],
+  },
+];
