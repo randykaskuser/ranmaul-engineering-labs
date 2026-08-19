@@ -4,9 +4,15 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown } from "lucide-react";
-import { NAV_LINKS } from "@/lib/site";
+
+
+
+
+import { ChevronDown, Plus, Minus } from "lucide-react";
+import { NAV_LINKS, MOBILE_NAV_GROUPS } from "@/lib/site";
+
 import { SiteContainer } from "./site-container";
+import { LinkedinIcon, InstagramIcon } from "@/components/icons/social-icons";
 import { NavLink } from "./nav-link";
 import { NavDropdown } from "./nav-dropdown";
 import { useTranslationContext } from "./translation-context";
@@ -138,66 +144,95 @@ export function SiteHeader() {
               className="overflow-hidden border-t border-hairline md:hidden"
               aria-label="Mobile"
             >
-              <ul className="grid gap-2 py-4 text-[0.95rem] text-body">
-                {NAV_LINKS.map((entry) => {
-                  if ("children" in entry) {
-                    const isExpanded = expandedGroups.includes(entry.label);
-                    return (
-                      <li key={entry.label}>
-                        <button
-                          type="button"
-                          className="flex w-full items-center justify-between rounded-2xl border border-transparent px-3 py-2.5 font-medium transition-colors hover:bg-surface-card/60 hover:text-ink"
-                          onClick={() => toggleGroup(entry.label)}
-                        >
-                          {entry.label}
-                          <ChevronDown
-                            className={`size-4 transition-transform duration-200 ${
-                              isExpanded ? "rotate-180" : ""
-                            }`}
-                          />
-                        </button>
-                        <AnimatePresence>
-                          {isExpanded && (
-                            <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: "auto", opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.2 }}
-                              className="overflow-hidden"
-                            >
-                              <ul className="mt-1 flex flex-col gap-1 pl-4 pr-2">
-                                {entry.children.map((child) => (
-                                  <li key={child.href}>
-                                    <Link
-                                      href={getLocalizedHref(child.href)}
-                                      className="block rounded-xl px-3 py-2 text-sm transition-colors hover:bg-surface-card/60 hover:text-ink"
-                                      onClick={() => setOpen(false)}
-                                    >
-                                      {child.label}
-                                    </Link>
-                                  </li>
-                                ))}
-                              </ul>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </li>
-                    );
-                  }
+              <div className="mx-4 my-6 overflow-hidden rounded-2xl border border-hairline bg-surface-card shadow-sm">
+                <ul className="divide-y divide-hairline">
+                  {MOBILE_NAV_GROUPS.map((entry) => {
+                    if ("children" in entry) {
+                      const isExpanded = expandedGroups.includes(entry.label);
+                      return (
+                        <li key={entry.label} className="bg-canvas">
+                          <button
+                            type="button"
+                            className="flex w-full items-center justify-between px-4 py-3.5 text-left transition-colors hover:bg-surface-card/60"
+                            onClick={() => toggleGroup(entry.label)}
+                          >
+                            <span className="font-medium text-ink">{entry.label}</span>
+                            {isExpanded ? (
+                              <Minus className="size-4 text-muted" />
+                            ) : (
+                              <Plus className="size-4 text-muted" />
+                            )}
+                          </button>
+                          <AnimatePresence>
+                            {isExpanded && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="overflow-hidden bg-surface-card/30"
+                              >
+                                <ul className="flex flex-col gap-1 px-3 py-2">
+                                  {entry.children.map((child) => {
+                                    const Icon = child.icon;
+                                    return (
+                                      <li key={child.href}>
+                                        <Link
+                                          href={getLocalizedHref(child.href)}
+                                          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[0.95rem] text-body transition-colors hover:bg-canvas/80 hover:text-ink"
+                                          onClick={() => setOpen(false)}
+                                        >
+                                          {Icon && <Icon className="size-4 text-muted" />}
+                                          {child.label}
+                                        </Link>
+                                      </li>
+                                    );
+                                  })}
+                                </ul>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </li>
+                      );
+                    }
+                    return null;
+                  })}
+                </ul>
 
-                  return (
-                    <li key={entry.href}>
-                      <Link
-                        href={getLocalizedHref(entry.href)}
-                        className="block rounded-2xl border border-transparent px-3 py-2.5 font-medium transition-colors hover:border-hairline hover:bg-surface-card/60 hover:text-ink"
-                        onClick={() => setOpen(false)}
+                {/* Brand Info & Socials inside mobile card */}
+                <div className="bg-surface-card/80 p-5 border-t border-hairline">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold tracking-tight text-ink">Engineering Labs</p>
+                      <p className="mt-0.5 text-xs text-muted">QA, FPV & Tech Notes</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <a
+                        href="https://www.linkedin.com/in/randymaulana/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-full border border-hairline bg-canvas p-2 text-muted transition-colors hover:border-hairline-strong hover:text-ink"
+                        aria-label="LinkedIn"
                       >
-                        {entry.label}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
+                        <LinkedinIcon className="size-4" />
+                      </a>
+                      <a
+                        href="https://instagram.com/newbie.drone"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-full border border-hairline bg-canvas p-2 text-muted transition-colors hover:border-hairline-strong hover:text-ink"
+                        aria-label="Instagram"
+                      >
+                        <InstagramIcon className="size-4" />
+                      </a>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex items-center justify-between text-[10px] text-muted">
+                    <p>© {new Date().getFullYear()} Randy M.</p>
+                    <p>Built with Next.js ♡</p>
+                  </div>
+                </div>
+              </div>
             </motion.nav>
           )}
         </AnimatePresence>
