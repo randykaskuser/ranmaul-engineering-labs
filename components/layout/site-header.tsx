@@ -200,36 +200,40 @@ export function SiteHeader() {
                 </ul>
 
                 {/* Brand Info & Socials inside mobile card */}
-                <div className="bg-surface-card/80 p-5 border-t border-hairline">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold tracking-tight text-ink">Engineering Labs</p>
-                      <p className="mt-0.5 text-xs text-muted">QA, FPV & Tech Notes</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <a
-                        href="https://www.linkedin.com/in/randymaulana/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="rounded-full border border-hairline bg-canvas p-2 text-muted transition-colors hover:border-hairline-strong hover:text-ink"
-                        aria-label="LinkedIn"
-                      >
-                        <LinkedinIcon className="size-4" />
-                      </a>
-                      <a
-                        href="https://instagram.com/newbie.drone"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="rounded-full border border-hairline bg-canvas p-2 text-muted transition-colors hover:border-hairline-strong hover:text-ink"
-                        aria-label="Instagram"
-                      >
-                        <InstagramIcon className="size-4" />
-                      </a>
-                    </div>
+                <div className="bg-canvas p-5 pt-6">
+                  <div>
+                    <h3 className="font-serif text-[1.15rem] font-medium tracking-tight text-ink">
+                      Engineering Labs
+                    </h3>
+                    <p className="mt-1 text-xs font-medium tracking-[0.02em] text-muted">
+                      QA Engineer · FPV Pilot · Tech Enthusiast
+                    </p>
                   </div>
-                  <div className="mt-4 flex items-center justify-between text-[10px] text-muted">
-                    <p>© {new Date().getFullYear()} Randy M.</p>
-                    <p>Built with Next.js ♡</p>
+
+                  <div className="mt-6 text-[0.7rem] font-medium tracking-[0.02em] text-muted uppercase">
+                    <p>© {new Date().getFullYear()} Randy Maulana.</p>
+                    <p className="mt-0.5">All rights reserved.</p>
+                  </div>
+
+                  <div className="mt-6 flex items-center gap-4">
+                    <a
+                      href="https://www.linkedin.com/in/randymaulana/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted transition-colors hover:text-ink"
+                      aria-label="LinkedIn"
+                    >
+                      <LinkedinIcon className="size-5" />
+                    </a>
+                    <a
+                      href="https://instagram.com/newbie.drone"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted transition-colors hover:text-ink"
+                      aria-label="Instagram"
+                    >
+                      <InstagramIcon className="size-5" />
+                    </a>
                   </div>
                 </div>
               </div>

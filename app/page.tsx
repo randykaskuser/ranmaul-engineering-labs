@@ -8,6 +8,7 @@ import { Reveal } from "@/components/layout/reveal";
 import { Stagger } from "@/components/layout/stagger";
 import { ConicHoverCard } from "@/components/layout/conic-hover-card";
 import { BackgroundVideoPlaylist } from "@/components/layout/background-video-playlist";
+import { CollaborateSection } from "@/components/sections/collaborate-section";
 
 export const metadata: Metadata = {
   title: "Home",
@@ -35,9 +36,9 @@ const contentDict = {
     latestTitle: "Latest Articles",
     noEntries: "No entries yet.",
     connectKicker: "Get in Touch",
-    connectTitle: "Let's Collaborate",
-    connectBody: "Need a drone pilot for a project? Interested in QA, automation, FPV, or technology in general? Feel free to reach out.",
-    btnWa: "WhatsApp Me",
+    connectTitle: "Let's Collaborate.",
+    connectBody: "Have a project, an idea, or just want to connect? I'm always interested in engineering, automation, FPV, and solving interesting problems.",
+    btnWa: "Let's Collaborate on WhatsApp",
     btnLi: "Connect on LinkedIn",
     btnIg: "Instagram",
     obj: "Objective",
@@ -63,9 +64,9 @@ const contentDict = {
     latestTitle: "Artikel Terbaru",
     noEntries: "Belum ada tulisan.",
     connectKicker: "Kontak Saya",
-    connectTitle: "Mari Berkolaborasi",
-    connectBody: "Butuh drone pilot untuk project Anda? Tertarik ngobrol tentang QA, automation, FPV, atau teknologi pada umumnya? Jangan ragu untuk reach out.",
-    btnWa: "Chat via WhatsApp",
+    connectTitle: "Mari Berkolaborasi.",
+    connectBody: "Punya project, ide, atau ingin berdiskusi? Saya selalu tertarik dengan topik engineering, automation, FPV, dan pemecahan masalah yang menarik.",
+    btnWa: "Kolaborasi via WhatsApp",
     btnLi: "Connect di LinkedIn",
     btnIg: "Instagram",
     obj: "Tujuan",
@@ -338,26 +339,16 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
       </Section>
 
       <Section>
-        <div id="connect" className="container-reading">
+        <div id="connect" className="container-wide">
           <Reveal direction="up" distance={40}>
-            <div className="editorial-card p-8 text-center md:p-10 transition-shadow hover:shadow-xl">
-              <p className="type-kicker">{t.connectKicker}</p>
-              <h2 className="display-title mt-5 text-3xl text-ink md:text-5xl">{t.connectTitle}</h2>
-              <p className="mx-auto mt-4 max-w-[68ch] text-sm leading-7 text-body">
-                {t.connectBody}
-              </p>
-              <div className="mt-7 flex flex-wrap justify-center gap-3">
-                <a href="#" className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium transition-transform hover:scale-105" style={{ color: 'var(--on-primary)' }}>
-                  {t.btnWa}
-                </a>
-                <a href="#" className="rounded-full border border-hairline-strong px-5 py-2.5 text-sm font-medium text-ink transition-all hover:border-ink hover:scale-105">
-                  {t.btnLi}
-                </a>
-                <a href="#" className="rounded-full border border-hairline-strong px-5 py-2.5 text-sm font-medium text-ink transition-all hover:border-ink hover:scale-105">
-                  {t.btnIg}
-                </a>
-              </div>
-            </div>
+            <CollaborateSection
+              kicker={t.connectKicker}
+              title={t.connectTitle}
+              body={t.connectBody}
+              btnWa={t.btnWa}
+              btnLi={t.btnLi}
+              btnIg={t.btnIg}
+            />
           </Reveal>
         </div>
       </Section>
