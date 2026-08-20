@@ -8,6 +8,7 @@ import { DroneServicesSection } from "@/components/portfolio/drone-services-sect
 import { getPortfolioItems } from "@/lib/portfolio"
 import { getRecentArticles, type Locale } from "@/lib/content"
 import Link from "next/link"
+import Image from "next/image"
 
 export const metadata = createPageMetadata(
   "Drone Portfolio",
@@ -112,9 +113,18 @@ export default async function DronePortfolioPage({ params }: { params: Promise<{
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {stories.map(story => (
                 <Link key={story.slug} href={`/${locale}/${story.domain}/${story.slug}`} className="group block">
-                  <div className="aspect-[3/2] w-full bg-neutral-100 dark:bg-neutral-900 relative mb-4 overflow-hidden">
-                     {/* Mocked thumbnail image placeholder */}
-                     <div className="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 group-hover:scale-105 transition-transform duration-500" />
+                  <div className="aspect-[3/2] w-full bg-neutral-100 dark:bg-neutral-900 relative mb-4 overflow-hidden rounded-xl border border-hairline">
+                     {story.coverImage ? (
+                       <Image 
+                         src={story.coverImage} 
+                         alt={story.coverAlt || story.title} 
+                         fill 
+                         className="object-cover group-hover:scale-105 transition-transform duration-500"
+                         sizes="(max-width: 768px) 100vw, 33vw"
+                       />
+                     ) : (
+                       <div className="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 group-hover:scale-105 transition-transform duration-500" />
+                     )}
                   </div>
                   <h4 className="text-lg font-medium group-hover:underline">{story.title}</h4>
                   <p className="text-neutral-500 dark:text-neutral-400 mt-2 text-sm">{new Date(story.publishedAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</p>
