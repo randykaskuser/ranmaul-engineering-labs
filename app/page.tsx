@@ -28,7 +28,7 @@ const contentDict = {
     aboutTags: "QA Engineer · FPV Pilot · Tech Enthusiast",
     featuredTitle: "Notes",
     featuredLink: "Browse all notes",
-    archivesSectionTitle: "Latest FPV Flights",
+    archivesSectionTitle: "Latest Drone Flights",
     archivesTitle: "Want aerial footage for your project?",
     archivesLink: "View Drone Portfolio",
     archivesDesc: "Drone filming for property, events, tourism, and commercial content.",

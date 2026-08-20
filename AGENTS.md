@@ -40,7 +40,7 @@ feature work on top of a broken starting state.
 
 To keep the repository organized, all architectural, planning, and long-term documentation must be placed in the `docs/` directory:
 
-- **`docs/planning/`**: Use this for new feature technical specs, implementation plans, and architecture designs. Create a spec here *before* beginning major, multi-file coding tasks (defined as changing >3 files, or adding entirely new features/routes). Use superpower skills (`superpowers:writing-plans`) for all tasks, big or small.
+- **`docs/planning/`**: Use this for new feature technical specs, implementation plans, and architecture designs. Create a spec here *before* beginning major, multi-file coding tasks (defined as changing >3 files, or adding entirely new features/routes). Use the appropriate superpower skill (e.g. `superpowers:writing-plans`, `superpowers:brainstorming`) for the task context.
 - **`docs/roadmaps/`**: Use this for long-term goals, feature roadmaps, and phase completion tracking.
 - **`docs/benchmarks/`**: Use this to store baseline performance metrics and tracking files.
 - **`docs/agent/`**: Reserved exclusively for AI session state tracking (progress, handoffs, and feature lists).
