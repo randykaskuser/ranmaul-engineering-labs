@@ -233,27 +233,16 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
 
         <div className="container relative z-10">
           <div className="p-4 md:p-6 lg:p-8 rounded-[2rem] backdrop-blur-xl bg-canvas-soft/40 border border-white/10 shadow-2xl">
-            <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div className="mb-8 flex flex-col items-center justify-center gap-4 text-center">
               <Reveal>
                 <div className="relative group inline-block">
                   <span className="absolute -inset-1 bg-gradient-to-r from-teal-600/30 via-emerald-500/30 to-blue-500/30 blur-xl opacity-0 group-hover:opacity-100 transition-all duration-500 animate-pulse"></span>
                   <h2 className="display-title text-3xl text-ink md:text-5xl relative z-10">{t.archivesTitle}</h2>
                 </div>
               </Reveal>
-              <Reveal delay={0.1}>
-                <Link href="/drone-portfolio" className="text-sm font-medium text-body hover:text-teal-600 transition-colors">
-                  {t.archivesLink} &rarr;
-                </Link>
-              </Reveal>
             </div>
 
-            <Reveal delay={0.2}>
-              <p className="mb-10 max-w-[68ch] text-sm leading-8 text-body md:text-base border-l-2 border-teal-500/30 pl-4">
-                {t.archivesDesc}
-              </p>
-            </Reveal>
-
-            <Stagger className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-[96%] lg:max-w-2xl mx-auto" stagger={0.15}>
+            <Stagger className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-[96%] lg:max-w-2xl mx-auto mb-12" stagger={0.15}>
               {droneMedia.map((item) => (
                 <ConicHoverCard key={item.title}>
                   <div className="aspect-[4/5] w-full overflow-hidden rounded-xl border border-hairline bg-surface-card relative group-hover:shadow-teal-500/20 group-hover:shadow-2xl transition-all duration-500">
@@ -273,20 +262,20 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
                       <span className="absolute inset-0 z-0 bg-[#0D9488] clip-path-0 group-hover:clip-path-full transition-all duration-400 ease-out origin-center rounded-sm"></span>
                     </p>
                     <h3 className="mt-2 text-lg text-ink font-semibold relative group-hover:text-teal-600 transition-colors duration-300">{item.title}</h3>
-                    <dl className="mt-3 space-y-2 text-sm leading-6 text-body group-hover:text-body transition-colors">
-                      <div className="grid gap-0.5">
-                        <dt className="text-[11px] tracking-[0.1em] text-ink font-bold uppercase">Objective</dt>
-                        <dd>{item.objective}</dd>
-                      </div>
-                      <div className="grid gap-0.5">
-                        <dt className="text-[11px] tracking-[0.1em] text-ink font-bold uppercase">Constraint</dt>
-                        <dd>{item.constraint}</dd>
-                      </div>
-                    </dl>
                   </div>
                 </ConicHoverCard>
               ))}
             </Stagger>
+
+            <Reveal delay={0.2}>
+              <div className="max-w-xl mx-auto text-center mt-8">
+                <p className="text-xl md:text-2xl font-serif text-ink mb-3 tracking-tight">Want aerial footage for your project?</p>
+                <p className="text-body mb-8 text-base md:text-lg">Drone filming for property, events, tourism, and commercial content.</p>
+                <Link href="/drone-portfolio" className="inline-flex items-center justify-center gap-2 rounded-full bg-ink px-8 py-3.5 text-sm font-medium transition-transform hover:scale-105" style={{ color: 'var(--canvas)' }}>
+                  View Drone Portfolio &rarr;
+                </Link>
+              </div>
+            </Reveal>
           </div>
         </div>
       </Section>
