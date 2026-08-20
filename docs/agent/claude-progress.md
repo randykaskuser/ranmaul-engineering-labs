@@ -33,3 +33,9 @@
   - Inserted new section into `app/drone-portfolio/page.tsx` above Equipment.
   - Refactored `app/page.tsx` home page FPV teaser to act as a CTA funnel.
   - Fixed hardcoded string bug in `app/page.tsx` by restoring `contentDict` translation keys for English and Indonesian.
+- Fixed Drone Portfolio issues:
+  - Added proper localized routing (`app/[locale]/drone-portfolio/page.tsx`) wrapping the base page, so `/en/drone-portfolio` and `/id/drone-portfolio` work properly.
+  - Adjusted `app/drone-portfolio/page.tsx` to handle route params resolution safely.
+  - Duplicated the english drone content into `content/portfolio/id/` so the indonesian version of the site has data to show.
+  - Fixed location metadata mismatches in `content/portfolio/en/` portfolio mdx files (Batang Rest Area KM 371, Pandawa Beach, and Ciwidey Highlands now show correct locations).
+  - Updated `<VideoGallery>` in `components/portfolio/video-gallery.tsx` to use the `<ConicHoverCard>` component so Instagram Reel thumbnails and styling match the homepage.
