@@ -40,7 +40,7 @@ feature work on top of a broken starting state.
 
 To keep the repository organized, all architectural, planning, and long-term documentation must be placed in the `docs/` directory:
 
-- **`docs/planning/`**: Use this for new feature technical specs, implementation plans, and architecture designs. Create a spec here *before* beginning major, multi-file coding tasks.
+- **`docs/planning/`**: Use this for new feature technical specs, implementation plans, and architecture designs. Create a spec here *before* beginning major, multi-file coding tasks (defined as changing >3 files, or adding entirely new features/routes). Use superpower skills (`superpowers:writing-plans`) for all tasks, big or small.
 - **`docs/roadmaps/`**: Use this for long-term goals, feature roadmaps, and phase completion tracking.
 - **`docs/benchmarks/`**: Use this to store baseline performance metrics and tracking files.
 - **`docs/agent/`**: Reserved exclusively for AI session state tracking (progress, handoffs, and feature lists).
@@ -141,16 +141,16 @@ These are user-global rules that apply across all projects (maintained locally, 
 **Do not re-invent rules here.** Follow the authoritative files below:
 
 - Workspace rules (contracts / must-always-be-true):
-  - `.clinerules/project-architecture-constraints.md`
-  - `.clinerules/roadmap-scope-guardrails.md`
-  - `.clinerules/routing-and-taxonomy-contract.md`
-  - `.clinerules/frontmatter-and-slug-contract.md`
-  - `.clinerules/content-governance.md`
+  - `docs/agent/rules/project-architecture-constraints.md`
+  - `docs/agent/rules/roadmap-scope-guardrails.md`
+  - `docs/agent/rules/routing-and-taxonomy-contract.md`
+  - `docs/agent/rules/frontmatter-and-slug-contract.md`
+  - `docs/agent/rules/content-governance.md`
 - Workspace workflows (repeatable procedures):
-  - `.clinerules/workflows/publish-mdx-article.md`
-  - `.clinerules/workflows/bilingual-article-pair-workflow.md`
-  - `.clinerules/workflows/content-update-maintenance.md`
-  - `.clinerules/workflows/docs-sync-and-roadmap-alignment.md`
+  - `docs/agent/workflows/publish-mdx-article.md`
+  - `docs/agent/workflows/bilingual-article-pair-workflow.md`
+  - `docs/agent/workflows/content-update-maintenance.md`
+  - `docs/agent/workflows/docs-sync-and-roadmap-alignment.md`
 
 Repo documentation (explanatory reference; not enforcement text):
 
@@ -177,7 +177,7 @@ Heed deprecation notices.
 
 ## 2) Locked repo contracts (quick summary)
 
-These are repeated here only as a **short safety checklist**. The full source of truth remains in `.clinerules/*`.
+These are repeated here only as a **short safety checklist**. The full source of truth remains in `docs/agent/rules/*`.
 
 ### Routing + taxonomy (locked)
 
@@ -230,13 +230,13 @@ Do **not** add (unless roadmap/rules are explicitly updated first):
 2. Make the smallest change that satisfies the requirement.
 3. Run the relevant checks (lint/build/tests) if available.
 4. **Docs drift prevention:** if behavior/architecture/routing/content model/scope changed, run:
-   - `.clinerules/workflows/docs-sync-and-roadmap-alignment.md`
+   - `docs/agent/workflows/docs-sync-and-roadmap-alignment.md`
 
 ### B) When publishing or editing content (MDX)
 
 Follow:
 
-- `.clinerules/workflows/publish-mdx-article.md`
+- `docs/agent/workflows/publish-mdx-article.md`
 
 Key reminders:
 
@@ -249,13 +249,13 @@ Key reminders:
 
 Follow:
 
-- `.clinerules/workflows/bilingual-article-pair-workflow.md`
+- `docs/agent/workflows/bilingual-article-pair-workflow.md`
 
 ### D) When a tool/workflow changes (prevent content drift)
 
 Follow:
 
-- `.clinerules/workflows/content-update-maintenance.md`
+- `docs/agent/workflows/content-update-maintenance.md`
 
 ### E) When to use repo skills (if your agent runner supports them)
 
@@ -263,14 +263,14 @@ Some tasks should be handled via specialized skills rather than ad-hoc prompting
 
 - Security / privacy / vulnerability assessment → use the `security-hardening-auditor` skill
   - Output expectation: evidence-based audit report with prioritized findings + explicit assumptions.
-- Reorganizing/auditing `.clinerules/*` and docs governance (deduplication, stale guidance) → use the `governance-guardian` skill
+- Reorganizing/auditing `docs/agent/rules/*` and docs governance (deduplication, stale guidance) → use the `governance-guardian` skill
   - Goal: one authoritative owner per concept; avoid conflicting sources of truth.
 - Creating/modifying skills (evaluation, optimization) → use the `skill-creator` skill.
 
 ## 5) Where to put new guidance
 
-- Must-always-be-true constraint → `.clinerules/*.md`
-- Step-by-step process → `.clinerules/workflows/*.md`
+- Must-always-be-true constraint → `docs/agent/rules/*.md`
+- Step-by-step process → `docs/agent/workflows/*.md`
 - Explanatory reference / rationale → `docs/*.md`
 
 Do not duplicate sources of truth across these layers.
