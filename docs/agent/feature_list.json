@@ -41,6 +41,12 @@
       "title": "Refactor Footer Layout",
       "status": "completed",
       "reason": "Converted the flat link list in the footer to a 4-column structured layout mirroring the header's navigation groups. Added social icons and hover interactions."
+    },
+    {
+      "id": 8,
+      "title": "Drone Services Refactor",
+      "status": "completed",
+      "reason": "Refactored homepage FPV section into a teaser CTA and added a new DroneServicesSection component to the Drone Portfolio page."
     }
   ]
 }

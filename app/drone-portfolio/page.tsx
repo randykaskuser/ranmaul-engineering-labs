@@ -4,6 +4,7 @@ import { Reveal } from "@/components/layout/reveal"
 import { HeroSlideshow } from "@/components/portfolio/hero-slideshow"
 import { PhotoGallery } from "@/components/portfolio/photo-gallery"
 import { VideoGallery } from "@/components/portfolio/video-gallery"
+import { DroneServicesSection } from "@/components/portfolio/drone-services-section"
 import { getPortfolioItems } from "@/lib/portfolio"
 import { getRecentArticles } from "@/lib/content"
 import Link from "next/link"
@@ -53,6 +54,8 @@ export default async function DronePortfolioPage() {
           </Reveal>
         </div>
       </Section>
+
+      <DroneServicesSection />
 
       <Section space="xl" className="py-24 bg-white dark:bg-black border-b border-neutral-200 dark:border-neutral-800">
         <div className="container-wide">
