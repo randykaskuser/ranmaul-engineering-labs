@@ -338,7 +338,7 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
         </div>
       </Section>
 
-      <Section>
+      <Section className="pb-16 lg:pb-20 pt-8 lg:pt-12">
         <div id="connect" className="container-wide">
           <Reveal direction="up" distance={40}>
             <CollaborateSection

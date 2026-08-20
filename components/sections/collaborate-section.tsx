@@ -21,12 +21,12 @@ export function CollaborateSection({
 }: CollaborateSectionProps) {
   return (
     <div className="editorial-card overflow-hidden bg-canvas rounded-2xl md:rounded-3xl border border-hairline relative">
-      <div className="grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-6">
 
         {/* Left side: Content */}
-        <div className="flex flex-col justify-center p-8 md:p-12 lg:p-16 text-center md:text-left z-10">
-          <p className="type-kicker mb-6">{kicker}</p>
-          <h2 className="display-title text-[2.5rem] md:text-5xl lg:text-[4rem] text-ink leading-[1.1] tracking-tight">
+        <div className="flex flex-col justify-center px-8 py-10 md:px-10 md:py-12 lg:px-12 lg:py-14 text-center md:text-left z-10">
+          <p className="type-kicker mb-4">{kicker}</p>
+          <h2 className="display-title text-[2.25rem] md:text-5xl lg:text-[3.5rem] text-ink leading-[1.1] tracking-tight">
             {title}
           </h2>
           <p className="mt-6 text-[1.0625rem] leading-[1.8] text-body max-w-[42ch] mx-auto md:mx-0">
@@ -71,7 +71,7 @@ export function CollaborateSection({
           </div>
 
           {/* Tags */}
-          <div className="mt-12 flex flex-wrap items-center justify-center md:justify-start gap-x-5 gap-y-3 text-[0.8125rem] font-medium text-muted">
+          <div className="mt-10 flex flex-wrap items-center justify-center md:justify-start gap-x-5 gap-y-3 text-[0.8125rem] font-medium text-muted">
             <span className="flex items-center gap-2"><MonitorPlay className="size-4 opacity-70" /> QA Engineering</span>
             <span className="hidden sm:inline text-hairline-strong">•</span>
             <span className="flex items-center gap-2"><Settings className="size-4 opacity-70" /> Automation</span>
@@ -83,11 +83,11 @@ export function CollaborateSection({
         </div>
 
         {/* Right side: Illustration (Desktop only) */}
-        <div className="hidden md:flex items-center justify-center relative min-h-[400px]">
+        <div className="hidden md:flex items-center justify-center relative min-h-[320px]">
           {/* Subtle gradient background for the right side */}
           <div className="absolute inset-0 bg-gradient-to-l from-surface-card-soft/30 to-transparent pointer-events-none" />
 
-          <div className="relative w-full max-w-[320px] aspect-square">
+          <div className="relative w-full max-w-[280px] aspect-square">
             <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full text-muted opacity-[0.15]">
               {/* Target / Radar circles */}
               <circle cx="200" cy="200" r="180" stroke="currentColor" strokeWidth="1" />

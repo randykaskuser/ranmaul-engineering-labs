@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight, Plus, Minus } from "lucide-react";
 import { NAV_LINKS, type NavGroup, type NavItem } from "@/lib/site";
 import { SiteContainer } from "./site-container";
-import { LinkedinIcon, InstagramIcon } from "@/components/icons/social-icons";
+import { LinkedinIcon, InstagramIcon, WhatsappIcon } from "@/components/icons/social-icons";
 
 export function SiteFooter() {
   // Extract groups safely
@@ -22,12 +22,12 @@ export function SiteFooter() {
 
   return (
     <footer className="border-t border-hairline bg-canvas">
-      <SiteContainer className="py-16 lg:py-20">
+      <SiteContainer className="pt-12 pb-16 lg:pt-16 lg:pb-20">
 
         {/* DESKTOP VIEW */}
-        <div className="hidden lg:grid grid-cols-4 gap-8">
+        <div className="hidden lg:grid grid-cols-[1.4fr_1fr_1fr_1fr] gap-8">
           {/* Column 1: Brand & Socials */}
-          <div className="flex flex-col max-w-[16rem]">
+          <div className="flex flex-col pr-6">
             <h3 className="text-[1.15rem] font-medium tracking-tight text-ink">
               Engineering Labs
             </h3>
@@ -59,6 +59,15 @@ export function SiteFooter() {
                 aria-label="Instagram Profile"
               >
                 <InstagramIcon className="size-5" />
+              </a>
+              <a
+                href="https://wa.me/6285887775179"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted transition-colors hover:text-ink"
+                aria-label="WhatsApp Contact"
+              >
+                <WhatsappIcon className="size-5" />
               </a>
             </div>
           </div>
@@ -245,6 +254,15 @@ export function SiteFooter() {
               aria-label="Instagram Profile"
             >
               <InstagramIcon className="size-[22px]" />
+            </a>
+            <a
+              href="https://wa.me/6285887775179"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted transition-colors hover:text-ink"
+              aria-label="WhatsApp Contact"
+            >
+              <WhatsappIcon className="size-[22px]" />
             </a>
           </div>
 
