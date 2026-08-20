@@ -28,9 +28,10 @@ const contentDict = {
     aboutTags: "QA Engineer · FPV Pilot · Tech Enthusiast",
     featuredTitle: "Notes",
     featuredLink: "Browse all notes",
-    archivesTitle: "Recent Drone Flights",
-    archivesLink: "View video archives",
-    archivesDesc: "A collection of commercial and personal flights, ranging from cinematic FPV runs to aerial footage captured with DJI drones.",
+    archivesSectionTitle: "Latest FPV Flights",
+    archivesTitle: "Want aerial footage for your project?",
+    archivesLink: "View Drone Portfolio",
+    archivesDesc: "Drone filming for property, events, tourism, and commercial content.",
     projectsTitle: "Personal Projects",
     projectsLink: "View all",
     latestTitle: "Latest Articles",
@@ -56,9 +57,10 @@ const contentDict = {
     aboutTags: "QA Engineer · FPV Pilot · Tech Enthusiast",
     featuredTitle: "Catatan",
     featuredLink: "Lihat semua tulisan",
-    archivesTitle: "Penerbangan Drone Terbaru",
-    archivesLink: "Lihat arsip video",
-    archivesDesc: "Kumpulan penerbangan komersial dan personal, mulai dari FPV cinematic hingga aerial footage menggunakan drone DJI.",
+    archivesSectionTitle: "Penerbangan FPV Terbaru",
+    archivesTitle: "Butuh rekaman udara untuk proyek Anda?",
+    archivesLink: "Lihat Portofolio Drone",
+    archivesDesc: "Perekaman drone untuk properti, acara, pariwisata, dan konten komersial.",
     projectsTitle: "Personal Projects",
     projectsLink: "Lihat semua",
     latestTitle: "Artikel Terbaru",
@@ -237,7 +239,7 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
               <Reveal>
                 <div className="relative group inline-block">
                   <span className="absolute -inset-1 bg-gradient-to-r from-teal-600/30 via-emerald-500/30 to-blue-500/30 blur-xl opacity-0 group-hover:opacity-100 transition-all duration-500 animate-pulse"></span>
-                  <h2 className="display-title text-3xl text-ink md:text-5xl relative z-10">{t.archivesTitle}</h2>
+                  <h2 className="display-title text-3xl text-ink md:text-5xl relative z-10">{t.archivesSectionTitle}</h2>
                 </div>
               </Reveal>
             </div>
@@ -269,10 +271,10 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
 
             <Reveal delay={0.2}>
               <div className="max-w-xl mx-auto text-center mt-8">
-                <p className="text-xl md:text-2xl font-serif text-ink mb-3 tracking-tight">Want aerial footage for your project?</p>
-                <p className="text-body mb-8 text-base md:text-lg">Drone filming for property, events, tourism, and commercial content.</p>
+                <p className="text-xl md:text-2xl font-serif text-ink mb-3 tracking-tight">{t.archivesTitle}</p>
+                <p className="text-body mb-8 text-base md:text-lg">{t.archivesDesc}</p>
                 <Link href="/drone-portfolio" className="inline-flex items-center justify-center gap-2 rounded-full bg-ink px-8 py-3.5 text-sm font-medium transition-transform hover:scale-105" style={{ color: 'var(--canvas)' }}>
-                  View Drone Portfolio &rarr;
+                  {t.archivesLink} &rarr;
                 </Link>
               </div>
             </Reveal>
