@@ -26,3 +26,10 @@
   - Built custom `<LinkedinIcon>` and `<InstagramIcon>` inline SVG components.
   - Added subtle hover interactions with `<ArrowUpRight>` on links.
   - Simplified bottom bar.
+
+## 2026-08-20
+- Completed Drone Services Refactor (Issue #26):
+  - Created `<DroneServicesSection>` component displaying 3 service tiers.
+  - Inserted new section into `app/drone-portfolio/page.tsx` above Equipment.
+  - Refactored `app/page.tsx` home page FPV teaser to act as a CTA funnel.
+  - Fixed hardcoded string bug in `app/page.tsx` by restoring `contentDict` translation keys for English and Indonesian.
