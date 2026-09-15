@@ -20,8 +20,9 @@ tree or in any historical commit. The architecture (static export, no auth, no
 database, no user input) removes most high-severity web risk by construction.
 
 The real issues are **dependency currency, CI supply chain, and repo hygiene** —
-not data exposure. All code and dependency findings below are fixed; the
-remaining open items are ones that need your decision.
+not data exposure. **All findings in §2 are now fixed in the repository.** What
+remains (§7) is owner action in GitHub settings, which cannot be done from a
+commit.
 
 ---
 
@@ -34,10 +35,10 @@ remaining open items are ones that need your decision.
 | 3 | High | `js-yaml` CPU-exhaustion DoS (GHSA-2883-xcg3-v3hh) | **Fixed** → 3.15.2 / 4.3.2 |
 | 4 | Medium | `peter-evans/create-pull-request@v7` used as a floating tag while other actions were SHA-pinned | **Fixed** → SHA-pinned |
 | 5 | Low | JSON-LD injection: `JSON.stringify` does not escape `</script>` | **Fixed** → `<` escaped as `\u003c` |
-| 6 | Medium | `SECURITY.md` vulnerability contact is the placeholder `randy@example.com` | **Open — needs your decision** |
-| 7 | Low–Medium | `.claude/settings.local.json` is committed and pre-approves `git push *`, `git commit *`, `winget install *`, `gh auth *` | **Open — needs your decision** |
-| 8 | Low | `.wrangler/` local dev state tracked (25 files, ~13 MB) despite being gitignored | **Open — needs your decision** |
-| 9 | Low | Root-level scratch files leak local Windows paths and a Notion data-source ID | **Open — needs your decision** |
+| 6 | Medium | `SECURITY.md` vulnerability contact is the placeholder `randy@example.com` | **Fixed** → real channels + scope |
+| 7 | Low–Medium | `.claude/settings.local.json` is committed and pre-approves `git push *`, `git commit *`, `winget install *`, `gh auth *` | **Fixed** → untracked + gitignored |
+| 8 | Low | `.wrangler/` local dev state tracked (25 files, ~13 MB) despite being gitignored | **Fixed** → untracked |
+| 9 | Low | Root-level scratch files leak local Windows paths and a Notion data-source ID | **Fixed** → deleted |
 | 10 | Info | CV page publishes personal email and city | By design; correctly excluded from indexing |
 | 11 | Info | CSP is `Content-Security-Policy-Report-Only` | Intentional rollout stage |
 
@@ -103,9 +104,9 @@ static CSS string with no interpolation — no action needed.
 
 ---
 
-## 4. Open items (your call)
+## 4. Resolved in the follow-up commit
 
-### 4.1 `SECURITY.md` points nowhere (Medium)
+### 4.1 `SECURITY.md` points nowhere (Medium) — fixed
 
 The disclosure address is `randy@example.com` — a placeholder. On a public repo
 this means a researcher who finds a real issue has **no working way to report it
@@ -113,7 +114,19 @@ privately**, and the policy explicitly tells them not to open an issue. Either
 put a real address in, or enable GitHub private vulnerability reporting and link
 that instead.
 
-### 4.2 `.claude/settings.local.json` is committed (Low–Medium)
+**Resolved.** `SECURITY.md` now names GitHub private vulnerability reporting as
+the preferred channel and `randy.maulana91@gmail.com` as the fallback, and adds
+a scope section plus a response-time expectation. The fallback address was
+chosen because it is *already* published in this repo via the CV page, so it
+introduces no new exposure. Two caveats for the owner:
+
+- Private vulnerability reporting must be **enabled in repo settings**
+  (Settings → Security → Private vulnerability reporting). Until then the email
+  is the only working channel.
+- If a different contact address is preferred, change it — this was a judgement
+  call made to avoid publishing an address that was not already public.
+
+### 4.2 `.claude/settings.local.json` is committed (Low–Medium) — fixed
 
 This file is conventionally local-only and is **not** in `.gitignore`. It
 pre-approves, without prompting:
@@ -126,18 +139,24 @@ PowerShell(winget install *)   PowerShell(gh auth *)
 Two consequences. It publishes your local tooling layout and a
 `d:/Development/...` path; more importantly, anyone who clones or forks this
 public repo and runs an agent in it inherits pre-approved package installation
-and push permissions. Recommend `git rm --cached` it and add
-`.claude/settings.local.json` to `.gitignore`.
+and push permissions.
 
-### 4.3 Tracked `.wrangler/` state (Low)
+**Resolved.** Untracked with `git rm --cached` and added to `.gitignore`. The
+file remains on disk, so local development is unaffected.
+
+### 4.3 Tracked `.wrangler/` state (Low) — fixed
 
 `.gitignore` lists `.wrangler/`, but gitignore does not apply retroactively — 25
 files were committed before the rule and remain tracked, including a 9.3 MB MP4
 and five ~800 KB JPEGs in the local R2 emulator. I inspected the blobs: they are
 ordinary media, **not secrets**. This is a size/hygiene problem, not a security
-one. `git rm -r --cached .wrangler` removes them going forward.
+one.
 
-### 4.4 Root-level scratch files (Low)
+**Resolved.** Untracked with `git rm -r --cached .wrangler`. The existing
+`.gitignore` rule now actually takes effect, and local dev state is untouched on
+disk.
+
+### 4.4 Root-level scratch files (Low) — fixed
 
 `AGENTS.md` mandates a clean root. Currently present and tracked:
 
@@ -150,7 +169,11 @@ one. `git rm -r --cached .wrangler` removes them going forward.
 - `D:Developmentwebsite-elabs...transcript.txt` — a mangled-filename agent
   transcript
 
-None is a credential leak. All should be deleted or moved to `temporary/`.
+None is a credential leak.
+
+**Resolved.** All six deleted. Nothing in the repo referenced them (verified by
+`git grep`), and the build passes without them. The tracked root is now only
+permanent project artifacts, as `AGENTS.md` requires.
 
 **Note on history:** deleting these now removes them from the working tree but
 **not from git history** — they stay readable at old commits on a public repo.
@@ -208,14 +231,24 @@ looking. Verify controls in the code, not in the changelog.
 
 ---
 
-## 7. Recommended order of work
+## 7. Remaining work (owner action required)
 
-1. Fix `SECURITY.md` (§4.1) — a public repo with a dead disclosure channel.
-2. Untrack `.claude/settings.local.json` (§4.2) and add it to `.gitignore`.
-3. Untrack `.wrangler/` and clean the root (§4.3, §4.4).
-4. Enable Dependabot / GitHub security alerts so §2 items 1–3 surface
-   automatically rather than at audit time.
-5. Promote CSP from Report-Only to enforcing once the report stream is clean.
+Everything in §2 is now fixed in the repo. What is left cannot be done from the
+repository and needs action in GitHub / Cloudflare settings:
+
+1. **Enable private vulnerability reporting** (Settings → Security). Until then
+   the email fallback in `SECURITY.md` is the only reporting channel.
+2. **Confirm the Dependabot count.** On push, GitHub reported 7 alerts
+   (4 critical, 3 high) on `main`, while `npm audit` on this branch reports 0.
+   Dependabot counts differently — dev dependencies, per-advisory-per-package,
+   and the GitHub Actions ecosystem. Check `/security/dependabot` after this
+   lands to confirm the branch clears them rather than trusting the `0`.
+3. **Enable GitHub secret scanning** for independent coverage — the sweep in §5
+   was pattern-based and would miss an unusual credential format.
+4. **Promote CSP from Report-Only to enforcing** once the report stream is
+   clean.
+5. **Consider branch protection on `main`**, since `CODEOWNERS` alone does not
+   enforce review.
 
 ## 8. Assumptions and limits
 

@@ -62,8 +62,26 @@
 - Corrected two drifted claims in `docs/security-hardening-phase-3-7.md`
   (headers are in `public/_headers`, not `next.config.ts` `headers()`; the
   `react/no-danger` ESLint rule was never actually added).
-- Open items deliberately NOT actioned (need owner decision, see report §4):
-  `SECURITY.md` still points at the placeholder `randy@example.com`;
-  `.claude/settings.local.json` is tracked and pre-approves push/install;
-  `.wrangler/` local state (~13 MB) is tracked despite being gitignored;
-  root-level scratch files leak a local Windows username path.
+- Follow-up commit closed the four remaining hygiene/disclosure items:
+  - `SECURITY.md` rewritten: GitHub private vulnerability reporting as the
+    preferred channel, `randy.maulana91@gmail.com` (already public via the CV
+    page, so no new exposure) as fallback, plus a scope section and response
+    expectations. NOTE: private vulnerability reporting must still be enabled in
+    repo settings before that channel works.
+  - `.claude/settings.local.json` untracked and added to `.gitignore`. It
+    pre-approved `git push *` / `winget install *`, which any forker inherited.
+    Still present on disk; local dev unaffected.
+  - `.wrangler/` untracked (25 files, ~13 MB). Blobs were inspected first and
+    are ordinary media, not secrets. The existing gitignore rule now applies.
+  - Deleted six dead root files (`describe_image.py`, `parse_image.py`,
+    `fix-notion.mjs`, `package.json.tmp`, `playwright-base-b64.txt`, and a
+    mangled-filename agent transcript). Nothing referenced them. Tracked root is
+    now permanent artifacts only, per AGENTS.md.
+  - Re-verified after cleanup: build green, lint 0 errors (3 pre-existing
+    unused-import warnings), `npm audit` 0 vulnerabilities.
+- Still open, owner action outside the repo (report §7): enable private
+  vulnerability reporting; reconcile GitHub's Dependabot count (7 alerts on
+  `main` at push time) against the clean `npm audit` on this branch; enable
+  secret scanning; promote CSP from Report-Only; consider branch protection.
+- Deleted files remain readable in git history. Not rewritten: none contained a
+  credential, only a local Windows username path and a Notion data-source ID.
