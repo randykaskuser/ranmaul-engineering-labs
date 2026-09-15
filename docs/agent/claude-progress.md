@@ -82,6 +82,16 @@
 - Still open, owner action outside the repo (report §7): enable private
   vulnerability reporting; reconcile GitHub's Dependabot count (7 alerts on
   `main` at push time) against the clean `npm audit` on this branch; enable
-  secret scanning; promote CSP from Report-Only; consider branch protection.
+  secret scanning; consider branch protection. These need GitHub repo-settings
+  and Dependabot APIs; no MCP tool exposes them and direct HTTP to the GitHub
+  API is blocked in the agent session, so they must be done in the GitHub UI.
+- CSP recommendation REVERSED after measurement (report §9). Promoting the
+  existing Report-Only policy to enforcing would BREAK the site: the build emits
+  520 inline script blocks across 112 pages (next-themes anti-flash script + RSC
+  hydration payload), and `script-src 'self'` blocks all of them. Verified by
+  serving `out/` with the policy as a real enforcing header and loading it in
+  Chromium: 9 `script-src-elem` violations with the current policy, 0 with
+  `script-src 'self' 'unsafe-inline'`. Nonces need a server (none exists) and
+  hashes would change every build. Left as an owner decision, not applied.
 - Deleted files remain readable in git history. Not rewritten: none contained a
   credential, only a local Windows username path and a Notion data-source ID.

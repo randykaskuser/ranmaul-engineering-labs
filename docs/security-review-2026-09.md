@@ -245,8 +245,8 @@ repository and needs action in GitHub / Cloudflare settings:
    lands to confirm the branch clears them rather than trusting the `0`.
 3. **Enable GitHub secret scanning** for independent coverage — the sweep in §5
    was pattern-based and would miss an unusual credential format.
-4. **Promote CSP from Report-Only to enforcing** once the report stream is
-   clean.
+4. **Do NOT promote the CSP as currently written** — see §9. Measured: enforcing
+   it as-is breaks the site.
 5. **Consider branch protection on `main`**, since `CODEOWNERS` alone does not
    enforce review.
 
@@ -262,3 +262,64 @@ repository and needs action in GitHub / Cloudflare settings:
   the reasoning is stated so you can check it.
 - `npm audit` reflects the lockfile, and only vulnerabilities that have been
   published. It is a floor on dependency risk, not a ceiling.
+
+---
+
+## 9. CSP: the documented "promote to enforcing" plan would break the site
+
+This was listed in the first pass as routine follow-up work. It is not. I tested
+it, and the result inverts the recommendation.
+
+### What was measured
+
+The `out/` build was served over local HTTP with the policy applied as a real
+enforcing `Content-Security-Policy` header, then loaded in Chromium with
+`securitypolicyviolation` events and console output captured.
+
+| Policy | CSP violations | Violated directive |
+|---|---|---|
+| Current policy, enforced (`script-src 'self'`) | **9** | `script-src-elem` |
+| Same but `script-src 'self' 'unsafe-inline'` | **0** | — |
+
+Every violation is `Refused to execute inline script because it violates the
+following Content Security Policy directive`.
+
+### Why
+
+A Next.js static export emits inline `<script>` blocks with no `src`: the
+`next-themes` anti-flash script, which must run before paint, and the React
+Server Component hydration payload (`self.__next_f.push(...)`). A scan of the
+build found **520 inline script blocks with a body across 112 HTML pages**.
+
+`script-src 'self'` blocks all of them by specification. Enforcing the policy as
+written would leave the site unhydrated — no theme, no client interactivity.
+
+### Why the usual escapes do not apply
+
+- **Nonces** require a server to generate a per-response value. There is no
+  server; this is a static export on a CDN.
+- **Hashes** would have to cover the RSC payload of every page, which differs
+  per page and changes on every build. Hundreds of hashes in `_headers`,
+  regenerated each deploy. Not maintainable.
+
+### The actual choice
+
+There are only two real options, and it is a judgement call, not a fix:
+
+1. **Leave it Report-Only.** Nothing is enforced, including the directives that
+   would work fine. Status quo.
+2. **Enforce with `script-src 'self' 'unsafe-inline'`.** This enforces
+   `default-src`, `base-uri`, `object-src 'none'`, `frame-ancestors 'none'`,
+   `form-action 'self'`, `connect-src 'self'` and `upgrade-insecure-requests` —
+   all real, and all currently unenforced. It gives up CSP's inline-script XSS
+   protection, which is the directive people most associate with CSP.
+
+Option 2 is a net improvement: it trades a protection you do not currently have
+(Report-Only enforces nothing) for seven you also do not currently have. But
+`'unsafe-inline'` in a committed security header is the kind of change the
+repository owner should make deliberately, so it is left here as a
+recommendation rather than applied.
+
+The concrete edit, if you want it, is in `public/_headers`: rename
+`Content-Security-Policy-Report-Only` to `Content-Security-Policy` and change
+`script-src 'self'` to `script-src 'self' 'unsafe-inline'`.
