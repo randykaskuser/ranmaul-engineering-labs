@@ -22,3 +22,6 @@ node_modules/
 # tools
 .playwright-mcp/
 .wrangler/
+
+# local agent settings (machine-specific permission grants; never commit)
+.claude/settings.local.json
