@@ -1,5 +1,15 @@
 # Phase 3.7 — Security Hardening & Privacy Audit
 
+> **Status: partially superseded (2026-09).** See `docs/security-review-2026-09.md`
+> for the current findings and status. Two claims in this document are inaccurate
+> and are corrected there:
+>
+> 1. Security headers are **not** set via Next.js `headers()` — that is a no-op under
+>    `output: 'export'`. They are set in `public/_headers` (Cloudflare Pages).
+> 2. The ESLint rule `react/no-danger` was **never added** to `eslint.config.mjs`.
+>
+> Dependency findings in this document are also out of date; `npm audit` is now clean.
+
 This report is an evidence-based security + privacy audit for this repo.
 
 Scope focus (per Phase 3.7):

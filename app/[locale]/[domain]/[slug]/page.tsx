@@ -156,6 +156,10 @@ export default async function ArticlePage({ params }: { params: Promise<RoutePar
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
+          // Security: JSON.stringify does not escape "</script>", so a frontmatter
+          // value containing it would break out of this script block. Escaping "<"
+          // to its JSON unicode form below keeps the payload valid JSON while making
+          // it inert in HTML.
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Article",
@@ -173,7 +177,7 @@ export default async function ArticlePage({ params }: { params: Promise<RoutePar
                 url: SITE_URL,
               },
             ],
-          }),
+          }).replace(/</g, "\\u003c"),
         }}
       />
       <section className="section-space">

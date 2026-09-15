@@ -47,7 +47,7 @@ jobs:
           fi
 
       - name: Create Pull Request (if any)
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@84ae59a2cdc2258d6fa0732dd66352dddae2a412 # v7.0.9
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "chore(content): sync Notion → MDX"
