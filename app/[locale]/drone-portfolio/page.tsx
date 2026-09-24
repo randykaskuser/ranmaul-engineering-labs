@@ -62,7 +62,7 @@ export default async function DronePortfolioPage({ params }: { params: Promise<{
         </div>
       </Section>
 
-      <DroneServicesSection />
+      <DroneServicesSection locale={locale} />
 
       <Section space="xl" className="py-24 bg-white dark:bg-black border-b border-neutral-200 dark:border-neutral-800">
         <div className="container-wide">
@@ -74,7 +74,7 @@ export default async function DronePortfolioPage({ params }: { params: Promise<{
               </h3>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              {['DJI Mavic 3 Pro', 'DJI Mini 3 Pro', 'GoPro Hero 11', 'Custom FPV 5"'].map((gear) => (
+              {['DJI Air 3S', 'DJI Neo 2', 'Custom FPV 5"'].map((gear) => (
                 <div key={gear} className="p-6 border border-neutral-200 dark:border-neutral-800 flex items-center justify-center text-center h-32 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors">
                   <span className="font-medium text-neutral-700 dark:text-neutral-300">{gear}</span>
                 </div>

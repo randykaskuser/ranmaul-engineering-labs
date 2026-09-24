@@ -1,81 +1,240 @@
+import Image from "next/image";
+import { ArrowRight, Camera } from "lucide-react";
 import { Section } from "@/components/layout/section";
 import { Reveal } from "@/components/layout/reveal";
-import { Building2, Video, Briefcase, ArrowRight } from "lucide-react";
 import { whatsappLink } from "@/lib/site";
 
-export function DroneServicesSection() {
-  // No public prices yet: every job is quoted by WhatsApp with a pre-filled message.
-  const services = [
-    {
-      id: "property",
-      title: "Property Aerial",
-      icon: Building2,
-      features: ["Aerial photos", "High-res Video", "Real Estate & Construction"],
+// Per-battery pricing, the common model for aerial jobs in Jabodetabek.
+// To show a real drone photo, put it in public/images/drones/ and set `image`.
+
+type Copy = { en: string; id: string };
+
+type Package = {
+  name: Copy;
+  price: string;
+  unit: Copy;
+  badge?: Copy;
+  features: Copy[];
+};
+
+type Drone = {
+  id: string;
+  model: string;
+  image?: string;
+  tagline: Copy;
+  packages: Package[];
+};
+
+const RAW_FILES: Copy = { en: "All raw files included", id: "Semua file mentah" };
+const TRANSPORT: Copy = { en: "Transport within Jabodetabek included", id: "Transport Jabodetabek termasuk" };
+
+const DRONES: Drone[] = [
+  {
+    id: "air-3s",
+    model: "DJI Air 3S",
+    tagline: {
+      en: "Main camera. 1-inch sensor for sharp aerial photos and video.",
+      id: "Kamera utama. Sensor 1 inci untuk foto dan video udara yang tajam.",
     },
-    {
-      id: "cinematic",
-      title: "FPV Cinematic",
-      icon: Video,
-      features: ["FPV cinematic runs", "Tourism & Events", "Dynamic tracking shots"],
+    packages: [
+      {
+        name: { en: "Per battery", id: "Per baterai" },
+        price: "Rp900.000",
+        unit: { en: "/ battery", id: "/ baterai" },
+        features: [
+          { en: "Flight until the battery reaches ~30%", id: "Terbang sampai baterai ±30%" },
+          { en: "About 20–25 minutes of flight time", id: "Sekitar 20–25 menit waktu terbang" },
+          RAW_FILES,
+          TRANSPORT,
+        ],
+      },
+      {
+        name: { en: "3-battery package", id: "Paket 3 baterai" },
+        price: "Rp2.500.000",
+        unit: { en: "/ package", id: "/ paket" },
+        badge: { en: "Best value", id: "Paling hemat" },
+        features: [
+          { en: "Save Rp200.000 vs. 3 single batteries", id: "Hemat Rp200.000 dibanding ambil satuan" },
+          { en: "Enough for a full property or event session", id: "Cukup untuk satu sesi properti atau acara" },
+          RAW_FILES,
+          TRANSPORT,
+        ],
+      },
+    ],
+  },
+  {
+    id: "neo-2",
+    model: "DJI Neo 2",
+    tagline: {
+      en: "Small drone for follow shots and close-up moves around people.",
+      id: "Drone kecil untuk shot follow dan gerakan dekat di sekitar orang.",
     },
-    {
-      id: "custom",
-      title: "Custom / Commercial",
-      icon: Briefcase,
-      features: ["Custom requirements", "Specific gear setup", "Complex maneuvers"],
-    },
-  ];
+    packages: [
+      {
+        name: { en: "Add-on", id: "Tambahan" },
+        price: "Rp400.000",
+        unit: { en: "/ battery", id: "/ baterai" },
+        features: [
+          { en: "Only as an add-on to an Air 3S booking", id: "Hanya sebagai tambahan paket Air 3S" },
+          { en: "Follow, orbit and close-to-subject shots", id: "Shot follow, orbit, dan dekat subjek" },
+          RAW_FILES,
+        ],
+      },
+    ],
+  },
+];
+
+const t = (copy: Copy, locale: string) => (locale === "id" ? copy.id : copy.en);
+
+function DroneImage({ drone, locale }: { drone: Drone; locale: string }) {
+  if (drone.image) {
+    return (
+      <div className="relative aspect-[16/9] overflow-hidden rounded-xl">
+        <Image src={drone.image} alt={drone.model} fill className="object-cover" sizes="(min-width: 1024px) 560px, 100vw" />
+      </div>
+    );
+  }
+  return (
+    <div className="flex aspect-[16/9] flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-300 bg-neutral-100 text-neutral-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
+      <Camera className="h-6 w-6" aria-hidden="true" />
+      <span className="text-xs font-medium uppercase tracking-widest">
+        {locale === "id" ? `Foto ${drone.model}` : `${drone.model} photo`}
+      </span>
+    </div>
+  );
+}
+
+export function DroneServicesSection({ locale = "en" }: { locale?: string }) {
+  const isId = locale === "id";
 
   return (
     <Section space="xl" className="py-24 bg-white dark:bg-black border-y border-neutral-200 dark:border-neutral-800">
       <div className="container-wide">
         <Reveal>
           <div className="max-w-3xl mb-16 text-center mx-auto">
-            <h2 className="text-sm font-semibold tracking-widest uppercase text-neutral-500 mb-4">Drone Services</h2>
+            <h2 className="text-sm font-semibold tracking-widest uppercase text-neutral-500 mb-4">
+              {isId ? "Jasa Drone" : "Drone Services"}
+            </h2>
             <h3 className="font-serif text-4xl md:text-5xl font-normal text-black dark:text-white tracking-tight mb-6">
-              Need aerial footage for your project?
+              {isId ? "Harga per baterai, tanpa biaya tersembunyi" : "Priced per battery, no hidden fees"}
             </h3>
             <p className="text-neutral-600 dark:text-neutral-400 text-lg">
-              I provide aerial photography and FPV cinematic filming for commercial projects, properties, tourism, and events.
+              {isId
+                ? "Foto dan video udara untuk properti, acara, wisata, dan konten komersial di Jabodetabek."
+                : "Aerial photo and video for property, events, tourism, and commercial content in Jabodetabek."}
             </p>
           </div>
         </Reveal>
 
         <Reveal delay={0.1}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {services.map((service) => (
-              <div key={service.id} className="editorial-card p-8 flex flex-col h-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 transition-all hover:-translate-y-1 hover:shadow-lg rounded-2xl">
-                <div className="mb-6 flex items-center gap-4">
-                  <div className="p-3 bg-white dark:bg-black rounded-lg border border-neutral-200 dark:border-neutral-800">
-                    <service.icon className="w-6 h-6 text-neutral-700 dark:text-neutral-300" />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-medium text-black dark:text-white">{service.title}</h4>
-                    <p className="text-sm font-semibold text-neutral-500 mt-1 uppercase tracking-wider">Quote on request</p>
-                  </div>
-                </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            {DRONES.map((drone) => (
+              <div
+                key={drone.id}
+                className="flex min-w-0 flex-col rounded-2xl border border-neutral-200 bg-neutral-50 p-6 md:p-8 dark:border-neutral-800 dark:bg-neutral-900"
+              >
+                <DroneImage drone={drone} locale={locale} />
+                <h4 className="mt-6 text-2xl font-medium text-black dark:text-white">{drone.model}</h4>
+                <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">{t(drone.tagline, locale)}</p>
 
-                <ul className="flex-1 space-y-3 mb-8">
-                  {service.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-center text-neutral-600 dark:text-neutral-400 text-sm">
-                      <span className="mr-2 text-neutral-300 dark:text-neutral-700">•</span> {feature}
-                    </li>
+                <div className="mt-6 grid flex-1 gap-4">
+                  {drone.packages.map((pkg) => (
+                    <div
+                      key={pkg.name.en}
+                      className="flex flex-col rounded-xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-black"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-semibold uppercase tracking-wider text-neutral-500">{t(pkg.name, locale)}</p>
+                        {pkg.badge ? (
+                          <span className="rounded-full bg-black px-3 py-1 text-xs font-medium text-white dark:bg-white dark:text-black">
+                            {t(pkg.badge, locale)}
+                          </span>
+                        ) : null}
+                      </div>
+                      <p className="mt-2 text-2xl font-medium text-black dark:text-white">
+                        {pkg.price} <span className="text-sm font-normal text-neutral-500">{t(pkg.unit, locale)}</span>
+                      </p>
+                      <ul className="mt-4 space-y-2">
+                        {pkg.features.map((feature) => (
+                          <li key={feature.en} className="flex gap-2 text-sm text-neutral-600 dark:text-neutral-400">
+                            <span aria-hidden="true" className="text-neutral-400 dark:text-neutral-600">•</span>
+                            {t(feature, locale)}
+                          </li>
+                        ))}
+                      </ul>
+                      <a
+                        href={whatsappLink(
+                          isId
+                            ? `Halo Randy, saya tertarik ${drone.model} - ${t(pkg.name, locale)}. Lokasi: ... Tanggal: ... Kebutuhan: ...`
+                            : `Hi Randy, I'm interested in ${drone.model} - ${t(pkg.name, locale)}. Location: ... Date: ... Details: ...`,
+                        )}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group mt-5 flex items-center justify-between border-t border-neutral-200 pt-4 text-sm font-medium text-black transition-colors hover:text-neutral-600 dark:border-neutral-800 dark:text-white dark:hover:text-neutral-400"
+                      >
+                        {isId ? "Pesan via WhatsApp" : "Book on WhatsApp"}
+                        <ArrowRight className="h-4 w-4 opacity-70 transition-transform group-hover:translate-x-1" />
+                      </a>
+                    </div>
                   ))}
-                </ul>
-
-                <a
-                  href={whatsappLink(
-                    `Hi Randy, I'm interested in ${service.title}. Location: ... Date: ... Details: ...`,
-                  )}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-auto group flex items-center justify-between text-sm font-medium text-black dark:text-white hover:text-neutral-600 dark:hover:text-neutral-400 transition-colors pt-4 border-t border-neutral-200 dark:border-neutral-800"
-                >
-                  Request a quote on WhatsApp
-                  <ArrowRight className="w-4 h-4 opacity-70 group-hover:translate-x-1 transition-transform" />
-                </a>
+                </div>
               </div>
             ))}
+          </div>
+        </Reveal>
+
+        <Reveal delay={0.2}>
+          <div className="mx-auto mt-8 grid max-w-6xl gap-8 md:grid-cols-2">
+            <div className="rounded-2xl border border-neutral-200 p-6 dark:border-neutral-800">
+              <p className="text-sm font-semibold uppercase tracking-wider text-neutral-500">
+                {isId ? "Tambahan editing" : "Editing add-on"}
+              </p>
+              <p className="mt-2 text-xl font-medium text-black dark:text-white">
+                Rp300.000 – Rp500.000{" "}
+                <span className="text-sm font-normal text-neutral-500">{isId ? "/ klip" : "/ clip"}</span>
+              </p>
+              <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+                {isId
+                  ? "1 klip hasil edit (±30 detik). Harga tergantung tingkat kerumitan."
+                  : "1 edited clip (~30 seconds). Price depends on complexity."}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-neutral-200 p-6 dark:border-neutral-800">
+              <p className="text-sm font-semibold uppercase tracking-wider text-neutral-500">
+                {isId ? "Catatan" : "Notes"}
+              </p>
+              <ul className="mt-3 space-y-2 text-sm text-neutral-600 dark:text-neutral-400">
+                <li>
+                  {isId
+                    ? "Di luar Jabodetabek: biaya transport dihitung terpisah."
+                    : "Outside Jabodetabek: transport is quoted separately."}
+                </li>
+                <li>
+                  {isId
+                    ? "Jadwal bisa digeser jika cuaca tidak aman untuk terbang (hujan, angin kencang)."
+                    : "Flights may be rescheduled if weather is unsafe (rain, strong wind)."}
+                </li>
+                <li>
+                  {isId
+                    ? "Izin untuk area terbatas (dekat bandara, objek vital) tidak termasuk."
+                    : "Permits for restricted areas (near airports, protected sites) are not included."}
+                </li>
+                <li>
+                  <a
+                    href={whatsappLink(
+                      isId
+                        ? "Halo Randy, saya butuh FPV cinematic / kebutuhan khusus. Detail: ..."
+                        : "Hi Randy, I need FPV cinematic / a custom job. Details: ...",
+                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-4"
+                  >
+                    {isId ? "Butuh FPV cinematic atau kebutuhan khusus? Tanya di WhatsApp." : "Need FPV cinematic or a custom job? Ask on WhatsApp."}
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
         </Reveal>
       </div>

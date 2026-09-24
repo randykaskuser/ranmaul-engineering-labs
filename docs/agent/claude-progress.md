@@ -122,3 +122,4 @@
 - WhatsApp/Instagram/GitHub URLs now live in `lib/site.ts` only.
 - Verification: lint 0 errors (3 pre-existing warnings), build, crawl 0 broken links, Chromium at 390px: no horizontal scroll on /tools, /contact.
 - Pending owner input: Personal Butler case study (source repo is on company GitLab; write-up must use only owner-approved, company-free facts). Real drone prices if they want them public.
+- Drone pricing reworked to per-battery (owner's model): Air 3S Rp900.000/battery, 3 batteries Rp2.500.000, Neo 2 add-on Rp400.000/battery (Claude's estimate, owner to confirm), editing Rp300.000–500.000/clip. Bilingual copy, image placeholders (set `image` on a drone to show a photo from public/images/drones/). Equipment list updated to DJI Air 3S, DJI Neo 2, Custom FPV 5" (FPV unconfirmed).
