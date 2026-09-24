@@ -40,10 +40,11 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale } = await params;
-  return {
-    ...createPageMetadata(pick(COPY.title, locale), pick(COPY.metaDescription, locale)),
-    alternates: { canonical: `/${locale}/contact`, languages: { en: "/en/contact", id: "/id/contact" } },
-  };
+  return createPageMetadata(pick(COPY.title, locale), pick(COPY.metaDescription, locale), {
+    path: `/${locale}/contact`,
+    locale,
+    localizedPath: "/{locale}/contact",
+  });
 }
 
 export default async function ContactPage({ params }: { params: Promise<Params> }) {

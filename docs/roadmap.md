@@ -22,7 +22,7 @@
 | Phase 5 — Content Population | **Done** | Content exists and pipeline works; content volume/coverage is ongoing. |
 | Phase 6 — Drone Portfolio Expansion | **Not started / partial** | Placeholder portfolio pages exist; expansion/case-study system not fully built. |
 | Phase 7 — Tools & Utilities | **Not started** | Tools pages exist but utilities not built yet. |
-| Phase 8 — SEO Optimization | **Not started / partial** | Some metadata exists; sitemap/RSS/structured data not fully implemented. |
+| Phase 8 — SEO Optimization | **In progress** | Done: sitemap with hreflang, canonicals, full Open Graph + default share image, JSON-LD (WebSite, Person, Article, Service), noindex on thin tag pages. Open: RSS, internal linking pass. See `docs/planning/2026-09-24-seo-and-sitemap.md`. |
 | Phase 9 — Ecosystem Expansion | **Not started** | Deferred until content maturity. |
 
 # Phase 1 — Foundation

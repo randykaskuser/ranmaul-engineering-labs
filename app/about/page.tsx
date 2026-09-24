@@ -4,6 +4,7 @@ import { createPageMetadata } from "@/lib/page-metadata";
 export const metadata = createPageMetadata(
   "About",
   "Background, engineering philosophy, and creator-operator direction behind Engineering Labs.",
+  { path: "/about" },
 );
 
 export default function AboutPage() {

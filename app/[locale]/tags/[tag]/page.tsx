@@ -33,6 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   return createPageMetadata(
     `#${decoded}`,
     locale === "id" ? `Artikel dengan tag “${decoded}”.` : `Articles tagged “${decoded}”.`,
+    { locale, noindex: true },
   );
 }
 
