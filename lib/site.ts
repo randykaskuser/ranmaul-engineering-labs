@@ -92,8 +92,19 @@ export const NAV_LINKS: NavEntry[] = [
 
 export type SiteLocale = "en" | "id";
 
+/** A string in both site languages. */
+export type Localized = { en: string; id: string };
+
+export function pick(copy: Localized, locale: string): string {
+  return locale === "id" ? copy.id : copy.en;
+}
+
+export function isSiteLocale(value: string): value is SiteLocale {
+  return value === "en" || value === "id";
+}
+
 // Sections that only exist under /{locale}/... Plain links to them must be prefixed.
-const LOCALIZED_PATHS = ["/qa", "/fpv", "/fishkeeping", "/notes", "/drone-portfolio"];
+const LOCALIZED_PATHS = ["/qa", "/fpv", "/fishkeeping", "/notes", "/drone-portfolio", "/tools", "/projects", "/contact"];
 
 export function getLocaleFromPathname(pathname: string | null): SiteLocale {
   return pathname === "/id" || pathname?.startsWith("/id/") ? "id" : "en";
@@ -118,11 +129,11 @@ export function getLocaleSwitchHref(
 
   const segments = path.split("/").filter(Boolean);
   if (segments[0] !== "en" && segments[0] !== "id") {
-    // English-only page (about, contact, ...): no localized version exists.
+    // English-only page (about, cv, create): no localized version exists.
     return `/${otherLocale}`;
   }
   if (segments.length <= 2) {
-    // Home, section index, tags index, drone portfolio: exist in both locales.
+    // Home, section index, tags index, drone portfolio, tools, projects, contact: exist in both locales.
     return `/${[otherLocale, ...segments.slice(1)].join("/")}`;
   }
   // Untranslated article or localized tag: fall back to the section index.

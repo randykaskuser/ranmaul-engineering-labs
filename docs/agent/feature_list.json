@@ -64,7 +64,7 @@
       "id": 11,
       "title": "init.sh, CV fixes, Neo 2 bundle",
       "status": "completed",
-      "reason": "Added init.sh (same template as owner's ai-account/ielts-prepai repos; butler repo on company GitLab not reachable) with Node>=20 check, npm install, lint, build. Ran end to end: exit 0. CV: GitHub link -> github.com/randykaskuser and now rendered; Grab Senior QA period OCT 2019 - MAY 2026. Neo 2: 4-battery package Rp1.100.000."
+      "reason": "Added init.sh (template from owner's ai-account/ielts-prepai; butler repo on company GitLab not reachable): Node>=20 check, npm install, lint, build; exit 0. CV GitHub link -> github.com/randykaskuser, now rendered (date overlap left as-is per owner). Neo 2 3-battery package Rp850.000. Tools/Projects/Contact now bilingual under /{locale}/."
     }
   ]
 }

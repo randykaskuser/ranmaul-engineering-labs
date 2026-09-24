@@ -28,7 +28,7 @@ const CV_DATA = {
     {
       company: "Grab",
       role: "Senior QA Engineer, Merchant Experience",
-      period: "OCT 2019 - MAY 2026",
+      period: "APR 2017 - MAY 2026",
       bullets: [
         "Cut down test execution time from 15m to just 3m per scenario by optimizing the framework and handling dynamic UI elements more efficiently.",
         "Migrated unstable E2E UI tests to stable Go UAT (Medium Tests), making the CI pipeline much more reliable and reducing technical debt.",

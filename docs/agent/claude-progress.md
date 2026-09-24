@@ -131,3 +131,5 @@
 - CV: GitHub link fixed to github.com/randykaskuser and now shown next to LinkedIn; Grab Senior QA period corrected to OCT 2019 - MAY 2026 (was APR 2017, overlapping KUDO). Start month is inferred from the KUDO end date; owner to confirm.
 - Drone: Neo 2 4-battery package Rp1.100.000 (4 batteries in one visit, pilot on site max 4h; saves Rp200.000 vs 2 visits). Price is Claude's proposal, mirroring the Air 3S Rp200.000 bundle saving.
 - Resolved: the "init.sh missing" risk from the 2026-09-24 entry.
+- Follow-up (same day): owner asked to ignore the CV date overlap -> Grab Senior QA period reverted to APR 2017 - MAY 2026 (GitHub link fix kept). Neo 2 bundle capped at 3 batteries (owner's max): "Paket 3 baterai" Rp850.000 (per-visit Rp650.000 + 3rd battery Rp200.000; price is Claude's proposal).
+- Tools, Projects, Contact are now bilingual at /{locale}/tools|projects|contact (copy via `Localized` + `pick()` in lib/site.ts); old /tools, /projects, /contact 301 to /en/... in public/_redirects. Verified: build, tsc, crawl 0 broken links, /id pages lang="id" (52/52), toggle /id/x <-> /en/x, redirects 301 via wrangler, 390px no horizontal scroll.

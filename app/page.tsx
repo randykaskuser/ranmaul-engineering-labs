@@ -148,7 +148,7 @@ const getProjects = (locale: string) => {
     {
       title: "MDX Components",
       description: isId ? "Custom UI component agar artikel teknis dan code snippet lebih enak dibaca." : "Custom UI components to make technical content and code snippets easier to read.",
-      href: "/projects",
+      href: `/${locale}/projects`,
       tag: "Project",
     },
   ];
@@ -178,7 +178,7 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
                 <a href="#connect" className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium" style={{ color: 'var(--on-primary)' }}>
                   {t.btnCollaborate}
                 </a>
-                <Link href="/projects" className="rounded-full border border-hairline-strong px-5 py-2.5 text-sm font-medium text-ink">
+                <Link href={`/${locale}/projects`} className="rounded-full border border-hairline-strong px-5 py-2.5 text-sm font-medium text-ink">
                   {t.btnPortfolio}
                 </Link>
               </div>
@@ -204,7 +204,7 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
               <h2 className="display-title text-3xl text-ink md:text-5xl">{t.featuredTitle}</h2>
             </Reveal>
             <Reveal delay={0.1}>
-              <Link href="/projects" className="text-sm text-body hover:text-ink">
+              <Link href={`/${locale}/projects`} className="text-sm text-body hover:text-ink">
                 {t.featuredLink}
               </Link>
             </Reveal>
@@ -290,7 +290,7 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
               <article className="editorial-card p-6 h-full transition-shadow hover:shadow-lg">
                 <div className="mb-6 flex items-end justify-between gap-4">
                   <h2 className="display-title text-3xl text-ink">{t.projectsTitle}</h2>
-                  <Link href="/projects" className="text-sm text-body hover:text-ink">
+                  <Link href={`/${locale}/projects`} className="text-sm text-body hover:text-ink">
                     {t.projectsLink}
                   </Link>
                 </div>
