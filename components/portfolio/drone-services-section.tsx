@@ -1,37 +1,29 @@
 import { Section } from "@/components/layout/section";
 import { Reveal } from "@/components/layout/reveal";
 import { Building2, Video, Briefcase, ArrowRight } from "lucide-react";
-import Link from "next/link";
+import { whatsappLink } from "@/lib/site";
 
 export function DroneServicesSection() {
+  // No public prices yet: every job is quoted by WhatsApp with a pre-filled message.
   const services = [
     {
       id: "property",
       title: "Property Aerial",
       icon: Building2,
-      price: "From Rp X",
       features: ["Aerial photos", "High-res Video", "Real Estate & Construction"],
-      cta: "Details",
-      href: "/contact" // Or specific section if needed later
     },
     {
       id: "cinematic",
       title: "FPV Cinematic",
       icon: Video,
-      price: "From Rp X",
       features: ["FPV cinematic runs", "Tourism & Events", "Dynamic tracking shots"],
-      cta: "Details",
-      href: "/contact"
     },
     {
       id: "custom",
       title: "Custom / Commercial",
       icon: Briefcase,
-      price: "Let's discuss",
       features: ["Custom requirements", "Specific gear setup", "Complex maneuvers"],
-      cta: "Contact",
-      href: "/contact"
-    }
+    },
   ];
 
   return (
@@ -59,7 +51,7 @@ export function DroneServicesSection() {
                   </div>
                   <div>
                     <h4 className="text-xl font-medium text-black dark:text-white">{service.title}</h4>
-                    <p className="text-sm font-semibold text-neutral-500 mt-1 uppercase tracking-wider">{service.price}</p>
+                    <p className="text-sm font-semibold text-neutral-500 mt-1 uppercase tracking-wider">Quote on request</p>
                   </div>
                 </div>
 
@@ -71,13 +63,17 @@ export function DroneServicesSection() {
                   ))}
                 </ul>
 
-                <Link
-                  href={service.href}
+                <a
+                  href={whatsappLink(
+                    `Hi Randy, I'm interested in ${service.title}. Location: ... Date: ... Details: ...`,
+                  )}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="mt-auto group flex items-center justify-between text-sm font-medium text-black dark:text-white hover:text-neutral-600 dark:hover:text-neutral-400 transition-colors pt-4 border-t border-neutral-200 dark:border-neutral-800"
                 >
-                  {service.cta}
+                  Request a quote on WhatsApp
                   <ArrowRight className="w-4 h-4 opacity-70 group-hover:translate-x-1 transition-transform" />
-                </Link>
+                </a>
               </div>
             ))}
           </div>

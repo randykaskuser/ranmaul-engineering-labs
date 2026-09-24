@@ -12,6 +12,7 @@ import { ChevronDown, Plus, Minus } from "lucide-react";
 import {
   NAV_LINKS,
   MOBILE_NAV_GROUPS,
+  INSTAGRAM_URL,
   getLocaleFromPathname,
   getLocaleSwitchHref,
   localizeHref,
@@ -209,7 +210,7 @@ export function SiteHeader() {
                       <LinkedinIcon className="size-5" />
                     </a>
                     <a
-                      href="https://instagram.com/newbie.drone"
+                      href={INSTAGRAM_URL}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-muted transition-colors hover:text-ink"

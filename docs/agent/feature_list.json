@@ -53,6 +53,12 @@
       "title": "Fix broken links, language toggle, html lang, titles, duplicate h1",
       "status": "completed",
       "reason": "Crawl of static export: broken internal links 55 -> 0; /id/* lang=id 49/49; articles with 2 h1 13 -> 0; domain/tag pages get own titles. Legacy URLs 301 via public/_redirects (verified with wrangler pages dev). Toggle + lang verified in Chromium. Spec: docs/planning/2026-09-24-site-link-and-seo-fixes.md"
+    },
+    {
+      "id": 10,
+      "title": "Real content for Tools, Projects, Contact; drone quote flow",
+      "status": "completed",
+      "reason": "Tools: DevSpace + qa-agent-skills. Projects: Notion->MDX pipeline + this site (private repos excluded by owner). Contact: Instagram-first. Drone services: fake 'From Rp X' prices removed, CTAs open WhatsApp with pre-filled message. Contact links centralized in lib/site.ts. Verified: lint 0 errors, build, crawl 0 broken links, 390px no horizontal scroll on new pages."
     }
   ]
 }
