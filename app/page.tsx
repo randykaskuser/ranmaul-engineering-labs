@@ -9,9 +9,10 @@ import { Stagger } from "@/components/layout/stagger";
 import { ConicHoverCard } from "@/components/layout/conic-hover-card";
 import { BackgroundVideoPlaylist } from "@/components/layout/background-video-playlist";
 import { CollaborateSection } from "@/components/sections/collaborate-section";
+import { SITE_NAME } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Home",
+  title: { absolute: SITE_NAME },
   description:
     "Engineering Labs is a systems-oriented technical journal documenting automation reliability, FPV flight engineering, fishkeeping infrastructure, and real-world troubleshooting workflows.",
 };
@@ -147,7 +148,7 @@ const getProjects = (locale: string) => {
     {
       title: "MDX Components",
       description: isId ? "Custom UI component agar artikel teknis dan code snippet lebih enak dibaca." : "Custom UI components to make technical content and code snippets easier to read.",
-      href: `/${locale}/qa/notion-sync-smoke-test`,
+      href: "/projects",
       tag: "Project",
     },
   ];
@@ -273,7 +274,7 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
               <div className="max-w-xl mx-auto text-center mt-8">
                 <p className="text-xl md:text-2xl font-serif text-ink mb-3 tracking-tight">{t.archivesTitle}</p>
                 <p className="text-body mb-8 text-base md:text-lg">{t.archivesDesc}</p>
-                <Link href="/drone-portfolio" className="inline-flex items-center justify-center gap-2 rounded-full bg-ink px-8 py-3.5 text-sm font-medium transition-transform hover:scale-105" style={{ color: 'var(--canvas)' }}>
+                <Link href={`/${locale}/drone-portfolio`} className="inline-flex items-center justify-center gap-2 rounded-full bg-ink px-8 py-3.5 text-sm font-medium transition-transform hover:scale-105" style={{ color: 'var(--canvas)' }}>
                   {t.archivesLink} &rarr;
                 </Link>
               </div>

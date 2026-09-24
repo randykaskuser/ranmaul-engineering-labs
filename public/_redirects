@@ -1,0 +1,9 @@
+# Cloudflare Pages redirects. Static export cannot run next.config redirects.
+# Legacy section URLs -> localized routes (English default).
+/qa-lab           /en/qa              301
+/fpv-lab          /en/fpv             301
+/fishkeeping      /en/fishkeeping     301
+/drone-portfolio  /en/drone-portfolio 301
+/qa               /en/qa              301
+/fpv              /en/fpv             301
+/notes            /en/notes           301
