@@ -4,7 +4,7 @@ import { GITHUB_URL } from "@/lib/site";
 
 export const metadata = createPageMetadata(
   "Projects",
-  "Things I built: this bilingual engineering journal and its Notion-to-MDX publishing pipeline.",
+  "Things I built: an AI work assistant, a Notion-to-MDX publishing pipeline, and this bilingual engineering journal.",
 );
 
 type Project = {
@@ -17,6 +17,22 @@ type Project = {
 };
 
 const PROJECTS: Project[] = [
+  {
+    // Built for work. Keep this generic: no company, tool, channel or colleague names,
+    // no screenshots of real data, no repo link.
+    name: "Personal Butler",
+    summary: "An AI assistant I built for my daily work at a tech company.",
+    problem:
+      "Too much of the day went to small, repeated tasks: looking up answers in internal docs, writing tickets, and labeling them the same way every time.",
+    approach: [
+      "Answers questions by searching a knowledge base first, instead of guessing",
+      "Writes tickets in a fixed format for each ticket type",
+      "Suggests labels automatically from the ticket content",
+      "Runs in the cloud behind an LLM proxy, so the model can change without code changes",
+    ],
+    stack: "LLM agent · Knowledge search · LLM proxy · Built with Claude Code",
+    links: [],
+  },
   {
     name: "Notion → MDX publishing pipeline",
     summary: "Write in Notion, publish to this site without touching Git.",
@@ -82,6 +98,7 @@ export default function ProjectsPage() {
                 </div>
               </div>
               <p className="mt-6 text-xs text-muted">{project.stack}</p>
+              {project.links.length > 0 ? (
               <div className="mt-4 flex flex-wrap gap-3">
                 {project.links.map((link) => (
                   <a
@@ -94,6 +111,7 @@ export default function ProjectsPage() {
                   </a>
                 ))}
               </div>
+              ) : null}
             </article>
           ))}
         </div>

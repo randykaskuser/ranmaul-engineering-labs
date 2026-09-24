@@ -4,7 +4,7 @@ import { Section } from "@/components/layout/section";
 import { Reveal } from "@/components/layout/reveal";
 import { whatsappLink } from "@/lib/site";
 
-// Per-battery pricing, the common model for aerial jobs in Jabodetabek.
+// Air 3S is priced per battery (the common model in Jabodetabek); Neo 2 per visit.
 // To show a real drone photo, put it in public/images/drones/ and set `image`.
 
 type Copy = { en: string; id: string };
@@ -66,18 +66,19 @@ const DRONES: Drone[] = [
     id: "neo-2",
     model: "DJI Neo 2",
     tagline: {
-      en: "Small drone for follow shots and close-up moves around people.",
-      id: "Drone kecil untuk shot follow dan gerakan dekat di sekitar orang.",
+      en: "Small, light drone for follow shots, small businesses and social media content.",
+      id: "Drone kecil dan ringan untuk shot follow, dokumentasi UMKM, dan konten media sosial.",
     },
     packages: [
       {
-        name: { en: "Add-on", id: "Tambahan" },
-        price: "Rp400.000",
-        unit: { en: "/ battery", id: "/ baterai" },
+        name: { en: "Per visit", id: "Per kunjungan" },
+        price: "Rp650.000",
+        unit: { en: "/ visit", id: "/ kunjungan" },
         features: [
-          { en: "Only as an add-on to an Air 3S booking", id: "Hanya sebagai tambahan paket Air 3S" },
-          { en: "Follow, orbit and close-to-subject shots", id: "Shot follow, orbit, dan dekat subjek" },
+          { en: "2 batteries of flight", id: "Terbang 2 baterai" },
+          { en: "Pilot on site for up to 3 hours", id: "Pilot standby di lokasi maks. 3 jam" },
           RAW_FILES,
+          TRANSPORT,
         ],
       },
     ],
@@ -116,7 +117,7 @@ export function DroneServicesSection({ locale = "en" }: { locale?: string }) {
               {isId ? "Jasa Drone" : "Drone Services"}
             </h2>
             <h3 className="font-serif text-4xl md:text-5xl font-normal text-black dark:text-white tracking-tight mb-6">
-              {isId ? "Harga per baterai, tanpa biaya tersembunyi" : "Priced per battery, no hidden fees"}
+              {isId ? "Harga jelas, tanpa biaya tersembunyi" : "Clear pricing, no hidden fees"}
             </h3>
             <p className="text-neutral-600 dark:text-neutral-400 text-lg">
               {isId
@@ -223,14 +224,14 @@ export function DroneServicesSection({ locale = "en" }: { locale?: string }) {
                   <a
                     href={whatsappLink(
                       isId
-                        ? "Halo Randy, saya butuh FPV cinematic / kebutuhan khusus. Detail: ..."
-                        : "Hi Randy, I need FPV cinematic / a custom job. Details: ...",
+                        ? "Halo Randy, saya punya kebutuhan khusus. Detail: ..."
+                        : "Hi Randy, I have a custom request. Details: ...",
                     )}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="underline underline-offset-4"
                   >
-                    {isId ? "Butuh FPV cinematic atau kebutuhan khusus? Tanya di WhatsApp." : "Need FPV cinematic or a custom job? Ask on WhatsApp."}
+                    {isId ? "Kebutuhan khusus? Tanya di WhatsApp." : "Custom request? Ask on WhatsApp."}
                   </a>
                 </li>
               </ul>
