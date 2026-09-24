@@ -125,3 +125,9 @@
 - Drone pricing: Air 3S Rp900.000/battery, 3 batteries Rp2.500.000; Neo 2 standalone Rp650.000/visit (2 batteries, pilot on site max 3h; based on owner-provided Neo 1 reference of Rp550.000/visit in Surabaya); editing Rp300.000–500.000/clip. FPV removed from services and equipment (owner not comfortable offering it). Image placeholders per drone (set `image`, files in public/images/drones/).
 - Projects: Personal Butler case study added, generic only (built for work; no company, tool, colleague names, screenshots or repo link).
 - Homepage hero: "Drone Pilot & QA Engineer." (was "FPV Cinematic Pilot"); kicker "Certified drone pilot · Jabodetabek" to avoid repeating the title. Drone photos: owner will provide later.
+
+## 2026-09-24 (c)
+- Added `init.sh` (AGENTS.md startup path): Node >= 20 check, `npm install`, `npm run lint`, `npm run build`; `RUN_START_COMMAND=1` starts dev server. Based on the template in the owner's other repos; the butler repo is on company GitLab and was not reachable. Verified: `./init.sh` exits 0.
+- CV: GitHub link fixed to github.com/randykaskuser and now shown next to LinkedIn; Grab Senior QA period corrected to OCT 2019 - MAY 2026 (was APR 2017, overlapping KUDO). Start month is inferred from the KUDO end date; owner to confirm.
+- Drone: Neo 2 4-battery package Rp1.100.000 (4 batteries in one visit, pilot on site max 4h; saves Rp200.000 vs 2 visits). Price is Claude's proposal, mirroring the Air 3S Rp200.000 bundle saving.
+- Resolved: the "init.sh missing" risk from the 2026-09-24 entry.

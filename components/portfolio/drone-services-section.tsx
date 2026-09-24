@@ -81,6 +81,19 @@ const DRONES: Drone[] = [
           TRANSPORT,
         ],
       },
+      {
+        name: { en: "4-battery package", id: "Paket 4 baterai" },
+        price: "Rp1.100.000",
+        unit: { en: "/ package", id: "/ paket" },
+        badge: { en: "Best value", id: "Paling hemat" },
+        features: [
+          { en: "4 batteries in one visit", id: "4 baterai dalam 1 kunjungan" },
+          { en: "Save Rp200.000 vs. 2 separate visits", id: "Hemat Rp200.000 dibanding 2 kali kunjungan" },
+          { en: "Pilot on site for up to 4 hours", id: "Pilot standby di lokasi maks. 4 jam" },
+          RAW_FILES,
+          TRANSPORT,
+        ],
+      },
     ],
   },
 ];
