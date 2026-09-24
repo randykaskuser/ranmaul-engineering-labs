@@ -134,3 +134,15 @@
 - Follow-up (same day): owner asked to ignore the CV date overlap -> Grab Senior QA period reverted to APR 2017 - MAY 2026 (GitHub link fix kept). Neo 2 bundle capped at 3 batteries (owner's max): "Paket 3 baterai" Rp850.000 (per-visit Rp650.000 + 3rd battery Rp200.000; price is Claude's proposal).
 - Tools, Projects, Contact are now bilingual at /{locale}/tools|projects|contact (copy via `Localized` + `pick()` in lib/site.ts); old /tools, /projects, /contact 301 to /en/... in public/_redirects. Verified: build, tsc, crawl 0 broken links, /id pages lang="id" (52/52), toggle /id/x <-> /en/x, redirects 301 via wrangler, 390px no horizontal scroll.
 - Neo 2 flight-time estimates added (owner OK with Rp850.000 bundle): ~8–10 min per battery landing at ~30% (DJI spec 19 min; reviews report 11–16 min real use on a full battery). Per visit ~16–20 min total, 3-battery ~24–30 min. Notes box explains real-world vs DJI spec for both drones.
+
+## 2026-09-24 (d) — SEO pass and sitemap
+- Spec: `docs/planning/2026-09-24-seo-and-sitemap.md`.
+- `lib/page-metadata.ts`: `createPageMetadata()` now returns canonical, hreflang (+ x-default), full Open Graph (site name, locale, image) and Twitter card. Needed because Next.js replaces a parent's `openGraph` entirely when a page sets its own.
+- `public/images/og-default.jpg` was a 0-byte file; replaced with a 1200x630 image rendered from `portfolio/coastal-topdown-web.jpg`.
+- Home: EN/ID titles with name + role (+ "Jasa Drone Jabodetabek" in ID); `/en` canonical -> `/`; JSON-LD WebSite + Person (`components/seo/json-ld.tsx`).
+- Drone portfolio: localized keyword titles/descriptions; JSON-LD Service with Offers generated from `DRONES` (same data the page renders).
+- Articles: JSON-LD image URL bug fixed (R2 covers produced `https://ranmaul.comhttps://...`); SVG covers fall back to the default share image; author/publisher = Person; `inLanguage`; `x-default` hreflang.
+- Section indexes: real descriptions per domain and locale. Tag pages: `noindex, follow`.
+- `app/sitemap.ts`: 38 URLs (home, localized pages, section indexes, articles) with hreflang alternates; lastmod from article dates (no more `new Date()` on every build). Excludes tags, CV, /create, /about, /en.
+- Verification: lint 0 errors, tsc, build; scripted check over 109 pages (canonical/hreflang targets exist, og:image present, JSON-LD parses, sitemap URLs exist and are indexable): 0 problems; link crawl: 0 broken.
+- Owner actions: submit https://ranmaul.com/sitemap.xml in Google Search Console; replace `/file.svg` and `/window.svg` article covers with real images.

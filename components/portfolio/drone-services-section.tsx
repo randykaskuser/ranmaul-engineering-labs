@@ -15,7 +15,7 @@ type Package = {
   features: Localized[];
 };
 
-type Drone = {
+export type Drone = {
   id: string;
   model: string;
   image?: string;
@@ -26,7 +26,7 @@ type Drone = {
 const RAW_FILES: Localized = { en: "All raw files included", id: "Semua file mentah" };
 const TRANSPORT: Localized = { en: "Transport within Jabodetabek included", id: "Transport Jabodetabek termasuk" };
 
-const DRONES: Drone[] = [
+export const DRONES: Drone[] = [
   {
     id: "air-3s",
     model: "DJI Air 3S",

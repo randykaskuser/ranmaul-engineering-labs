@@ -147,10 +147,11 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale } = await params;
-  return {
-    ...createPageMetadata(pick(COPY.title, locale), pick(COPY.metaDescription, locale)),
-    alternates: { canonical: `/${locale}/projects`, languages: { en: "/en/projects", id: "/id/projects" } },
-  };
+  return createPageMetadata(pick(COPY.title, locale), pick(COPY.metaDescription, locale), {
+    path: `/${locale}/projects`,
+    locale,
+    localizedPath: "/{locale}/projects",
+  });
 }
 
 export default async function ProjectsPage({ params }: { params: Promise<Params> }) {

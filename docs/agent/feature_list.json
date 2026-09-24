@@ -65,6 +65,12 @@
       "title": "init.sh, CV fixes, Neo 2 bundle",
       "status": "completed",
       "reason": "Added init.sh (template from owner's ai-account/ielts-prepai; butler repo on company GitLab not reachable): Node>=20 check, npm install, lint, build; exit 0. CV GitHub link -> github.com/randykaskuser, now rendered (date overlap left as-is per owner). Neo 2 3-battery package Rp850.000. Tools/Projects/Contact now bilingual under /{locale}/."
+    },
+    {
+      "id": 12,
+      "title": "SEO pass and sitemap (Phase 8)",
+      "status": "completed",
+      "reason": "createPageMetadata builds canonical, hreflang(+x-default), full OG (site name, locale, default image), Twitter card for every page. Real 1200x630 og-default.jpg (was 0 bytes). JSON-LD: WebSite+Person (home), Service with Offers from DRONES data (drone portfolio), Article with fixed image URLs and Person author. Tag pages noindex,follow. Sitemap: 38 indexable URLs with hreflang alternates and content-based lastmod. Verified with scripted check over all 109 pages: 0 problems; 0 broken links."
     }
   ]
 }

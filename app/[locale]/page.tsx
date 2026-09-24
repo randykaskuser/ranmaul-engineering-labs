@@ -1,6 +1,9 @@
-import Home, { metadata } from "../page";
+import Home, { homeMetadata } from "../page";
 
-export { metadata };
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return homeMetadata(locale);
+}
 
 export function generateStaticParams() {
   return [{ locale: "en" }, { locale: "id" }];

@@ -7,6 +7,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { TranslationProvider } from "@/components/layout/translation-context";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import { getPublishedArticles, getTranslationsForArticle } from "@/lib/content";
+import { DEFAULT_OG_IMAGE } from "@/lib/page-metadata";
 import { ThemeProvider } from "next-themes";
 
 const inter = Inter({
@@ -37,7 +38,9 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     siteName: SITE_NAME,
     url: SITE_URL,
+    images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630, alt: SITE_NAME }],
   },
+  twitter: { card: "summary_large_image", images: [DEFAULT_OG_IMAGE] },
   manifest: "/site.webmanifest",
 };
 

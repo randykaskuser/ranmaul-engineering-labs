@@ -22,7 +22,9 @@ import {
   type Domain,
   type Locale,
 } from "@/lib/content";
-import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { SITE_URL } from "@/lib/site";
+import { PERSON_NAME, absoluteUrl, createPageMetadata, shareImage } from "@/lib/page-metadata";
+import { JsonLd, PERSON_SCHEMA } from "@/components/seo/json-ld";
 
 type RouteParams = {
   locale: string;
@@ -89,40 +91,28 @@ export async function generateMetadata({ params }: { params: Promise<RouteParams
   for (const t of translations) {
     languages[t.locale] = `/${t.locale}/${t.domain}/${t.slug}`;
   }
+  if (languages.en) {
+    languages["x-default"] = languages.en;
+  }
 
   const path = `/${article.locale}/${article.domain}/${article.slug}`;
-  const url = `${SITE_URL}${path}`;
+  const base = createPageMetadata(article.title, article.description, {
+    path,
+    locale: article.locale,
+    languages: translations.length > 0 ? languages : undefined,
+    image: article.coverImage,
+    type: "article",
+  });
 
   return {
-    title: article.title,
-    description: article.description,
-    alternates: {
-      canonical: path,
-      languages,
-    },
+    ...base,
     openGraph: {
-      title: `${article.title} | ${SITE_NAME}`,
-      description: article.description,
+      ...base.openGraph,
       type: "article",
-      url,
-      locale: article.locale === "id" ? "id_ID" : "en_US",
       publishedTime: article.publishedAt,
       modifiedTime: article.updatedAt,
+      authors: [PERSON_NAME],
       tags: article.tags,
-      images: article.coverImage ? [
-        {
-          url: article.coverImage,
-          width: 1600,
-          height: 900,
-          alt: article.coverAlt ?? article.title,
-        }
-      ] : undefined,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: article.title,
-      description: article.description,
-      images: article.coverImage ? [article.coverImage] : undefined,
     },
   };
 }
@@ -147,32 +137,20 @@ export default async function ArticlePage({ params }: { params: Promise<RoutePar
 
   return (
     <>
-      {/* JSON-LD Structured Data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          // Security: JSON.stringify does not escape "</script>", so a frontmatter
-          // value containing it would break out of this script block. Escaping "<"
-          // to its JSON unicode form below keeps the payload valid JSON while making
-          // it inert in HTML.
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Article",
-            headline: article.title,
-            description: article.description,
-            image: article.coverImage
-              ? `${SITE_URL}${article.coverImage}`
-              : `${SITE_URL}/images/og-default.jpg`,
-            datePublished: article.publishedAt,
-            dateModified: article.updatedAt,
-            author: [
-              {
-                "@type": "Person",
-                name: SITE_NAME,
-                url: SITE_URL,
-              },
-            ],
-          }).replace(/</g, "\\u003c"),
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: article.title,
+          description: article.description,
+          image: absoluteUrl(shareImage(article.coverImage)),
+          datePublished: article.publishedAt,
+          dateModified: article.updatedAt,
+          inLanguage: article.locale,
+          mainEntityOfPage: `${SITE_URL}/${article.locale}/${article.domain}/${article.slug}`,
+          keywords: article.tags.join(", "),
+          author: PERSON_SCHEMA,
+          publisher: PERSON_SCHEMA,
         }}
       />
       <section className="section-space">

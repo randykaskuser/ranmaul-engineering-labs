@@ -1,19 +1,42 @@
+import type { Metadata } from "next"
 import { createPageMetadata } from "@/lib/page-metadata"
+import { JsonLd, PERSON_SCHEMA } from "@/components/seo/json-ld"
+import { SITE_URL, pick } from "@/lib/site"
 import { Section } from "@/components/layout/section"
 import { Reveal } from "@/components/layout/reveal"
 import { HeroSlideshow } from "@/components/portfolio/hero-slideshow"
 import { PhotoGallery } from "@/components/portfolio/photo-gallery"
 import { VideoGallery } from "@/components/portfolio/video-gallery"
-import { DroneServicesSection } from "@/components/portfolio/drone-services-section"
+import { DRONES, DroneServicesSection } from "@/components/portfolio/drone-services-section"
 import { getPortfolioItems } from "@/lib/portfolio"
 import { getRecentArticles, type Locale } from "@/lib/content"
 import Link from "next/link"
 import Image from "next/image"
 
-export const metadata = createPageMetadata(
-  "Drone Portfolio",
-  "Aerial photography portfolio covering landscapes, cityscapes, and cinematic drone flights."
-)
+const SEO = {
+  title: {
+    en: "Drone Services in Jabodetabek – Aerial Photo & Video",
+    id: "Jasa Drone Jabodetabek – Foto & Video Udara",
+  },
+  description: {
+    en: "Aerial photo and video with DJI Air 3S and DJI Neo 2 across Jabodetabek. Clear per-battery pricing, raw files and transport included. Book on WhatsApp.",
+    id: "Jasa foto dan video udara dengan DJI Air 3S dan DJI Neo 2 di Jabodetabek. Harga per baterai yang jelas, file mentah dan transport termasuk. Pesan via WhatsApp.",
+  },
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params
+  return createPageMetadata(pick(SEO.title, locale), pick(SEO.description, locale), {
+    path: `/${locale}/drone-portfolio`,
+    locale,
+    localizedPath: "/{locale}/drone-portfolio",
+  })
+}
+
+/** "Rp2.500.000" -> 2500000 */
+function rupiah(price: string): number {
+  return Number(price.replace(/\D/g, ""))
+}
 
 export function generateStaticParams() {
   return [{ locale: "en" }, { locale: "id" }];
@@ -32,6 +55,26 @@ export default async function DronePortfolioPage({ params }: { params: Promise<{
 
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Service",
+          name: pick(SEO.title, locale),
+          description: pick(SEO.description, locale),
+          serviceType: "Aerial photography and videography",
+          url: `${SITE_URL}/${locale}/drone-portfolio`,
+          provider: PERSON_SCHEMA,
+          areaServed: { "@type": "Place", name: "Jabodetabek, Indonesia" },
+          offers: DRONES.flatMap((drone) =>
+            drone.packages.map((pkg) => ({
+              "@type": "Offer",
+              name: `${drone.model} – ${pick(pkg.name, locale)}`,
+              price: rupiah(pkg.price),
+              priceCurrency: "IDR",
+            })),
+          ),
+        }}
+      />
       <HeroSlideshow featured={featured} />
 
       <Section space="xl" className="pt-24 pb-12 bg-white dark:bg-black">

@@ -21,9 +21,11 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale } = await params;
+  // Thin listing pages while there are few articles per tag: keep them out of the index.
   return createPageMetadata(
     locale === "id" ? "Tag" : "Tags",
     locale === "id" ? "Jelajahi artikel berdasarkan tag." : "Browse articles by tag.",
+    { path: `/${locale}/tags`, locale, noindex: true },
   );
 }
 

@@ -9,13 +9,35 @@ import { Stagger } from "@/components/layout/stagger";
 import { ConicHoverCard } from "@/components/layout/conic-hover-card";
 import { BackgroundVideoPlaylist } from "@/components/layout/background-video-playlist";
 import { CollaborateSection } from "@/components/sections/collaborate-section";
-import { SITE_NAME } from "@/lib/site";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { createPageMetadata } from "@/lib/page-metadata";
+import { JsonLd, PERSON_SCHEMA } from "@/components/seo/json-ld";
 
-export const metadata: Metadata = {
-  title: { absolute: SITE_NAME },
-  description:
-    "Engineering Labs is a systems-oriented technical journal documenting automation reliability, FPV flight engineering, fishkeeping infrastructure, and real-world troubleshooting workflows.",
+const HOME_SEO = {
+  en: {
+    title: "Randy Maulana – Drone Pilot & QA Engineer",
+    description:
+      "Aerial photo and video services in Jabodetabek, plus practical notes on QA automation, FPV drones and fishkeeping.",
+  },
+  id: {
+    title: "Randy Maulana – Jasa Drone Jabodetabek & QA Engineer",
+    description:
+      "Jasa foto dan video udara di Jabodetabek, plus catatan praktis tentang QA automation, drone FPV, dan fishkeeping.",
+  },
 };
+
+/** "/" and "/en" are the same page; both point search engines to "/". */
+export function homeMetadata(locale: string): Metadata {
+  const seo = locale === "id" ? HOME_SEO.id : HOME_SEO.en;
+  return createPageMetadata(seo.title, seo.description, {
+    path: locale === "id" ? "/id" : "/",
+    locale,
+    languages: { en: "/", id: "/id", "x-default": "/" },
+    absoluteTitle: true,
+  });
+}
+
+export const metadata = homeMetadata("en");
 
 const contentDict = {
   en: {
@@ -163,6 +185,22 @@ export default async function Home({ locale = "en" }: { locale?: string }) {
 
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebSite",
+              "@id": `${SITE_URL}/#website`,
+              name: SITE_NAME,
+              url: SITE_URL,
+              inLanguage: ["en", "id"],
+              publisher: { "@id": PERSON_SCHEMA["@id"] },
+            },
+            PERSON_SCHEMA,
+          ],
+        }}
+      />
       <Section space="xl" divider orb>
         <div className="container">
           <div className="grid gap-10 lg:grid-cols-[1.35fr_0.65fr] lg:items-end">

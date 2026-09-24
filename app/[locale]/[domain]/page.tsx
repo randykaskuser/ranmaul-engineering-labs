@@ -3,6 +3,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createPageMetadata } from "@/lib/page-metadata";
+import { pick, type Localized } from "@/lib/site";
 import { notFound } from "next/navigation";
 import {
   DOMAINS,
@@ -38,11 +39,35 @@ export async function generateStaticParams() {
   return params;
 }
 
-const DOMAIN_TITLES: Record<Domain, string> = {
-  qa: "QA Engineering",
-  fpv: "FPV & Drone",
-  fishkeeping: "Fishkeeping",
-  notes: "Notes",
+const DOMAIN_SEO: Record<Domain, { title: string; description: Localized }> = {
+  qa: {
+    title: "QA Engineering",
+    description: {
+      en: "Notes on QA automation, Playwright, mobile E2E testing and AI-assisted testing from a working QA engineer.",
+      id: "Catatan tentang QA automation, Playwright, E2E mobile, dan testing dengan bantuan AI dari seorang QA engineer.",
+    },
+  },
+  fpv: {
+    title: "FPV & Drone",
+    description: {
+      en: "FPV and drone notes: tuning, stabilization, gear and lessons from real flights.",
+      id: "Catatan FPV dan drone: tuning, stabilisasi, perlengkapan, dan pelajaran dari penerbangan nyata.",
+    },
+  },
+  fishkeeping: {
+    title: "Fishkeeping",
+    description: {
+      en: "Predator fish and aquarium care: water parameters, the nitrogen cycle and treating common diseases.",
+      id: "Perawatan ikan predator dan akuarium: parameter air, siklus nitrogen, dan penanganan penyakit umum.",
+    },
+  },
+  notes: {
+    title: "Notes",
+    description: {
+      en: "Personal notes on career and working life.",
+      id: "Catatan pribadi tentang karier dan dunia kerja.",
+    },
+  },
 };
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
@@ -50,17 +75,12 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   if (!isValidLocale(locale) || !isValidDomain(domain)) {
     return {};
   }
-  const title = DOMAIN_TITLES[domain];
-  return {
-    ...createPageMetadata(
-      title,
-      locale === "id" ? `Semua artikel ${title}.` : `All ${title} articles.`,
-    ),
-    alternates: {
-      canonical: `/${locale}/${domain}`,
-      languages: { en: `/en/${domain}`, id: `/id/${domain}` },
-    },
-  };
+  const seo = DOMAIN_SEO[domain];
+  return createPageMetadata(seo.title, pick(seo.description, locale), {
+    path: `/${locale}/${domain}`,
+    locale,
+    localizedPath: `/{locale}/${domain}`,
+  });
 }
 
 export default async function DomainIndexPage({ params }: { params: Promise<Params> }) {
