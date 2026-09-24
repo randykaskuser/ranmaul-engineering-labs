@@ -73,7 +73,7 @@ const DRONES: Drone[] = [
         price: "Rp650.000",
         unit: { en: "/ visit", id: "/ kunjungan" },
         features: [
-          { en: "2 batteries of flight", id: "Terbang 2 baterai" },
+          { en: "2 batteries, about 16–20 minutes of flight in total", id: "2 baterai, total sekitar 16–20 menit terbang" },
           { en: "Pilot on site for up to 3 hours", id: "Pilot standby di lokasi maks. 3 jam" },
           RAW_FILES,
           TRANSPORT,
@@ -85,7 +85,7 @@ const DRONES: Drone[] = [
         unit: { en: "/ package", id: "/ paket" },
         badge: { en: "Best value", id: "Paling hemat" },
         features: [
-          { en: "3 batteries in one visit", id: "3 baterai dalam 1 kunjungan" },
+          { en: "3 batteries in one visit, about 24–30 minutes of flight in total", id: "3 baterai dalam 1 kunjungan, total sekitar 24–30 menit terbang" },
           { en: "The 3rd battery for only Rp200.000 more", id: "Baterai ke-3 hanya tambah Rp200.000" },
           { en: "Pilot on site for up to 3 hours", id: "Pilot standby di lokasi maks. 3 jam" },
           RAW_FILES,
@@ -223,6 +223,11 @@ export function DroneServicesSection({ locale = "en" }: { locale?: string }) {
                   {isId
                     ? "Jadwal bisa digeser jika cuaca tidak aman untuk terbang (hujan, angin kencang)."
                     : "Flights may be rescheduled if weather is unsafe (rain, strong wind)."}
+                </li>
+                <li>
+                  {isId
+                    ? "Durasi terbang adalah estimasi kondisi nyata (angin, merekam video), mendarat di ±30% baterai: Air 3S ±20–25 menit dan Neo 2 ±8–10 menit per baterai. Spesifikasi DJI: 45 dan 19 menit."
+                    : "Flight times are real-world estimates (wind, recording video), landing at ~30% battery: Air 3S ~20–25 min and Neo 2 ~8–10 min per battery. DJI specs: 45 and 19 min."}
                 </li>
                 <li>
                   {isId
