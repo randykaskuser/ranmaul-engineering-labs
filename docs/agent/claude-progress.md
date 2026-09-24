@@ -124,3 +124,4 @@
 - Pending owner input: Personal Butler case study (source repo is on company GitLab; write-up must use only owner-approved, company-free facts). Real drone prices if they want them public.
 - Drone pricing: Air 3S Rp900.000/battery, 3 batteries Rp2.500.000; Neo 2 standalone Rp650.000/visit (2 batteries, pilot on site max 3h; based on owner-provided Neo 1 reference of Rp550.000/visit in Surabaya); editing Rp300.000–500.000/clip. FPV removed from services and equipment (owner not comfortable offering it). Image placeholders per drone (set `image`, files in public/images/drones/).
 - Projects: Personal Butler case study added, generic only (built for work; no company, tool, colleague names, screenshots or repo link).
+- Homepage hero: "Drone Pilot & QA Engineer." (was "FPV Cinematic Pilot"); kicker "Certified drone pilot · Jabodetabek" to avoid repeating the title. Drone photos: owner will provide later.
