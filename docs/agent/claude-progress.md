@@ -113,3 +113,15 @@
   - `init.sh` referenced in AGENTS.md does not exist.
   - Duplicate tag casing in content (`Maintenance` vs `maintenance`).
   - Contact/About/Projects/Tools are still placeholders (section 2 of the audit).
+
+## 2026-09-24 (b)
+- Tools page: DevSpace (download links to GitHub releases) and QA Agent Skills (plugin install).
+- Projects page: Notion -> MDX pipeline and this site. PrepAI, Lapak AI, ViralClipper excluded (private; owner declined PrepAI/Lapak AI).
+- Contact page: Instagram primary; WhatsApp only for drone booking.
+- Drone services: removed placeholder "From Rp X" prices; each card opens WhatsApp with a pre-filled quote message (`whatsappLink()` in `lib/site.ts`).
+- WhatsApp/Instagram/GitHub URLs now live in `lib/site.ts` only.
+- Verification: lint 0 errors (3 pre-existing warnings), build, crawl 0 broken links, Chromium at 390px: no horizontal scroll on /tools, /contact.
+- Pending owner input: Personal Butler case study (source repo is on company GitLab; write-up must use only owner-approved, company-free facts). Real drone prices if they want them public.
+- Drone pricing: Air 3S Rp900.000/battery, 3 batteries Rp2.500.000; Neo 2 standalone Rp650.000/visit (2 batteries, pilot on site max 3h; based on owner-provided Neo 1 reference of Rp550.000/visit in Surabaya); editing Rp300.000–500.000/clip. FPV removed from services and equipment (owner not comfortable offering it). Image placeholders per drone (set `image`, files in public/images/drones/).
+- Projects: Personal Butler case study added, generic only (built for work; no company, tool, colleague names, screenshots or repo link).
+- Homepage hero: "Drone Pilot & QA Engineer." (was "FPV Cinematic Pilot"); kicker "Certified drone pilot · Jabodetabek" to avoid repeating the title. Drone photos: owner will provide later.

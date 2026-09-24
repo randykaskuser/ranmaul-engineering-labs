@@ -13,6 +13,16 @@ export const SITE_DESCRIPTION =
   "Drone projects, engineering notes, and fishkeeping journals from a QA Engineer who enjoys building, flying, and learning.";
 export const SITE_URL = "https://ranmaul.com";
 
+export const INSTAGRAM_HANDLE = "newbie.drone";
+export const INSTAGRAM_URL = `https://instagram.com/${INSTAGRAM_HANDLE}`;
+export const WHATSAPP_URL = "https://wa.me/6285887775179";
+export const GITHUB_URL = "https://github.com/randykaskuser";
+
+/** WhatsApp chat link with a pre-filled message. */
+export function whatsappLink(message: string): string {
+  return `${WHATSAPP_URL}?text=${encodeURIComponent(message)}`;
+}
+
 export type NavItem = {
   href: string;
   label: string;

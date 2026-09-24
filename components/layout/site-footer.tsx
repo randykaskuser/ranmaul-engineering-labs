@@ -1,6 +1,6 @@
 import { LocalizedLink } from "./localized-link";
 import { ArrowUpRight, Plus, Minus } from "lucide-react";
-import { NAV_LINKS, type NavGroup, type NavItem } from "@/lib/site";
+import { INSTAGRAM_URL, NAV_LINKS, WHATSAPP_URL, type NavGroup, type NavItem } from "@/lib/site";
 import { SiteContainer } from "./site-container";
 import { LinkedinIcon, InstagramIcon, WhatsappIcon } from "@/components/icons/social-icons";
 
@@ -52,7 +52,7 @@ export function SiteFooter() {
                 <LinkedinIcon className="size-5" />
               </a>
               <a
-                href="https://instagram.com/newbie.drone"
+                href={INSTAGRAM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted transition-colors hover:text-ink"
@@ -61,7 +61,7 @@ export function SiteFooter() {
                 <InstagramIcon className="size-5" />
               </a>
               <a
-                href="https://wa.me/6285887775179"
+                href={WHATSAPP_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted transition-colors hover:text-ink"
@@ -247,7 +247,7 @@ export function SiteFooter() {
               <LinkedinIcon className="size-[22px]" />
             </a>
             <a
-              href="https://instagram.com/newbie.drone"
+              href={INSTAGRAM_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="text-muted transition-colors hover:text-ink"
@@ -256,7 +256,7 @@ export function SiteFooter() {
               <InstagramIcon className="size-[22px]" />
             </a>
             <a
-              href="https://wa.me/6285887775179"
+              href={WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="text-muted transition-colors hover:text-ink"

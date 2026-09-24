@@ -19,8 +19,8 @@ export const metadata: Metadata = {
 
 const contentDict = {
   en: {
-    heroKicker: "Certified Drone Pilot & QA Engineer",
-    heroTitle: "FPV Cinematic Pilot & QA Engineer.",
+    heroKicker: "Certified drone pilot · Jabodetabek",
+    heroTitle: "Drone Pilot & QA Engineer.",
     heroLede: "I spend most of my time building test automation, flying FPV drones, and experimenting with new technology. This website is where I share projects, lessons learned, and things I'm currently working on.",
     btnCollaborate: "Let's Collaborate",
     btnPortfolio: "View Portfolio",
@@ -48,8 +48,8 @@ const contentDict = {
     domain: "Category",
   },
   id: {
-    heroKicker: "Certified Drone Pilot & QA Engineer",
-    heroTitle: "FPV Cinematic Pilot & QA Engineer.",
+    heroKicker: "Certified drone pilot · Jabodetabek",
+    heroTitle: "Drone Pilot & QA Engineer.",
     heroLede: "Saya menghabiskan banyak waktu membangun test automation, menerbangkan FPV drone, dan bereksperimen dengan teknologi baru. Website ini berisi project, pengalaman, dan berbagai hal yang sedang saya pelajari atau kerjakan.",
     btnCollaborate: "Mari Berkolaborasi",
     btnPortfolio: "Lihat Portofolio",

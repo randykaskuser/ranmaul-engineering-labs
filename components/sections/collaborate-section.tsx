@@ -1,4 +1,5 @@
 import { WhatsappIcon, LinkedinIcon, InstagramIcon } from "@/components/icons/social-icons";
+import { INSTAGRAM_URL, WHATSAPP_URL } from "@/lib/site";
 import { MonitorPlay, Settings, Navigation, Code2 } from "lucide-react";
 import Image from "next/image";
 
@@ -37,7 +38,7 @@ export function CollaborateSection({
           <div className="mt-8 flex flex-col md:flex-row flex-wrap gap-3 w-full max-w-[28rem] mx-auto md:mx-0">
             {/* WhatsApp (Primary) */}
             <a
-              href="https://wa.me/6285887775179"
+              href={WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2.5 rounded-full bg-ink px-6 py-3.5 text-[0.9rem] font-medium transition-transform hover:scale-[1.02] md:flex-auto"
@@ -60,7 +61,7 @@ export function CollaborateSection({
 
             {/* Instagram (Tertiary, icon-only on mobile if needed, but text shown as per mockup) */}
             <a
-              href="https://instagram.com/newbie.drone"
+              href={INSTAGRAM_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2.5 rounded-full border border-hairline-strong px-6 py-3.5 text-[0.9rem] font-medium text-ink transition-colors hover:bg-surface-card-soft md:flex-none"
