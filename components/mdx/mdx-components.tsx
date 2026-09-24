@@ -142,6 +142,9 @@ function MdxImage({ src, alt, width, height, ...props }: ImgProps) {
 export const mdxComponents: MDXComponents = {
   a: SmartLink,
   img: MdxImage,
+  // The page already renders the article title as <h1>. Notion-synced bodies
+  // often start with "# Title", so demote body h1s to keep one h1 per page.
+  h1: (props) => <MdxHeading {...props} className={["mt-12", props.className ?? ""].join(" ")} />,
   h2: (props) => <MdxHeading {...props} className={["mt-12", props.className ?? ""].join(" ")} />,
   h3: (props) => <MdxHeading3 {...props} className={["mt-10", props.className ?? ""].join(" ")} />,
   pre: (props) => <CodeBlock {...props} />,

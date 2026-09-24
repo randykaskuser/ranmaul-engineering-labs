@@ -95,3 +95,21 @@
   hashes would change every build. Left as an owner decision, not applied.
 - Deleted files remain readable in git history. Not rewritten: none contained a
   credential, only a local Windows username path and a Notion data-source ID.
+
+## 2026-09-24
+- Site correctness fixes (spec: `docs/planning/2026-09-24-site-link-and-seo-fixes.md`):
+  - Footer section links now locale-aware (`LocalizedLink`, `localizeHref()` in `lib/site.ts`).
+  - Homepage "MDX Components" card no longer links to the unpublished `notion-sync-smoke-test`; points to `/projects`.
+  - EN/ID toggle: translation map built in `app/layout.tsx` at build time; replaced effect-based `TranslationSetter`. Tags and English-only pages fall back to existing pages.
+  - `<html lang="id">` on Indonesian pages via `scripts/set-html-lang.mjs` (npm `postbuild`) + `HtmlLang` client component.
+  - `generateMetadata` for domain index, tags index, and tag pages. Home uses absolute site title.
+  - MDX body `h1` renders as `h2` (Notion bodies repeat the title).
+  - Removed `redirect()` stub pages (unsupported in static export); added `public/_redirects`.
+- Verification: `npm run lint` (0 errors, 3 pre-existing warnings), `npm run build`, crawl of `out/`:
+  0 broken internal links (was 55 unique), 0 articles with 2 h1 (was 13), 49/49 `/id` pages `lang="id"`.
+  `wrangler pages dev out`: legacy URLs return 301. Chromium: toggle EN->ID article works, lang updates on client nav.
+- Open risks:
+  - `postbuild` only runs if Cloudflare's build command is `npm run build`. If it runs `next build` directly, `/id` pages keep `lang="en"` (links still fine).
+  - `init.sh` referenced in AGENTS.md does not exist.
+  - Duplicate tag casing in content (`Maintenance` vs `maintenance`).
+  - Contact/About/Projects/Tools are still placeholders (section 2 of the audit).

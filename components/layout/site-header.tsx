@@ -9,50 +9,33 @@ import { motion, AnimatePresence } from "framer-motion";
 
 
 import { ChevronDown, Plus, Minus } from "lucide-react";
-import { NAV_LINKS, MOBILE_NAV_GROUPS } from "@/lib/site";
+import {
+  NAV_LINKS,
+  MOBILE_NAV_GROUPS,
+  getLocaleFromPathname,
+  getLocaleSwitchHref,
+  localizeHref,
+} from "@/lib/site";
 
 import { SiteContainer } from "./site-container";
 import { LinkedinIcon, InstagramIcon } from "@/components/icons/social-icons";
 import { NavLink } from "./nav-link";
 import { NavDropdown } from "./nav-dropdown";
-import { useTranslationContext } from "./translation-context";
+import { useTranslations } from "./translation-context";
 import { ThemeToggle } from "./theme-toggle";
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
   const pathname = usePathname();
-  const { alternateUrl } = useTranslationContext();
 
-  const locale = pathname?.startsWith("/id") ? "id" : "en";
-  const localizedDomains = ["/qa", "/fpv", "/fishkeeping", "/notes"];
+  const translations = useTranslations();
 
-  const getLocalizedHref = (href: string) => {
-    if (localizedDomains.includes(href)) {
-      return `/${locale}${href}`;
-    }
-    return href;
-  };
+  const locale = getLocaleFromPathname(pathname);
+  const getLocalizedHref = (href: string) => localizeHref(href, locale);
 
   const otherLocale = locale === "en" ? "id" : "en";
-  const localeSwitchHref =
-    alternateUrl ??
-    (() => {
-      if (!pathname || pathname === "/") {
-        return `/${otherLocale}`;
-      }
-
-      const segments = pathname.split("/").filter(Boolean);
-      if (
-        segments.length > 0 &&
-        (segments[0] === "en" || segments[0] === "id")
-      ) {
-        segments[0] = otherLocale;
-        return `/${segments.join("/")}`;
-      }
-
-      return `/${otherLocale}${pathname}`;
-    })();
+  const localeSwitchHref = getLocaleSwitchHref(pathname, translations);
 
   const toggleGroup = (label: string) => {
     setExpandedGroups((prev) =>

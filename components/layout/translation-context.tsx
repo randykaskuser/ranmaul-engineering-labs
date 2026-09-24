@@ -1,52 +1,42 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useEffect, ReactNode } from "react";
 import { usePathname } from "next/navigation";
+import { getLocaleFromPathname } from "@/lib/site";
 
-type TranslationContextType = {
-  alternateUrl: string | null;
-  setAlternateUrl: (url: string | null) => void;
-};
+// Article path -> translated article path, built at build time in the root layout.
+// Passing it down (instead of setting it from the article page in an effect) keeps
+// the language toggle correct in the static HTML, before any JS runs.
+const TranslationContext = createContext<Record<string, string>>({});
 
-const TranslationContext = createContext<TranslationContextType>({
-  alternateUrl: null,
-  setAlternateUrl: () => {},
-});
-
-export function TranslationProvider({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
-
-  // Use pathname as a key to automatically reset state on navigation.
-  // React will unmount/remount the inner provider when the key changes,
-  // which resets alternateUrl to null without needing useEffect or refs.
+export function TranslationProvider({
+  translations,
+  children,
+}: {
+  translations: Record<string, string>;
+  children: ReactNode;
+}) {
   return (
-    <TranslationProviderInner key={pathname}>
-      {children}
-    </TranslationProviderInner>
-  );
-}
-
-function TranslationProviderInner({ children }: { children: ReactNode }) {
-  const [alternateUrl, setAlternateUrl] = useState<string | null>(null);
-
-  return (
-    <TranslationContext.Provider value={{ alternateUrl, setAlternateUrl }}>
+    <TranslationContext.Provider value={translations}>
+      <HtmlLang />
       {children}
     </TranslationContext.Provider>
   );
 }
 
-export function useTranslationContext() {
+export function useTranslations() {
   return useContext(TranslationContext);
 }
 
-export function TranslationSetter({ alternateUrl }: { alternateUrl: string | null }) {
-  const { setAlternateUrl } = useTranslationContext();
-  
+// The root layout is shared by both locales, so it always renders lang="en".
+// scripts/set-html-lang.mjs fixes the static HTML; this keeps it right after
+// client-side navigation between locales.
+function HtmlLang() {
+  const pathname = usePathname();
+
   useEffect(() => {
-    setAlternateUrl(alternateUrl);
-    return () => setAlternateUrl(null);
-  }, [alternateUrl, setAlternateUrl]);
-  
+    document.documentElement.lang = getLocaleFromPathname(pathname);
+  }, [pathname]);
+
   return null;
 }

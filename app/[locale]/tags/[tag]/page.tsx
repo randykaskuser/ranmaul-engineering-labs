@@ -1,6 +1,8 @@
 
 
+import type { Metadata } from "next";
 import Link from "next/link";
+import { createPageMetadata } from "@/lib/page-metadata";
 import { notFound } from "next/navigation";
 import { LOCALES, getArticlesByTag, getAllTags, type Locale } from "@/lib/content";
 
@@ -23,6 +25,15 @@ export async function generateStaticParams() {
     }
   }
   return params;
+}
+
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
+  const { locale, tag } = await params;
+  const decoded = decodeURIComponent(tag);
+  return createPageMetadata(
+    `#${decoded}`,
+    locale === "id" ? `Artikel dengan tag “${decoded}”.` : `Articles tagged “${decoded}”.`,
+  );
 }
 
 export default async function TagPage({ params }: { params: Promise<Params> }) {

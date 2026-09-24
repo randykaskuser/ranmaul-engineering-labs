@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "node ./scripts/set-html-lang.mjs",
     "start": "next start",
     "lint": "eslint",
     "notion:sync": "node ./scripts/notion-sync.mjs --write --verbose",

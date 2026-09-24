@@ -80,6 +80,45 @@ export const NAV_LINKS: NavEntry[] = [
   { href: "/contact", label: "Contact" },
 ];
 
+export type SiteLocale = "en" | "id";
+
+// Sections that only exist under /{locale}/... Plain links to them must be prefixed.
+const LOCALIZED_PATHS = ["/qa", "/fpv", "/fishkeeping", "/notes", "/drone-portfolio"];
+
+export function getLocaleFromPathname(pathname: string | null): SiteLocale {
+  return pathname === "/id" || pathname?.startsWith("/id/") ? "id" : "en";
+}
+
+export function localizeHref(href: string, locale: SiteLocale): string {
+  return LOCALIZED_PATHS.includes(href) ? `/${locale}${href}` : href;
+}
+
+/**
+ * Target of the EN/ID toggle. `translations` maps an article path to its
+ * translated path. Never returns a route that does not exist.
+ */
+export function getLocaleSwitchHref(
+  pathname: string | null,
+  translations: Record<string, string>,
+): string {
+  const otherLocale: SiteLocale = getLocaleFromPathname(pathname) === "en" ? "id" : "en";
+  const path = pathname && pathname !== "/" ? pathname.replace(/\/$/, "") : "/";
+
+  if (translations[path]) return translations[path];
+
+  const segments = path.split("/").filter(Boolean);
+  if (segments[0] !== "en" && segments[0] !== "id") {
+    // English-only page (about, contact, ...): no localized version exists.
+    return `/${otherLocale}`;
+  }
+  if (segments.length <= 2) {
+    // Home, section index, tags index, drone portfolio: exist in both locales.
+    return `/${[otherLocale, ...segments.slice(1)].join("/")}`;
+  }
+  // Untranslated article or localized tag: fall back to the section index.
+  return `/${otherLocale}/${segments[1]}`;
+}
+
 export const getFlatNavLinks = (): NavItem[] => {
   return NAV_LINKS.flatMap((entry) => {
     if ("children" in entry) {

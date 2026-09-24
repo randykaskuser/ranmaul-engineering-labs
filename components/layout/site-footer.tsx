@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { LocalizedLink } from "./localized-link";
 import { ArrowUpRight, Plus, Minus } from "lucide-react";
 import { NAV_LINKS, type NavGroup, type NavItem } from "@/lib/site";
 import { SiteContainer } from "./site-container";
@@ -80,13 +80,13 @@ export function SiteFooter() {
             <ul className="flex flex-col gap-3">
               {engineeringGroup?.children.map((link) => (
                 <li key={link.href}>
-                  <Link
+                  <LocalizedLink
                     href={link.href}
                     className="group flex items-center justify-between text-[0.95rem] text-body transition-colors hover:text-ink focus-visible:text-ink"
                   >
                     {link.label}
                     <ArrowUpRight className="size-3.5 opacity-0 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100" />
-                  </Link>
+                  </LocalizedLink>
                 </li>
               ))}
             </ul>
@@ -100,13 +100,13 @@ export function SiteFooter() {
             <ul className="flex flex-col gap-3">
               {exploreGroup?.children.map((link) => (
                 <li key={link.href}>
-                  <Link
+                  <LocalizedLink
                     href={link.href}
                     className="group flex items-center justify-between text-[0.95rem] text-body transition-colors hover:text-ink focus-visible:text-ink"
                   >
                     {link.label}
                     <ArrowUpRight className="size-3.5 opacity-0 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100" />
-                  </Link>
+                  </LocalizedLink>
                 </li>
               ))}
             </ul>
@@ -120,13 +120,13 @@ export function SiteFooter() {
             <ul className="flex flex-col gap-3">
               {elsewhereLinks.map((link) => (
                 <li key={link.href}>
-                  <Link
+                  <LocalizedLink
                     href={link.href}
                     className="group flex items-center justify-between text-[0.95rem] text-body transition-colors hover:text-ink focus-visible:text-ink"
                   >
                     {link.label}
                     <ArrowUpRight className="size-3.5 opacity-0 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100" />
-                  </Link>
+                  </LocalizedLink>
                 </li>
               ))}
             </ul>
@@ -148,12 +148,12 @@ export function SiteFooter() {
               <ul className="flex flex-col gap-4 pb-6 pt-2">
                 {engineeringGroup?.children.map((link) => (
                   <li key={link.href}>
-                    <Link
+                    <LocalizedLink
                       href={link.href}
                       className="text-[0.95rem] text-body transition-colors hover:text-ink focus-visible:text-ink"
                     >
                       {link.label}
-                    </Link>
+                    </LocalizedLink>
                   </li>
                 ))}
               </ul>
@@ -170,12 +170,12 @@ export function SiteFooter() {
               <ul className="flex flex-col gap-4 pb-6 pt-2">
                 {exploreGroup?.children.map((link) => (
                   <li key={link.href}>
-                    <Link
+                    <LocalizedLink
                       href={link.href}
                       className="text-[0.95rem] text-body transition-colors hover:text-ink focus-visible:text-ink"
                     >
                       {link.label}
-                    </Link>
+                    </LocalizedLink>
                   </li>
                 ))}
               </ul>
@@ -192,12 +192,12 @@ export function SiteFooter() {
               <ul className="flex flex-col gap-4 pb-6 pt-2">
                 {elsewhereLinks.map((link) => (
                   <li key={link.href}>
-                    <Link
+                    <LocalizedLink
                       href={link.href}
                       className="text-[0.95rem] text-body transition-colors hover:text-ink focus-visible:text-ink"
                     >
                       {link.label}
-                    </Link>
+                    </LocalizedLink>
                   </li>
                 ))}
               </ul>
@@ -205,13 +205,13 @@ export function SiteFooter() {
 
             {/* Mobile Contact Link (Non-Accordion) */}
             <div className="py-5">
-              <Link
+              <LocalizedLink
                 href="/contact"
                 className="flex cursor-pointer items-center justify-between text-[1.15rem] font-medium text-ink transition-colors hover:text-ink/80"
               >
                 Connect
                 <Plus className="size-5 opacity-0" /> {/* Spacer to align text with accordions */}
-              </Link>
+              </LocalizedLink>
             </div>
           </div>
 

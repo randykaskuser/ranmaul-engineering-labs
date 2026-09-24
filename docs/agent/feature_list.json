@@ -47,6 +47,12 @@
       "title": "Drone Services Refactor",
       "status": "completed",
       "reason": "Refactored homepage FPV section into a teaser CTA and added a new DroneServicesSection component to the Drone Portfolio page."
+    },
+    {
+      "id": 9,
+      "title": "Fix broken links, language toggle, html lang, titles, duplicate h1",
+      "status": "completed",
+      "reason": "Crawl of static export: broken internal links 55 -> 0; /id/* lang=id 49/49; articles with 2 h1 13 -> 0; domain/tag pages get own titles. Legacy URLs 301 via public/_redirects (verified with wrangler pages dev). Toggle + lang verified in Chromium. Spec: docs/planning/2026-09-24-site-link-and-seo-fixes.md"
     }
   ]
 }

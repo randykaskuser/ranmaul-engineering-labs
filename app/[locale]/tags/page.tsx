@@ -1,6 +1,8 @@
 
 
+import type { Metadata } from "next";
 import Link from "next/link";
+import { createPageMetadata } from "@/lib/page-metadata";
 import { notFound } from "next/navigation";
 import { LOCALES, getAllTags, type Locale } from "@/lib/content";
 
@@ -15,6 +17,14 @@ function isValidLocale(value: string): value is Locale {
 
 export async function generateStaticParams() {
   return LOCALES.map(locale => ({ locale }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
+  const { locale } = await params;
+  return createPageMetadata(
+    locale === "id" ? "Tag" : "Tags",
+    locale === "id" ? "Jelajahi artikel berdasarkan tag." : "Browse articles by tag.",
+  );
 }
 
 export default async function TagsIndexPage({ params }: { params: Promise<Params> }) {

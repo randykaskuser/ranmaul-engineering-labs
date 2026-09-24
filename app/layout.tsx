@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { TranslationProvider } from "@/components/layout/translation-context";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
+import { getPublishedArticles, getTranslationsForArticle } from "@/lib/content";
 import { ThemeProvider } from "next-themes";
 
 const inter = Inter({
@@ -40,11 +41,27 @@ export const metadata: Metadata = {
   manifest: "/site.webmanifest",
 };
 
-export default function RootLayout({
+// Article path -> translated article path, for the EN/ID toggle.
+async function getTranslationMap(): Promise<Record<string, string>> {
+  const articles = await getPublishedArticles();
+  const map: Record<string, string> = {};
+  for (const article of articles) {
+    const [translation] = await getTranslationsForArticle(article);
+    if (translation) {
+      map[`/${article.locale}/${article.domain}/${article.slug}`] =
+        `/${translation.locale}/${translation.domain}/${translation.slug}`;
+    }
+  }
+  return map;
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const translations = await getTranslationMap();
+
   return (
     <html
       lang="en"
@@ -53,7 +70,7 @@ export default function RootLayout({
     >
       <body className="min-h-full bg-canvas text-ink" suppressHydrationWarning>
         <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
-          <TranslationProvider>
+          <TranslationProvider translations={translations}>
             <div className="flex min-h-screen flex-col">
               <SiteHeader />
               <main className="flex-1">{children}</main>

@@ -1,6 +1,8 @@
 
 
+import type { Metadata } from "next";
 import Link from "next/link";
+import { createPageMetadata } from "@/lib/page-metadata";
 import { notFound } from "next/navigation";
 import {
   DOMAINS,
@@ -34,6 +36,31 @@ export async function generateStaticParams() {
     }
   }
   return params;
+}
+
+const DOMAIN_TITLES: Record<Domain, string> = {
+  qa: "QA Engineering",
+  fpv: "FPV & Drone",
+  fishkeeping: "Fishkeeping",
+  notes: "Notes",
+};
+
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
+  const { locale, domain } = await params;
+  if (!isValidLocale(locale) || !isValidDomain(domain)) {
+    return {};
+  }
+  const title = DOMAIN_TITLES[domain];
+  return {
+    ...createPageMetadata(
+      title,
+      locale === "id" ? `Semua artikel ${title}.` : `All ${title} articles.`,
+    ),
+    alternates: {
+      canonical: `/${locale}/${domain}`,
+      languages: { en: `/en/${domain}`, id: `/id/${domain}` },
+    },
+  };
 }
 
 export default async function DomainIndexPage({ params }: { params: Promise<Params> }) {
