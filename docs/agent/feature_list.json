@@ -59,6 +59,12 @@
       "title": "Real content for Tools, Projects, Contact; drone quote flow",
       "status": "completed",
       "reason": "Tools: DevSpace + qa-agent-skills. Projects: Notion->MDX pipeline + this site (private repos excluded by owner). Contact: Instagram-first. Drone services: fake 'From Rp X' prices removed, CTAs open WhatsApp with pre-filled message. Contact links centralized in lib/site.ts. Verified: lint 0 errors, build, crawl 0 broken links, 390px no horizontal scroll on new pages."
+    },
+    {
+      "id": 11,
+      "title": "init.sh, CV fixes, Neo 2 bundle",
+      "status": "completed",
+      "reason": "Added init.sh (template from owner's ai-account/ielts-prepai; butler repo on company GitLab not reachable): Node>=20 check, npm install, lint, build; exit 0. CV GitHub link -> github.com/randykaskuser, now rendered (date overlap left as-is per owner). Neo 2 3-battery package Rp850.000. Tools/Projects/Contact now bilingual under /{locale}/."
     }
   ]
 }

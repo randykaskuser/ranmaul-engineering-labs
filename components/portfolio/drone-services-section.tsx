@@ -2,31 +2,29 @@ import Image from "next/image";
 import { ArrowRight, Camera } from "lucide-react";
 import { Section } from "@/components/layout/section";
 import { Reveal } from "@/components/layout/reveal";
-import { whatsappLink } from "@/lib/site";
+import { pick, whatsappLink, type Localized } from "@/lib/site";
 
 // Air 3S is priced per battery (the common model in Jabodetabek); Neo 2 per visit.
 // To show a real drone photo, put it in public/images/drones/ and set `image`.
 
-type Copy = { en: string; id: string };
-
 type Package = {
-  name: Copy;
+  name: Localized;
   price: string;
-  unit: Copy;
-  badge?: Copy;
-  features: Copy[];
+  unit: Localized;
+  badge?: Localized;
+  features: Localized[];
 };
 
 type Drone = {
   id: string;
   model: string;
   image?: string;
-  tagline: Copy;
+  tagline: Localized;
   packages: Package[];
 };
 
-const RAW_FILES: Copy = { en: "All raw files included", id: "Semua file mentah" };
-const TRANSPORT: Copy = { en: "Transport within Jabodetabek included", id: "Transport Jabodetabek termasuk" };
+const RAW_FILES: Localized = { en: "All raw files included", id: "Semua file mentah" };
+const TRANSPORT: Localized = { en: "Transport within Jabodetabek included", id: "Transport Jabodetabek termasuk" };
 
 const DRONES: Drone[] = [
   {
@@ -75,7 +73,20 @@ const DRONES: Drone[] = [
         price: "Rp650.000",
         unit: { en: "/ visit", id: "/ kunjungan" },
         features: [
-          { en: "2 batteries of flight", id: "Terbang 2 baterai" },
+          { en: "2 batteries, about 16–20 minutes of flight in total", id: "2 baterai, total sekitar 16–20 menit terbang" },
+          { en: "Pilot on site for up to 3 hours", id: "Pilot standby di lokasi maks. 3 jam" },
+          RAW_FILES,
+          TRANSPORT,
+        ],
+      },
+      {
+        name: { en: "3-battery package", id: "Paket 3 baterai" },
+        price: "Rp850.000",
+        unit: { en: "/ package", id: "/ paket" },
+        badge: { en: "Best value", id: "Paling hemat" },
+        features: [
+          { en: "3 batteries in one visit, about 24–30 minutes of flight in total", id: "3 baterai dalam 1 kunjungan, total sekitar 24–30 menit terbang" },
+          { en: "The 3rd battery for only Rp200.000 more", id: "Baterai ke-3 hanya tambah Rp200.000" },
           { en: "Pilot on site for up to 3 hours", id: "Pilot standby di lokasi maks. 3 jam" },
           RAW_FILES,
           TRANSPORT,
@@ -84,8 +95,6 @@ const DRONES: Drone[] = [
     ],
   },
 ];
-
-const t = (copy: Copy, locale: string) => (locale === "id" ? copy.id : copy.en);
 
 function DroneImage({ drone, locale }: { drone: Drone; locale: string }) {
   if (drone.image) {
@@ -136,7 +145,7 @@ export function DroneServicesSection({ locale = "en" }: { locale?: string }) {
               >
                 <DroneImage drone={drone} locale={locale} />
                 <h4 className="mt-6 text-2xl font-medium text-black dark:text-white">{drone.model}</h4>
-                <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">{t(drone.tagline, locale)}</p>
+                <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">{pick(drone.tagline, locale)}</p>
 
                 <div className="mt-6 grid flex-1 gap-4">
                   {drone.packages.map((pkg) => (
@@ -145,29 +154,29 @@ export function DroneServicesSection({ locale = "en" }: { locale?: string }) {
                       className="flex flex-col rounded-xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-black"
                     >
                       <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm font-semibold uppercase tracking-wider text-neutral-500">{t(pkg.name, locale)}</p>
+                        <p className="text-sm font-semibold uppercase tracking-wider text-neutral-500">{pick(pkg.name, locale)}</p>
                         {pkg.badge ? (
                           <span className="rounded-full bg-black px-3 py-1 text-xs font-medium text-white dark:bg-white dark:text-black">
-                            {t(pkg.badge, locale)}
+                            {pick(pkg.badge, locale)}
                           </span>
                         ) : null}
                       </div>
                       <p className="mt-2 text-2xl font-medium text-black dark:text-white">
-                        {pkg.price} <span className="text-sm font-normal text-neutral-500">{t(pkg.unit, locale)}</span>
+                        {pkg.price} <span className="text-sm font-normal text-neutral-500">{pick(pkg.unit, locale)}</span>
                       </p>
                       <ul className="mt-4 space-y-2">
                         {pkg.features.map((feature) => (
                           <li key={feature.en} className="flex gap-2 text-sm text-neutral-600 dark:text-neutral-400">
                             <span aria-hidden="true" className="text-neutral-400 dark:text-neutral-600">•</span>
-                            {t(feature, locale)}
+                            {pick(feature, locale)}
                           </li>
                         ))}
                       </ul>
                       <a
                         href={whatsappLink(
                           isId
-                            ? `Halo Randy, saya tertarik ${drone.model} - ${t(pkg.name, locale)}. Lokasi: ... Tanggal: ... Kebutuhan: ...`
-                            : `Hi Randy, I'm interested in ${drone.model} - ${t(pkg.name, locale)}. Location: ... Date: ... Details: ...`,
+                            ? `Halo Randy, saya tertarik ${drone.model} - ${pick(pkg.name, locale)}. Lokasi: ... Tanggal: ... Kebutuhan: ...`
+                            : `Hi Randy, I'm interested in ${drone.model} - ${pick(pkg.name, locale)}. Location: ... Date: ... Details: ...`,
                         )}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -214,6 +223,11 @@ export function DroneServicesSection({ locale = "en" }: { locale?: string }) {
                   {isId
                     ? "Jadwal bisa digeser jika cuaca tidak aman untuk terbang (hujan, angin kencang)."
                     : "Flights may be rescheduled if weather is unsafe (rain, strong wind)."}
+                </li>
+                <li>
+                  {isId
+                    ? "Durasi terbang adalah estimasi kondisi nyata (angin, merekam video), mendarat di ±30% baterai: Air 3S ±20–25 menit dan Neo 2 ±8–10 menit per baterai. Spesifikasi DJI: 45 dan 19 menit."
+                    : "Flight times are real-world estimates (wind, recording video), landing at ~30% battery: Air 3S ~20–25 min and Neo 2 ~8–10 min per battery. DJI specs: 45 and 19 min."}
                 </li>
                 <li>
                   {isId

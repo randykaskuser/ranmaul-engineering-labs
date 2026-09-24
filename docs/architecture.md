@@ -44,22 +44,23 @@ Analytics:
 # Route Structure
 
 /                               (English home)
-    /about, /contact, /projects, /tools, /create, /cv-randy-maulana   (English only)
+    /about, /create, /cv-randy-maulana   (English only)
     /{locale}                       (en | id home)
     /{locale}/{domain}              (qa | fpv | fishkeeping | notes)
     /{locale}/{domain}/{slug}
     /{locale}/tags, /{locale}/tags/{tag}
-    /{locale}/drone-portfolio
+    /{locale}/drone-portfolio, /{locale}/tools, /{locale}/projects, /{locale}/contact
 
 Locale handling (static export, no middleware):
 - Links to locale-only sections go through `localizeHref()` in `lib/site.ts`.
+- Bilingual page copy uses `Localized` + `pick()` from `lib/site.ts`.
 - The EN/ID toggle uses `getLocaleSwitchHref()` plus an article translation map
   built in `app/layout.tsx` at build time. It never links to a missing page.
 - `<html lang>`: `scripts/set-html-lang.mjs` (npm `postbuild`) sets `lang="id"`
   on `out/id/**`; `HtmlLang` in `translation-context.tsx` updates it on client
   navigation.
 - Legacy URLs (`/qa-lab`, `/fpv-lab`, `/fishkeeping`, `/drone-portfolio`, `/qa`,
-  `/fpv`, `/notes`) are 301s in `public/_redirects` (Cloudflare Pages).
+  `/fpv`, `/notes`, `/tools`, `/projects`, `/contact`) are 301s in `public/_redirects` (Cloudflare Pages).
 
 ---
 

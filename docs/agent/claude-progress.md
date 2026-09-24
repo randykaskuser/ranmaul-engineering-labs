@@ -125,3 +125,12 @@
 - Drone pricing: Air 3S Rp900.000/battery, 3 batteries Rp2.500.000; Neo 2 standalone Rp650.000/visit (2 batteries, pilot on site max 3h; based on owner-provided Neo 1 reference of Rp550.000/visit in Surabaya); editing Rp300.000–500.000/clip. FPV removed from services and equipment (owner not comfortable offering it). Image placeholders per drone (set `image`, files in public/images/drones/).
 - Projects: Personal Butler case study added, generic only (built for work; no company, tool, colleague names, screenshots or repo link).
 - Homepage hero: "Drone Pilot & QA Engineer." (was "FPV Cinematic Pilot"); kicker "Certified drone pilot · Jabodetabek" to avoid repeating the title. Drone photos: owner will provide later.
+
+## 2026-09-24 (c)
+- Added `init.sh` (AGENTS.md startup path): Node >= 20 check, `npm install`, `npm run lint`, `npm run build`; `RUN_START_COMMAND=1` starts dev server. Based on the template in the owner's other repos; the butler repo is on company GitLab and was not reachable. Verified: `./init.sh` exits 0.
+- CV: GitHub link fixed to github.com/randykaskuser and now shown next to LinkedIn; Grab Senior QA period corrected to OCT 2019 - MAY 2026 (was APR 2017, overlapping KUDO). Start month is inferred from the KUDO end date; owner to confirm.
+- Drone: Neo 2 4-battery package Rp1.100.000 (4 batteries in one visit, pilot on site max 4h; saves Rp200.000 vs 2 visits). Price is Claude's proposal, mirroring the Air 3S Rp200.000 bundle saving.
+- Resolved: the "init.sh missing" risk from the 2026-09-24 entry.
+- Follow-up (same day): owner asked to ignore the CV date overlap -> Grab Senior QA period reverted to APR 2017 - MAY 2026 (GitHub link fix kept). Neo 2 bundle capped at 3 batteries (owner's max): "Paket 3 baterai" Rp850.000 (per-visit Rp650.000 + 3rd battery Rp200.000; price is Claude's proposal).
+- Tools, Projects, Contact are now bilingual at /{locale}/tools|projects|contact (copy via `Localized` + `pick()` in lib/site.ts); old /tools, /projects, /contact 301 to /en/... in public/_redirects. Verified: build, tsc, crawl 0 broken links, /id pages lang="id" (52/52), toggle /id/x <-> /en/x, redirects 301 via wrangler, 390px no horizontal scroll.
+- Neo 2 flight-time estimates added (owner OK with Rp850.000 bundle): ~8–10 min per battery landing at ~30% (DJI spec 19 min; reviews report 11–16 min real use on a full battery). Per visit ~16–20 min total, 3-battery ~24–30 min. Notes box explains real-world vs DJI spec for both drones.
