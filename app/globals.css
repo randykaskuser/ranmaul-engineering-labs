@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* dark: follows the site theme toggle (next-themes sets data-theme to the resolved
+   light/dark value, including in "system" mode), not the OS media query. */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
 @theme inline {
   --color-canvas: var(--canvas);
   --color-canvas-soft: var(--canvas-soft);
