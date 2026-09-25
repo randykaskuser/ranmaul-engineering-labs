@@ -48,8 +48,8 @@ export default async function DronePortfolioPage({ params }: { params: Promise<{
   const items = await getPortfolioItems(locale as Locale)
   const stories = await getRecentArticles(locale as Locale, 3)
   
-  // Need to ensure featured arrays filter correctly based on boolean
-  const featured = items.filter(item => item.featured === true)
+  // The hero shows still images only; featured video items have no image and render blank.
+  const featured = items.filter(item => item.featured === true && Boolean(item.image))
   const photos = items.filter(item => item.mediaType !== "video")
   const videos = items.filter(item => item.mediaType === "video")
 

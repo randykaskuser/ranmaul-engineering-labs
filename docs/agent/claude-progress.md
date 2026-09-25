@@ -146,3 +146,9 @@
 - `app/sitemap.ts`: 38 URLs (home, localized pages, section indexes, articles) with hreflang alternates; lastmod from article dates (no more `new Date()` on every build). Excludes tags, CV, /create, /about, /en.
 - Verification: lint 0 errors, tsc, build; scripted check over 109 pages (canonical/hreflang targets exist, og:image present, JSON-LD parses, sitemap URLs exist and are indexable): 0 problems; link crawl: 0 broken.
 - Owner actions: submit https://ranmaul.com/sitemap.xml in Google Search Console; replace `/file.svg` and `/window.svg` article covers with real images.
+
+## 2026-09-25
+- Dark sections on /drone-portfolio in light mode: Tailwind v4 `dark:` defaulted to `prefers-color-scheme`, while the site theme is `data-theme` (next-themes). Added `@custom-variant dark` bound to `[data-theme=dark]` in `app/globals.css`. Verified in Chromium: OS dark + site light -> light; OS light + site dark -> dark; system mode follows OS.
+- Drone hero carousel: 4 of 9 featured items are videos with no image and rendered as black slides. Hero now takes featured items with an image only (5 slides, all images load).
+- Placeholder SVG covers (`/file.svg`, `/window.svg`) on 4 articles replaced with generated 1600x900 covers in `public/assets/covers/` (EN/ID per article); `updatedAt` bumped to 2026-09-25. Note: notion-sync rewrites `coverImage` only from the Notion `CoverImage` property, so upload these covers to Notion to keep them after a re-sync.
+- Verification: lint 0 errors, build, SEO check 0 problems, crawl 0 broken links.
