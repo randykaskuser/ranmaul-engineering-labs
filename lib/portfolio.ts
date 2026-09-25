@@ -18,6 +18,7 @@ export type PortfolioFrontmatter = {
   draft: boolean;
   image?: string;
   embedUrl?: string;
+  thumbnail?: string;
   location?: string;
   category?: string;
   mediaType?: "video" | "image";
@@ -67,6 +68,7 @@ function assertFrontmatter(data: Record<string, unknown>, filePath: string): Por
     draft: Boolean(data.draft),
     image: data.image ? String(data.image) : undefined,
     embedUrl: data.embedUrl ? String(data.embedUrl) : undefined,
+    thumbnail: data.thumbnail ? String(data.thumbnail) : undefined,
     location: data.location ? String(data.location) : undefined,
     category: data.category ? String(data.category) : undefined,
     mediaType: data.mediaType as "video" | "image" | undefined,

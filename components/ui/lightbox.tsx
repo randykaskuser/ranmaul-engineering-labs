@@ -93,7 +93,7 @@ export function Lightbox({ items, initialIndex, onClose }: LightboxProps) {
             className="relative flex h-full w-full items-center justify-center"
           >
             {currentItem.mediaType === "video" && currentItem.embedUrl ? (
-              <div className="relative w-full max-w-4xl aspect-[9/16] sm:aspect-video bg-black rounded-lg overflow-hidden ring-1 ring-white/10">
+              <div className="relative h-full max-h-[80vh] max-w-full aspect-[4/5] bg-black rounded-lg overflow-hidden ring-1 ring-white/10">
                 <iframe
                   src={currentItem.embedUrl}
                   className="absolute inset-0 h-full w-full border-0"

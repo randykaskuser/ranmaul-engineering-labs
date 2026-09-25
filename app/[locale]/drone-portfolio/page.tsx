@@ -94,11 +94,21 @@ export default async function DronePortfolioPage({ params }: { params: Promise<{
       <Section space="xl" className="py-24 bg-neutral-50 dark:bg-neutral-950 border-y border-neutral-200 dark:border-neutral-800">
         <div className="container-wide">
           <Reveal>
-            <div className="max-w-3xl mb-16">
-              <h2 className="text-sm font-semibold tracking-widest uppercase text-neutral-500 mb-4">Cinematography</h2>
-              <h3 className="font-serif text-4xl md:text-5xl font-normal text-black dark:text-white tracking-tight">
-                Recent Reels
-              </h3>
+            <div className="mb-12 flex items-end justify-between gap-6">
+              <div className="max-w-3xl">
+                <h2 className="text-sm font-semibold tracking-widest uppercase text-neutral-500 mb-4">Cinematography</h2>
+                <h3 className="font-serif text-4xl md:text-5xl font-normal text-black dark:text-white tracking-tight">
+                  Recent Reels
+                </h3>
+              </div>
+              <a
+                href="https://instagram.com/newbie.drone"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 pb-2 text-sm font-medium text-neutral-700 hover:text-black dark:text-neutral-300 dark:hover:text-white"
+              >
+                View all reels &rarr;
+              </a>
             </div>
             <VideoGallery videos={videos} />
           </Reveal>
