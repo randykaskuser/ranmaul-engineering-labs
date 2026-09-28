@@ -30,6 +30,7 @@ export const DRONES: Drone[] = [
   {
     id: "air-3s",
     model: "DJI Air 3S",
+    image: "/images/drones/dji-air-3s.webp",
     tagline: {
       en: "Main camera. 1-inch sensor for sharp aerial photos and video.",
       id: "Kamera utama. Sensor 1 inci untuk foto dan video udara yang tajam.",
@@ -63,6 +64,7 @@ export const DRONES: Drone[] = [
   {
     id: "neo-2",
     model: "DJI Neo 2",
+    image: "/images/drones/dji-neo-2.webp",
     tagline: {
       en: "Small, light drone for follow shots, small businesses and social media content.",
       id: "Drone kecil dan ringan untuk shot follow, dokumentasi UMKM, dan konten media sosial.",
