@@ -15,11 +15,29 @@ Before writing code:
 2. Read `docs/agent/claude-progress.md` for the latest verified state and next step.
 3. Read `docs/agent/feature_list.json` and choose the highest-priority unfinished feature.
 4. Review recent commits with `git log --oneline -5`.
-5. Run `./init.sh`.
-6. Run the required smoke or end-to-end verification before starting new work.
+5. Run `./init.sh` (install, lint, build, smoke check). It must exit 0 before new work starts.
 
 If baseline verification is already failing, fix that first. Do not stack new
 feature work on top of a broken starting state.
+
+If no feature is `todo` or `in_progress`, ask the owner what to work on. Do not
+invent features to fill the list.
+
+## Commands
+
+| Task | Command |
+|---|---|
+| Startup + full verification | `./init.sh` (`RUN_START_COMMAND=1 ./init.sh` also starts dev) |
+| Install | `npm install` (CI: `npm ci`) |
+| Lint | `npm run lint` (0 errors required; warnings allowed) |
+| Build + typecheck | `npm run build` (static export to `out/`; `next build` runs TypeScript) |
+| Smoke check | `node scripts/smoke.mjs` (needs `out/`; key routes, internal links, `lang="id"`) |
+| Dev server | `npm run dev` (http://localhost:3000) |
+| Preview static build | `npm run preview` (wrangler, serves `out/` with `_redirects`) |
+| Notion sync (dry run) | `npm run notion:sync:dry` (needs Notion env vars) |
+
+There is no unit or e2e test suite. For UI changes, add a visual check
+(Playwright screenshot at 1440px and 390px) and record it as evidence.
 
 ## Working Rules
 
@@ -27,14 +45,23 @@ feature work on top of a broken starting state.
 - Do not mark a feature complete just because code was added.
 - Keep changes within the selected feature scope unless a blocker forces a narrow supporting fix.
 - Do not silently change verification rules during implementation.
+- Do not remove, skip, or weaken a check (lint rule, smoke check) to get a pass.
+- Do not edit `feature_list.json` to hide unfinished work. Mark it `blocked` with a reason instead.
 - Prefer durable repo artifacts over chat summaries.
 
 ## Required Artifacts
 
 - `docs/agent/feature_list.json`: source of truth for feature state
-- `docs/agent/claude-progress.md`: session log and current verified status
+- `docs/agent/claude-progress.md`: session log; the "Current state" block at the top holds the latest verified status and next step
 - `init.sh`: standard startup and verification path
 - `docs/agent/session-handoff.md`: optional compact handoff for larger sessions
+
+`feature_list.json` entry schema:
+
+- `id` (number, never reused), `title` (string)
+- `status`: `todo` | `in_progress` | `blocked` | `completed` | `abandoned`
+- `reason` (string): what was done, or why it is blocked or abandoned
+- `verification` (string, optional): the commands or checks that prove it, with results
 
 ## Documentation & Planning
 
@@ -55,8 +82,9 @@ Even if tests pass and a task is complete, leave the work on the feature branch.
 A feature is done only when all of the following are true:
 
 - the target behavior is implemented
-- the required verification actually ran
-- evidence is recorded in `docs/agent/feature_list.json` or `docs/agent/claude-progress.md`
+- `./init.sh` exits 0 (lint 0 errors, build, smoke check)
+- a feature-specific check actually ran (e.g. Playwright screenshot for UI, checking the built page in `out/` for content/SEO)
+- evidence is recorded in `docs/agent/feature_list.json` (`verification`) or `docs/agent/claude-progress.md`
 - the repository remains restartable from the standard startup path
 
 ## Temporary Files Policy
@@ -108,15 +136,12 @@ At the end of each session, review all newly created root-level files and either
 
 Before ending a session:
 
-1. Update `docs/agent/claude-progress.md`.
+1. Update `docs/agent/claude-progress.md` (session entry + "Current state" block).
 2. Update `docs/agent/feature_list.json`.
 3. Record any unresolved risk or blocker.
-4. Run validation/preview to make sure nothing is broken.
-5. Commit with a descriptive message once the work is in a safe state.
-6. Leave the repo clean enough for the next session to run `./init.sh` immediately.
-7. Review newly created utility scripts.
-8. Move temporary scripts to `temporary/` or delete them if no longer needed.
-9. Leave the repository root clean enough for the next session.
+4. Run `./init.sh`; it must exit 0.
+5. Apply "Root Directory Hygiene": move temporary scripts to `temporary/` or delete them.
+6. Commit with a descriptive message once the work is in a safe state.
 
 ## Global rules (apply to this repo too)
 
