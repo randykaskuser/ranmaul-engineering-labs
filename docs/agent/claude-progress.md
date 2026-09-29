@@ -171,7 +171,7 @@ Keep this block short and current. Rewrite it at the end of every session.
 - Adapted the harness template (learn-harness-engineering `CLAUDE.md`) into the existing `AGENTS.md`, not as a second copy. `CLAUDE.md` stays `@AGENTS.md`.
 - `AGENTS.md`: new "Commands" table (real commands), startup step 5 now requires `./init.sh` exit 0, "no unfinished feature -> ask owner, do not invent", two new rules (no weakening checks, no hiding unfinished work in the feature list), documented `feature_list.json` schema, concrete Definition Of Done, deduplicated End Of Session.
 - New `scripts/smoke.mjs` (no deps), run by `init.sh` after the build: key routes exist, every internal `href`/`src` in `out/**/*.html` resolves (or is a `_redirects` source), every `out/id/**` page has `lang="id"`. Re-creates the crawl checks earlier sessions ran ad hoc and never committed.
-- New `.github/workflows/verify.yml`: `npm ci`, lint, build, smoke on every PR and push to main. Before this, nothing checked a PR before merge (the only workflow was Notion sync). Action SHAs match `notion-sync.yml`.
+- New `.github/workflows/verify.yml`: `npm ci`, lint, build, smoke on every PR and push to main. PRs already get a Cloudflare Pages check and CodeQL (both configured outside `.github/workflows`); this adds lint and the smoke check, and its build step likely overlaps Cloudflare's. Action SHAs match `notion-sync.yml`.
 - `feature_list.json`: ids 1–5 changed from strings to numbers; no entries added, removed, or re-statused.
 - `session-handoff.md`: stale PR #23 content replaced with a "No active handoff" stub + format.
 - `tsconfig.tsbuildinfo` untracked + gitignored (build cache; `tsc --noEmit` dirtied the tree).
