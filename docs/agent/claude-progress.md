@@ -178,3 +178,10 @@ Keep this block short and current. Rewrite it at the end of every session.
 - Docs drift: README and `docs/agent/rules/README.md` pointed to a non-existent `.clinerules/`; fixed, plus the two live workflows that referenced it. README domain list now includes `notes`. Historical specs/plans under `docs/planning` and `docs/superpowers` left unchanged.
 - Verification: smoke check proven to fail on an injected broken link, a missing `sitemap.xml`, and a `/id` page with `lang="en"` (then restored). `npm ci` + `./init.sh` exit 0 (see "Current state").
 - Not verified: `verify.yml` has not run on GitHub yet; it runs on the first PR that carries it.
+- Follow-up: merged as #40. `verify` passed on GitHub (smoke: 111 pages, 5488 links, OK). `github-advanced-security` (Copilot code scanning) fails in GitHub's service before scanning ("400 The requested model is not supported"); not fixable from the repo — owner to disable it or wait for GitHub.
+
+## 2026-09-29 (b) — GitHub Actions to Node 24 runtime
+- GitHub warned that the pinned `actions/checkout` and `actions/setup-node` v4 target the deprecated Node 20 runtime.
+- `verify.yml`: checkout v4 -> v7.0.1 (`3d3c42e`), setup-node v4 -> v7.0.0 (`8207627`). `notion-sync.yml`: setup-node -> v7.0.0. SHAs resolved from upstream tags; both declare `runs.using: node24`.
+- Not bumped: `notion-sync.yml` checkout stays v4. checkout v6+ stores persisted credentials in a separate file, and `peter-evans/create-pull-request` pushes with those credentials; compatibility was not verified. GitHub already forces the v4 action onto Node 24, so it keeps working (warning only).
+- Cloudflare Pages deploys through Cloudflare's Git integration, not a GitHub workflow, so these files do not affect it.
