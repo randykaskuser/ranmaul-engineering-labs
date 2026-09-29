@@ -1,5 +1,14 @@
 # Session Progress
 
+## Current state
+
+Keep this block short and current. Rewrite it at the end of every session.
+
+- **Last verified:** 2026-09-29. `./init.sh` exit 0: lint 0 errors (2 warnings in untouched files), build 111 pages, smoke OK (5488 internal links, 15 key routes, 52/52 `/id` pages `lang="id"`).
+- **Active feature:** none. All `feature_list.json` entries are `completed` or `abandoned`.
+- **Next step:** ask the owner for the next feature.
+- **Open risks:** see the 2026-09-29 entry (owner actions for Notion and Search Console are still open from earlier entries).
+
 ## 2026-08-19
 - Added `next-themes` and `lucide-react` dependencies.
 - Added `<ThemeProvider>` in `app/layout.tsx`.
@@ -157,3 +166,15 @@
 - Drone portfolio "Recent Reels" redesign (branch `feat/recent-reels-cards`): replaced the 2-column Instagram iframe grid with a 4-column card grid (1 col mobile, 2 tablet): cover image, centered play button, "Instagram Reel" kicker, bold title. Clicking a card opens the reel embed in the existing `Lightbox` (video frame changed from 16:9 to portrait 4:5). Section header gained a "View all reels ->" link to @newbie.drone. Homepage untouched.
 - Reel covers downloaded from Instagram into `public/images/portfolio/reels/` (Instagram CDN URLs expire) and referenced with a new optional portfolio frontmatter field `thumbnail` (`lib/portfolio.ts`). Kept separate from `image` so video items stay out of the hero slideshow.
 - Verification: lint 0 errors (2 pre-existing warnings in untouched files), tsc clean, build OK (116 pages); visual check at 1440px and 390px via Playwright screenshots; lightbox opens and loads the embed.
+
+## 2026-09-29 — Harness adaptation (long-running agent pattern)
+- Adapted the harness template (learn-harness-engineering `CLAUDE.md`) into the existing `AGENTS.md`, not as a second copy. `CLAUDE.md` stays `@AGENTS.md`.
+- `AGENTS.md`: new "Commands" table (real commands), startup step 5 now requires `./init.sh` exit 0, "no unfinished feature -> ask owner, do not invent", two new rules (no weakening checks, no hiding unfinished work in the feature list), documented `feature_list.json` schema, concrete Definition Of Done, deduplicated End Of Session.
+- New `scripts/smoke.mjs` (no deps), run by `init.sh` after the build: key routes exist, every internal `href`/`src` in `out/**/*.html` resolves (or is a `_redirects` source), every `out/id/**` page has `lang="id"`. Re-creates the crawl checks earlier sessions ran ad hoc and never committed.
+- New `.github/workflows/verify.yml`: `npm ci`, lint, build, smoke on every PR and push to main. PRs already get a Cloudflare Pages check and CodeQL (both configured outside `.github/workflows`); this adds lint and the smoke check, and its build step likely overlaps Cloudflare's. Action SHAs match `notion-sync.yml`.
+- `feature_list.json`: ids 1–5 changed from strings to numbers; no entries added, removed, or re-statused.
+- `session-handoff.md`: stale PR #23 content replaced with a "No active handoff" stub + format.
+- `tsconfig.tsbuildinfo` untracked + gitignored (build cache; `tsc --noEmit` dirtied the tree).
+- Docs drift: README and `docs/agent/rules/README.md` pointed to a non-existent `.clinerules/`; fixed, plus the two live workflows that referenced it. README domain list now includes `notes`. Historical specs/plans under `docs/planning` and `docs/superpowers` left unchanged.
+- Verification: smoke check proven to fail on an injected broken link, a missing `sitemap.xml`, and a `/id` page with `lang="en"` (then restored). `npm ci` + `./init.sh` exit 0 (see "Current state").
+- Not verified: `verify.yml` has not run on GitHub yet; it runs on the first PR that carries it.

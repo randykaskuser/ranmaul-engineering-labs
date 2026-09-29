@@ -2,17 +2,25 @@
 
 Technical editorial platform (Next.js App Router / TypeScript strict / Tailwind v4) with a **filesystem-first MDX content model**.
 
-## Project guidance (Cline)
+## Project guidance (agents)
 
 Operational guidance is intentionally separated:
 
-- **Workspace Rules (constraints/contracts):** `.clinerules/*.md`
-- **Workspace Workflows (procedures):** `.clinerules/workflows/*.md`
+- **Agent entrypoint:** `AGENTS.md` (`CLAUDE.md` imports it)
+- **Workspace Rules (constraints/contracts):** `docs/agent/rules/*.md`
+- **Workspace Workflows (procedures):** `docs/agent/workflows/*.md`
+- **Session state:** `docs/agent/feature_list.json`, `docs/agent/claude-progress.md`
 - **Reference docs:** `docs/*.md` (vision/roadmap/architecture)
 
-Start here: `README.md` (this file), then `.clinerules/README.md`.
+Start here: `README.md` (this file), then `AGENTS.md`.
 
 ## Getting Started
+
+Install, lint, build, and smoke-check in one step (Node 20+):
+
+```bash
+./init.sh
+```
 
 Run the development server:
 
@@ -21,6 +29,10 @@ npm run dev
 ```
 
 Open http://localhost:3000
+
+There is no unit or e2e test suite. `./init.sh` runs `scripts/smoke.mjs` on the
+static export: key routes exist, internal links resolve, `/id` pages have
+`lang="id"`. CI (`.github/workflows/verify.yml`) runs the same script on every PR.
 
 ## Deployment (Cloudflare Pages)
 
@@ -44,10 +56,10 @@ Key paths:
 
 - URL schema: `/{locale}/{domain}/{slug}`
 - Allowed locales: `en`, `id`
-- Allowed domains: `qa`, `fpv`, `fishkeeping`
+- Allowed domains: `qa`, `fpv`, `fishkeeping`, `notes`
 
 See:
-- `.clinerules/README.md` (rules/workflows index)
+- `docs/agent/rules/README.md` (rules/workflows index)
 - `docs/roadmap.md` (phase plan)
 - `docs/content-model-and-publishing-workflow.md` (content contract)
 
