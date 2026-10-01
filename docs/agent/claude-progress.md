@@ -4,10 +4,10 @@
 
 Keep this block short and current. Rewrite it at the end of every session.
 
-- **Last verified:** 2026-09-29. `./init.sh` exit 0: lint 0 errors (2 warnings in untouched files), build 111 pages, smoke OK (5488 internal links, 15 key routes, 52/52 `/id` pages `lang="id"`).
+- **Last verified:** 2026-10-01. `./init.sh` exit 0: lint 0 errors (2 warnings in untouched files), build 111 pages, smoke OK (5488 internal links, 15 key routes, 52/52 `/id` pages `lang="id"`).
 - **Active feature:** none. All `feature_list.json` entries are `completed` or `abandoned`.
 - **Next step:** ask the owner for the next feature.
-- **Open risks:** see the 2026-09-29 entry (owner actions for Notion and Search Console are still open from earlier entries).
+- **Open risks:** see the 2026-10-01 entry (owner decisions on Framer Motion and RSS rules) and the 2026-09-29 entry (owner actions for Notion and Search Console are still open from earlier entries).
 
 ## 2026-08-19
 - Added `next-themes` and `lucide-react` dependencies.
@@ -178,3 +178,14 @@ Keep this block short and current. Rewrite it at the end of every session.
 - Docs drift: README and `docs/agent/rules/README.md` pointed to a non-existent `.clinerules/`; fixed, plus the two live workflows that referenced it. README domain list now includes `notes`. Historical specs/plans under `docs/planning` and `docs/superpowers` left unchanged.
 - Verification: smoke check proven to fail on an injected broken link, a missing `sitemap.xml`, and a `/id` page with `lang="en"` (then restored). `npm ci` + `./init.sh` exit 0 (see "Current state").
 - Not verified: `verify.yml` has not run on GitHub yet; it runs on the first PR that carries it.
+
+## 2026-10-01 — Prompt audit of agent instruction files
+
+Owner-requested cleanup (no `feature_list.json` entry; not a product feature).
+
+- `AGENTS.md`: roadmap location now points at `docs/roadmap.md` (`docs/roadmaps/` never existed); dropped the stale "(Phase 1)" label on the scope guardrails.
+- `docs/agent/rules/roadmap-scope-guardrails.md`: removed the Phase 1 boundary block (Phase 1 and MDX are done per `docs/roadmap.md`); kept "advanced i18n systems" in the forbidden list.
+- `.claude/skills/technical-blogger/SKILL.md`: trigger-style description; two explicit approval gates with the reason; outline fits article type (no fixed 12-part template / CTA); removed stock transition phrases and the self-scoring rubric; fixed inverted checklist items; frontmatter must follow the repo contract.
+- `qa-automation-skills/playwright-robot/SKILL.md`: trigger-style description; step order stated with reason; fix loop no longer allows changing assertions to force a pass (report as defect).
+- Verification: `./init.sh` exit 0 (lint 0 errors, 2 warnings in untouched files; build 111 pages; smoke OK, 5488 internal links, 52/52 `/id` pages `lang="id"`).
+- Open, owner decision: Framer Motion is forbidden in `AGENTS.md`, `roadmap-scope-guardrails.md`, and `docs/rules.md` but used in 5 components. RSS is forbidden in `AGENTS.md` but listed as open in roadmap Phase 8.
