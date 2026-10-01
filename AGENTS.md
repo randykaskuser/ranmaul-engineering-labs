@@ -234,9 +234,9 @@ Do **not** add (unless roadmap/rules are explicitly updated first):
 
 - authentication, DB, Prisma/Supabase/Firebase
 - CMS/admin
-- analytics, search, RSS
+- analytics, search
 - websockets/real-time
-- heavy animations / Framer Motion
+- heavy animations (Framer Motion is allowed for subtle UI transitions)
 - advanced i18n systems
 
 ## 3) Default operating mode for agents

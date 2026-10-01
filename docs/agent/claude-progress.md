@@ -7,7 +7,7 @@ Keep this block short and current. Rewrite it at the end of every session.
 - **Last verified:** 2026-10-01. `./init.sh` exit 0: lint 0 errors (2 warnings in untouched files), build 111 pages, smoke OK (5488 internal links, 15 key routes, 52/52 `/id` pages `lang="id"`).
 - **Active feature:** none. All `feature_list.json` entries are `completed` or `abandoned`.
 - **Next step:** ask the owner for the next feature.
-- **Open risks:** see the 2026-10-01 entry (owner decisions on Framer Motion and RSS rules) and the 2026-09-29 entry (owner actions for Notion and Search Console are still open from earlier entries).
+- **Open risks:** see the 2026-09-29 entry (owner actions for Notion and Search Console are still open from earlier entries).
 
 ## 2026-08-19
 - Added `next-themes` and `lucide-react` dependencies.
@@ -189,3 +189,4 @@ Owner-requested cleanup (no `feature_list.json` entry; not a product feature).
 - `qa-automation-skills/playwright-robot/SKILL.md`: trigger-style description; step order stated with reason; fix loop no longer allows changing assertions to force a pass (report as defect).
 - Verification: `./init.sh` exit 0 (lint 0 errors, 2 warnings in untouched files; build 111 pages; smoke OK, 5488 internal links, 52/52 `/id` pages `lang="id"`).
 - Open, owner decision: Framer Motion is forbidden in `AGENTS.md`, `roadmap-scope-guardrails.md`, and `docs/rules.md` but used in 5 components. RSS is forbidden in `AGENTS.md` but listed as open in roadmap Phase 8.
+- Resolved (owner decision, same day): Framer Motion is allowed for subtle UI transitions and RSS is allowed (roadmap Phase 8). Updated `AGENTS.md`, `roadmap-scope-guardrails.md`, `docs/rules.md`. `docs/roadmap.md` already plans RSS; README "avoids heavy animation" still holds.

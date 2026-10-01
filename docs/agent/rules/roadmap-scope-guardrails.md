@@ -17,9 +17,13 @@ Do **not** add (unless the roadmap is explicitly updated first):
 - analytics
 - search engine
 - websocket / real-time systems
-- Framer Motion
 - excessive animations
 - advanced i18n systems
+
+## Allowed with limits
+
+- Framer Motion, for subtle UI transitions (dropdowns, lightbox, galleries). It must not become heavy or decorative animation.
+- RSS feed (planned in `docs/roadmap.md` Phase 8).
 
 ## When this file changes
 
