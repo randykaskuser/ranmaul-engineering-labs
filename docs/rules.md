@@ -27,8 +27,7 @@ DO NOT ADD:
 - search engine
 - websocket features
 - real-time systems
-- Framer Motion
-- excessive animations
+- excessive animations (Framer Motion is allowed for subtle UI transitions)
 
 ---
 
