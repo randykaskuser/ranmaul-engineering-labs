@@ -157,3 +157,8 @@
 - Drone portfolio "Recent Reels" redesign (branch `feat/recent-reels-cards`): replaced the 2-column Instagram iframe grid with a 4-column card grid (1 col mobile, 2 tablet): cover image, centered play button, "Instagram Reel" kicker, bold title. Clicking a card opens the reel embed in the existing `Lightbox` (video frame changed from 16:9 to portrait 4:5). Section header gained a "View all reels ->" link to @newbie.drone. Homepage untouched.
 - Reel covers downloaded from Instagram into `public/images/portfolio/reels/` (Instagram CDN URLs expire) and referenced with a new optional portfolio frontmatter field `thumbnail` (`lib/portfolio.ts`). Kept separate from `image` so video items stay out of the hero slideshow.
 - Verification: lint 0 errors (2 pre-existing warnings in untouched files), tsc clean, build OK (116 pages); visual check at 1440px and 390px via Playwright screenshots; lightbox opens and loads the embed.
+
+## 2026-10-04
+- Flight Map spec: `docs/planning/2026-10-04-drone-flight-map.md`. Decisions: Leaflet 1.9.4 (vanilla, lazy-loaded), Esri World Imagery + labels, data from portfolio frontmatter (`coordinates` rounded to 2 decimals, `flightType` default `aerial`), recenter button = fit all pins (GPS is blocked by our Permissions-Policy). Docs only, no code.
+- Blockers before implementation: (1) Esri tile licensing not verified (official page blocked from this environment); (2) coordinates/locations for each portfolio item must come from the user.
+- Found during review: portfolio file names do not match their slugs (`batang-rest-area.mdx` = Pandawa, `ciwidey-highlands.mdx` = Batang, `pandawa-beach.mdx` = Ciwidey); Ciwidey item uses `merapi-crater-web.jpg`. Not fixed yet (listed as prerequisite in the spec).
