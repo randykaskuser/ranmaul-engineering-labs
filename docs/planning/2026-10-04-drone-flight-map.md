@@ -101,9 +101,8 @@ clustering only if it becomes a real problem.
    `pulau-merah`) need a `location` value to appear.
 3. Fix confusing data found during this review (slugs and titles are correct, so
    no URL changes):
-   - File names do not match their content: `batang-rest-area.mdx` holds Pandawa
-     Beach, `ciwidey-highlands.mdx` holds Batang, `pandawa-beach.mdx` holds
-     Ciwidey (both locales). Rename files to match `slug`.
+   - Done 2026-10-04: file names did not match their content (Pandawa, Batang
+     and Ciwidey were rotated). Renamed so every file name equals its `slug`.
    - Image check needed: the Ciwidey item uses `merapi-crater-web.jpg`. If the
      photo is really Merapi, the pin would be in the wrong place.
    - All four reels have `category: FPV`. Confirm which were really flown FPV
