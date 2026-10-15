@@ -68,7 +68,7 @@ There is no unit or e2e test suite. For UI changes, add a visual check
 To keep the repository organized, all architectural, planning, and long-term documentation must be placed in the `docs/` directory:
 
 - **`docs/planning/`**: Use this for new feature technical specs, implementation plans, and architecture designs. Create a spec here *before* beginning major, multi-file coding tasks (defined as changing >3 files, or adding entirely new features/routes). Use the appropriate superpower skill (e.g. `superpowers:writing-plans`, `superpowers:brainstorming`) for the task context.
-- **`docs/roadmaps/`**: Use this for long-term goals, feature roadmaps, and phase completion tracking.
+- **`docs/roadmap.md`**: Long-term goals, phase boundaries, and phase completion tracking (single file; update it in place).
 - **`docs/benchmarks/`**: Use this to store baseline performance metrics and tracking files.
 - **`docs/agent/`**: Reserved exclusively for AI session state tracking (progress, handoffs, and feature lists).
 
@@ -228,15 +228,15 @@ Every MDX entry must include:
 
 Slug stability: **treat published slugs as permanent**.
 
-### Roadmap / scope guardrails (Phase 1)
+### Roadmap / scope guardrails
 
 Do **not** add (unless roadmap/rules are explicitly updated first):
 
 - authentication, DB, Prisma/Supabase/Firebase
 - CMS/admin
-- analytics, search, RSS
+- analytics, search
 - websockets/real-time
-- heavy animations / Framer Motion
+- heavy animations (Framer Motion is allowed for subtle UI transitions)
 - advanced i18n systems
 
 ## 3) Default operating mode for agents
