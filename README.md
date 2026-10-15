@@ -70,6 +70,7 @@ See:
 - Phase 3 (MDX Architecture): ✅ implemented
 - Phase 3.5 (Notion → MDX Sync): ✅ implemented
 - Phase 3.6 (Authoring UI / Notion-first): ✅ implemented (see `/create`)
+- Phase 8 (SEO): in progress (sitemap, metadata, RSS feeds at `/en/feed.xml` and `/id/feed.xml` done; internal linking open)
 
 ## Authoring (for editors)
 

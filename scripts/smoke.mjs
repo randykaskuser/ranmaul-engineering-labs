@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Smoke check for the static export in out/. Run after `npm run build`.
-// Checks: key routes exist, internal links resolve, /id pages have lang="id".
+// Checks: key routes exist, internal links resolve, /id pages have lang="id",
+// each locale's RSS feed lists its articles with resolvable links.
 // Exits 1 and lists every failure. No dependencies.
 
 import fs from 'node:fs';
@@ -50,7 +51,7 @@ const htmlFiles = walk(OUT).filter((f) => f.endsWith('.html'));
 // 1. Key routes exist.
 const required = ['/', '/en', '/id', '/sitemap.xml', '/robots.txt'];
 for (const locale of LOCALES) {
-  required.push(`/${locale}/drone-portfolio`);
+  required.push(`/${locale}/drone-portfolio`, `/${locale}/feed.xml`);
   for (const domain of DOMAINS) required.push(`/${locale}/${domain}`);
 }
 for (const route of required) {
@@ -64,6 +65,26 @@ for (const locale of LOCALES) {
     return parts.length === 3 && parts[0] === locale && DOMAINS.includes(parts[1]);
   });
   if (articles.length === 0) failures.push(`no articles found for locale: ${locale}`);
+}
+
+// RSS feeds: one item per published article of the locale, links resolve.
+for (const locale of LOCALES) {
+  const feedFile = path.join(OUT, locale, 'feed.xml');
+  if (!fs.existsSync(feedFile)) continue; // already reported as a missing route
+  const xml = fs.readFileSync(feedFile, 'utf8');
+  if (!/^<\?xml[^>]*\?>\s*<rss version="2\.0"/.test(xml)) failures.push(`feed is not RSS 2.0: ${locale}/feed.xml`);
+  if (!xml.includes(`<language>${locale}</language>`)) failures.push(`feed language is not ${locale}: ${locale}/feed.xml`);
+  const links = [...xml.matchAll(/<item>[\s\S]*?<link>([^<]+)<\/link>/g)].map((m) => new URL(m[1]).pathname);
+  const pages = htmlFiles.filter((f) => {
+    const parts = path.relative(OUT, f).split(path.sep);
+    return parts.length === 3 && parts[0] === locale && DOMAINS.includes(parts[1]);
+  });
+  if (links.length !== pages.length) {
+    failures.push(`feed ${locale}/feed.xml has ${links.length} items, expected ${pages.length} articles`);
+  }
+  for (const link of links) {
+    if (!link.startsWith(`/${locale}/`) || !resolveUrl(link)) failures.push(`feed ${locale}/feed.xml links to missing page: ${link}`);
+  }
 }
 
 // 2. Internal links resolve. 3. /id pages have lang="id".
