@@ -4,7 +4,7 @@
 
 Keep this block short and current. Rewrite it at the end of every session.
 
-- **Last verified:** 2026-10-01. `./init.sh` exit 0: lint 0 errors (2 warnings in untouched files), build 111 pages, smoke OK (5488 internal links, 15 key routes, 52/52 `/id` pages `lang="id"`).
+- **Last verified:** 2026-10-15. `./init.sh` exit 0: lint 0 errors (2 warnings in untouched files), build 111 pages, smoke OK (5488 internal links, 15 key routes, 52/52 `/id` pages `lang="id"`).
 - **Active feature:** none. All `feature_list.json` entries are `completed` or `abandoned`.
 - **Next step:** ask the owner for the next feature.
 - **Open risks:** see the 2026-09-29 entry (owner actions for Notion and Search Console are still open from earlier entries).
@@ -197,3 +197,12 @@ Owner-requested cleanup (no `feature_list.json` entry; not a product feature).
 - Verification: `./init.sh` exit 0 (lint 0 errors, 2 warnings in untouched files; build 111 pages; smoke OK, 5488 internal links, 52/52 `/id` pages `lang="id"`).
 - Open, owner decision: Framer Motion is forbidden in `AGENTS.md`, `roadmap-scope-guardrails.md`, and `docs/rules.md` but used in 5 components. RSS is forbidden in `AGENTS.md` but listed as open in roadmap Phase 8.
 - Resolved (owner decision, same day): Framer Motion is allowed for subtle UI transitions and RSS is allowed (roadmap Phase 8). Updated `AGENTS.md`, `roadmap-scope-guardrails.md`, `docs/rules.md`. `docs/roadmap.md` already plans RSS; README "avoids heavy animation" still holds.
+
+## 2026-10-15 — RSS feed (feature 13)
+
+- Added RSS 2.0 feeds per locale: `/en/feed.xml`, `/id/feed.xml` (`app/[locale]/feed.xml/route.ts`, force-static). Summary-only items; deterministic `lastBuildDate`.
+- Feed autodiscovery on every page (`feedAlternate()` in `lib/page-metadata.ts`, used by `createPageMetadata` and the root layout).
+- Footer RSS icon (`components/layout/feed-link.tsx`, plain `<a>` with the current locale).
+- `scripts/smoke.mjs` now checks both feeds (RSS 2.0, language, item count = article pages, links resolve).
+- Docs: spec `docs/planning/2026-10-15-rss-feed.md`; roadmap Phase 8, architecture routes, README status, scope guardrails.
+- Verification: see `feature_list.json` id 13. Note: local screenshot servers must use clean URLs (`/id`, not `/id.html`), or the client locale detection reads the `.html` path as English after hydration. Cloudflare Pages serves clean URLs, so production is unaffected.

@@ -71,6 +71,13 @@
       "title": "SEO pass and sitemap (Phase 8)",
       "status": "completed",
       "reason": "createPageMetadata builds canonical, hreflang(+x-default), full OG (site name, locale, default image), Twitter card for every page. Real 1200x630 og-default.jpg (was 0 bytes). JSON-LD: WebSite+Person (home), Service with Offers from DRONES data (drone portfolio), Article with fixed image URLs and Person author. Tag pages noindex,follow. Sitemap: 38 indexable URLs with hreflang alternates and content-based lastmod. Verified with scripted check over all 109 pages: 0 problems; 0 broken links."
+    },
+    {
+      "id": 13,
+      "title": "RSS feed per locale (Phase 8)",
+      "status": "completed",
+      "reason": "RSS 2.0 feeds at /en/feed.xml and /id/feed.xml from a force-static Route Handler (app/[locale]/feed.xml/route.ts): published articles of the locale, newest first, summary-only (frontmatter description), tags as categories, lastBuildDate from newest updatedAt (deterministic). Autodiscovery <link rel=alternate type=application/rss+xml> on every page via createPageMetadata (root layout covers EN-only pages). RSS icon in footer (desktop + mobile) links to the current locale's feed. Smoke check now verifies feeds. Spec: docs/planning/2026-10-15-rss-feed.md.",
+      "verification": "./init.sh exit 0 (lint 0 errors, 2 warnings in untouched files; build; smoke OK, 111 pages, 17 key routes incl. both feeds). Feeds: en 10 items, id 10 items, both parse with Python xml.etree. Smoke fails as expected when an item is removed from en/feed.xml (9 vs 10). Autodiscovery checked in out/index.html (en), out/id.html and out/id/fpv.html (id), out/cv-randy-maulana.html (en). Playwright footer screenshots at 1440px (/id, /en/fpv) and 390px (/id) with clean URLs: RSS icon visible, href /id/feed.xml on ID pages and /en/feed.xml on EN pages."
     }
   ]
 }

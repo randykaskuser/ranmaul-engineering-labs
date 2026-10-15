@@ -7,7 +7,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { TranslationProvider } from "@/components/layout/translation-context";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import { getPublishedArticles, getTranslationsForArticle } from "@/lib/content";
-import { DEFAULT_OG_IMAGE } from "@/lib/page-metadata";
+import { DEFAULT_OG_IMAGE, feedAlternate } from "@/lib/page-metadata";
 import { ThemeProvider } from "next-themes";
 
 const inter = Inter({
@@ -42,6 +42,8 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image", images: [DEFAULT_OG_IMAGE] },
   manifest: "/site.webmanifest",
+  // Pages without createPageMetadata (CV, /create) are English-only.
+  alternates: { types: feedAlternate("en") },
 };
 
 // Article path -> translated article path, for the EN/ID toggle.
