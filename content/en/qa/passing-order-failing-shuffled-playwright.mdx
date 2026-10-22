@@ -1,0 +1,129 @@
+---
+title: "Passes in Order. Fails Shuffled."
+description: "Some tests only pass because another test ran first. Playwright 1.64's --shuffle randomizes your test order, prints the seed, and turns hidden order dependencies into failures you can reproduce."
+locale: "en"
+domain: "qa"
+slug: "passing-order-failing-shuffled-playwright"
+canonicalGroup: "qa-playwright-shuffle-order-dependence"
+publishedAt: "2026-10-22"
+updatedAt: "2026-10-22"
+tags: ["playwright", "flaky-tests", "test-order", "ci", "debugging"]
+featured: false
+draft: false
+coverImage: "/assets/playwright-shuffle/thumbnail-en.png"
+---
+
+Your suite has been green for months. Then one ordinary Tuesday, CI turns red: a checkout test failed with an invalid payment token. You rerun the job, and everything passes. Nobody changed the checkout code.
+
+The easy label is "flaky test". The real cause is often uglier: the test was never independent. It passed because another test ran before it and quietly prepared the state it needed. Change the order, and the dependency shows itself.
+
+Playwright 1.64 ships a tool for exactly this problem: `--shuffle`.
+
+## What is an order-dependent test?
+
+A test is order-dependent when its result changes with the order tests run in. The dependency usually hides in shared state:
+
+- **Backend data.** One test creates an order, a user, or a token. Another test uses it without creating its own.
+- **Module-level variables.** A value stored by one test in the same file is read by the next.
+- **Files on disk.** One test writes a file that another test expects to find.
+
+Playwright already isolates the browser side well: every test gets a fresh browser context, so cookies and storage do not leak between tests. Your backend does not get the same courtesy. Data created through the UI or an API stays exactly where the previous test left it.
+
+Retries make this worse, not better. A retry runs the failing test again, often right after the test it secretly depends on, so it passes and everyone moves on. The dependency survives to fail another day.
+
+## What does --shuffle actually do?
+
+The new flag in Playwright 1.64 schedules your tests in a random order:
+
+```bash
+npx playwright test --shuffle
+# Running 42 tests using 4 workers, shuffle seed 271828182
+```
+
+Two details make this more than a party trick:
+
+- The run **prints its seed**. The seed fully describes the random order that was used.
+- You can **replay the exact same order** by passing the seed back:
+
+```bash
+npx playwright test --shuffle 271828182
+```
+
+That replay is the difference between a debugging tool and a dice roll. A shuffled failure you cannot reproduce is just a new kind of flaky. A shuffled failure with a seed is a bug report.
+
+## A dependency, caught in the wild
+
+Here is the pattern in its smallest form. Two tests share a variable at the top of the file:
+
+```ts
+let orderId: string;
+
+test('create order', async ({ page }) => {
+  await page.goto('/checkout');
+  await page.getByRole('button', { name: 'Place order' }).click();
+  orderId = await page.getByTestId('order-id').innerText();
+});
+
+test('cancel order', async ({ page }) => {
+  await page.goto(`/orders/${orderId}`);
+  await page.getByRole('button', { name: 'Cancel order' }).click();
+  await expect(page.getByText('Order cancelled')).toBeVisible();
+});
+```
+
+Run in file order, this passes every day. Shuffle it, and "cancel order" can run first, with `orderId` still undefined. The failure message will blame the orders page. The bug lives in the test design.
+
+Real suites hide the same shape better: a `beforeAll` that seeds data only some tests need, an admin setting toggled by one test and assumed by another, a token created during a login test. The mechanism differs. The dependency is the same.
+
+## How do you read a shuffled failure?
+
+When a shuffled run goes red, work in this order:
+
+1. **Save the seed.** It is printed at the start of the run. Put it in the bug report.
+2. **Reproduce locally with the seed.** Confirm the same failure with the same order before changing anything.
+3. **Shrink the pair.** Run the failing test alone. If it fails alone but passes in the full ordered suite, it needs something another test provides. If it passes alone but fails shuffled, something running before it now poisons its state.
+4. **Name the shared state.** Data, settings, files, or variables. Until you can name it, you are guessing.
+
+Both directions matter. A test can depend on a predecessor, and a test can be broken by one.
+
+## What does the fix look like?
+
+The rule is simple: **every test creates everything it needs, and cleans up what it can.** For the example above, the cancel test should create its own order, ideally through the API instead of the UI, because it is faster and does not need the checkout flow to work:
+
+```ts
+test('cancel order', async ({ page, request }) => {
+  const res = await request.post('/api/orders', { data: { item: 'book-1' } });
+  const { id } = await res.json();
+
+  await page.goto(`/orders/${id}`);
+  await page.getByRole('button', { name: 'Cancel order' }).click();
+  await expect(page.getByText('Order cancelled')).toBeVisible();
+});
+```
+
+No shared variable, no predecessor, no order. The test now fails only when cancel is actually broken, which is the entire point of having it.
+
+Where several tests need the same setup, put the creation in a fixture rather than a shared variable. A fixture runs per test, so each test still gets its own data.
+
+## How do you keep the suite honest?
+
+One shuffled run finds today's dependencies. It does nothing about tomorrow's. Add a scheduled shuffled run to CI, nightly or weekly:
+
+```yaml
+- name: Shuffled run (order-dependence check)
+  run: npx playwright test --shuffle
+```
+
+Treat failures from this job as real bugs, not as flakes to retry away. File them with the seed attached, fix the dependency, and the job goes back to being a quiet guard.
+
+You do not need to shuffle every run. The regular ordered run stays fast and predictable for pull requests. The shuffled run exists to answer one question on a schedule: are these tests actually independent?
+
+## The bottom line
+
+A test that only passes in one order is not flaky. It is dependent, and it is telling you so.
+
+Playwright 1.64's `--shuffle` turns that hidden dependency into a reproducible failure: shuffle the order, keep the seed, replay the failure, remove the dependency. Run it on a schedule, and "passes in order, fails shuffled" stops being a surprise your CI springs on you.
+
+## References
+
+- Microsoft (2026). Playwright v1.64.0 release notes: new `--shuffle` option, `testProject.default`, and test locks. github.com/microsoft/playwright/releases/tag/v1.64.0

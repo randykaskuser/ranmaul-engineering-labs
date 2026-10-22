@@ -1,0 +1,129 @@
+---
+title: "Lolos Berurutan, Gagal Saat Diacak"
+description: "Sebagian test hanya lolos karena ada test lain yang jalan duluan. Flag --shuffle di Playwright 1.64 mengacak urutan test, mencetak seed, dan mengubah ketergantungan urutan yang tersembunyi menjadi kegagalan yang bisa direproduksi."
+locale: "id"
+domain: "qa"
+slug: "lolos-urut-gagal-diacak-playwright"
+canonicalGroup: "qa-playwright-shuffle-order-dependence"
+publishedAt: "2026-10-22"
+updatedAt: "2026-10-22"
+tags: ["playwright", "flaky-tests", "test-order", "ci", "debugging"]
+featured: false
+draft: false
+coverImage: "/assets/playwright-shuffle/thumbnail-id.png"
+---
+
+Suite kamu hijau selama berbulan-bulan. Lalu di hari Selasa yang biasa saja, CI berubah merah: test checkout gagal dengan pesan payment token tidak valid. Kamu menjalankan ulang job-nya, dan semuanya lolos. Tidak ada yang mengubah kode checkout.
+
+Label gampangnya adalah "flaky test". Penyebab aslinya sering lebih buruk: test itu tidak pernah independen. Ia lolos karena ada test lain yang jalan sebelumnya dan diam-diam menyiapkan state yang ia butuhkan. Ubah urutannya, dan ketergantungan itu menampakkan diri.
+
+Playwright 1.64 merilis tool untuk masalah persis ini: `--shuffle`.
+
+## Apa itu test yang bergantung pada urutan?
+
+Sebuah test bergantung pada urutan ketika hasilnya berubah mengikuti urutan test dijalankan. Ketergantungan itu biasanya bersembunyi di shared state:
+
+- **Data backend.** Satu test membuat order, user, atau token. Test lain memakainya tanpa membuat miliknya sendiri.
+- **Variabel bersama di satu file.** Nilai yang disimpan satu test di file yang sama dibaca oleh test berikutnya.
+- **File di disk.** Satu test menulis file yang test lain harapkan sudah ada.
+
+Playwright sebenarnya sudah mengisolasi sisi browser dengan baik: setiap test mendapat browser context baru, jadi cookies dan storage tidak bocor antar test. Backend kamu tidak mendapat perlakuan yang sama. Data yang dibuat lewat UI atau API tetap berada persis di tempat test sebelumnya meninggalkannya.
+
+Retry membuat ini makin buruk, bukan makin baik. Retry menjalankan ulang test yang gagal, sering tepat setelah test yang diam-diam ia butuhkan, jadi ia lolos dan semua orang lanjut. Ketergantungan itu selamat untuk gagal di hari lain.
+
+## Apa yang sebenarnya dilakukan --shuffle?
+
+Flag baru di Playwright 1.64 ini menjalankan test kamu dalam urutan acak:
+
+```bash
+npx playwright test --shuffle
+# Running 42 tests using 4 workers, shuffle seed 271828182
+```
+
+Dua detail membuat flag ini lebih dari sekadar pengacak biasa:
+
+- Run-nya **mencetak seed**. Seed itu menjelaskan secara lengkap urutan acak yang dipakai.
+- Kamu bisa **memutar ulang urutan yang persis sama** dengan mengoper seed itu kembali:
+
+```bash
+npx playwright test --shuffle 271828182
+```
+
+Putar ulang inilah yang membedakan tool debugging dari lemparan dadu. Kegagalan hasil acak yang tidak bisa direproduksi hanyalah jenis flaky baru. Kegagalan hasil acak dengan seed adalah laporan bug.
+
+## Contoh ketergantungan yang tertangkap
+
+Ini pola masalahnya dalam bentuk paling kecil. Dua test berbagi satu variabel di bagian atas file:
+
+```ts
+let orderId: string;
+
+test('create order', async ({ page }) => {
+  await page.goto('/checkout');
+  await page.getByRole('button', { name: 'Place order' }).click();
+  orderId = await page.getByTestId('order-id').innerText();
+});
+
+test('cancel order', async ({ page }) => {
+  await page.goto(`/orders/${orderId}`);
+  await page.getByRole('button', { name: 'Cancel order' }).click();
+  await expect(page.getByText('Order cancelled')).toBeVisible();
+});
+```
+
+Dijalankan mengikuti urutan file, test ini lolos setiap hari. Diacak, dan "cancel order" bisa jalan duluan, dengan `orderId` yang masih undefined. Pesan gagalnya akan menyalahkan halaman orders. Bug-nya ada di desain test.
+
+Suite asli menyembunyikan bentuk yang sama dengan lebih rapi: `beforeAll` yang menyiapkan data yang hanya dibutuhkan sebagian test, setting admin yang diubah satu test dan diasumsikan test lain, token yang dibuat saat test login. Mekanismenya berbeda. Ketergantungannya sama.
+
+## Bagaimana membaca kegagalan dari run yang diacak?
+
+Saat run acak berubah merah, kerjakan dengan urutan ini:
+
+1. **Simpan seed-nya.** Seed dicetak di awal run. Taruh di laporan bug.
+2. **Reproduksi lokal dengan seed itu.** Pastikan kegagalan yang sama muncul dengan urutan yang sama sebelum mengubah apa pun.
+3. **Perkecil pasangannya.** Jalankan test yang gagal sendirian. Kalau ia gagal sendirian tapi lolos di suite berurutan penuh, ia butuh sesuatu yang disediakan test lain. Kalau ia lolos sendirian tapi gagal saat diacak, ada test yang jalan sebelumnya yang kini meracuni state-nya.
+4. **Sebutkan shared state-nya.** Data, setting, file, atau variabel. Sebelum bisa menyebutkannya, kamu baru menebak.
+
+Dua arah itu sama pentingnya. Sebuah test bisa bergantung pada pendahulunya, dan sebuah test bisa dirusak oleh pendahulunya.
+
+## Seperti apa perbaikannya?
+
+Aturannya sederhana: **setiap test membuat semua yang ia butuhkan, dan membersihkan yang ia bisa.** Untuk contoh di atas, test cancel harus membuat order-nya sendiri, idealnya lewat API ketimbang UI, karena lebih cepat dan tidak perlu flow checkout berfungsi:
+
+```ts
+test('cancel order', async ({ page, request }) => {
+  const res = await request.post('/api/orders', { data: { item: 'book-1' } });
+  const { id } = await res.json();
+
+  await page.goto(`/orders/${id}`);
+  await page.getByRole('button', { name: 'Cancel order' }).click();
+  await expect(page.getByText('Order cancelled')).toBeVisible();
+});
+```
+
+Tidak ada variabel bersama, tidak ada pendahulu, tidak ada urutan. Test ini sekarang hanya gagal ketika fitur cancel memang rusak, dan memang itu tujuan test ini ada.
+
+Kalau beberapa test butuh setup yang sama, taruh pembuatannya di fixture, bukan di variabel bersama. Fixture berjalan per test, jadi setiap test tetap mendapat datanya sendiri.
+
+## Bagaimana menjaga suite tetap jujur?
+
+Satu run acak menemukan ketergantungan hari ini. Ia tidak melakukan apa pun untuk ketergantungan besok. Tambahkan run acak terjadwal di CI, tiap malam atau tiap minggu:
+
+```yaml
+- name: Shuffled run (order-dependence check)
+  run: npx playwright test --shuffle
+```
+
+Perlakukan kegagalan dari job ini sebagai bug sungguhan, bukan flake yang dihilangkan dengan retry. Laporkan dengan seed terlampir, perbaiki ketergantungannya, dan job itu kembali menjadi penjaga yang diam.
+
+Kamu tidak perlu mengacak setiap run. Run berurutan yang reguler tetap cepat dan bisa diprediksi untuk pull request. Run acak ada untuk menjawab satu pertanyaan secara berkala: apakah test-test ini benar-benar independen?
+
+## Kesimpulan
+
+Test yang hanya lolos dalam satu urutan bukanlah flaky. Ia bergantung, dan ia sedang memberitahumu.
+
+`--shuffle` di Playwright 1.64 mengubah ketergantungan tersembunyi itu menjadi kegagalan yang bisa direproduksi: acak urutannya, simpan seed-nya, putar ulang kegagalannya, hilangkan ketergantungannya. Jalankan terjadwal, dan "lolos berurutan, gagal saat diacak" berhenti menjadi kejutan yang CI lemparkan ke kamu.
+
+## Referensi
+
+- Microsoft (2026). Playwright v1.64.0 release notes: opsi `--shuffle` baru, `testProject.default`, dan test locks. github.com/microsoft/playwright/releases/tag/v1.64.0
