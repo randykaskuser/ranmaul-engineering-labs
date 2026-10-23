@@ -4,10 +4,18 @@
 
 Keep this block short and current. Rewrite it at the end of every session.
 
-- **Last verified:** 2026-10-15. `./init.sh` exit 0: lint 0 errors (2 warnings in untouched files), build 111 pages, smoke OK (5488 internal links, 15 key routes, 52/52 `/id` pages `lang="id"`).
-- **Active feature:** none. All `feature_list.json` entries are `completed` or `abandoned`.
-- **Next step:** ask the owner for the next feature.
-- **Open risks:** see the 2026-09-29 entry (owner actions for Notion and Search Console are still open from earlier entries).
+- **Last verified:** 2026-10-23. `./init.sh` exit 0: lint 0 errors (2 warnings in untouched files), build 137 pages, smoke OK (7142 internal links, 17 key routes, 66/66 `/id` pages `lang="id"`).
+- **Active feature:** 14 (Fix O4 gyro swap article filenames to match slugs).
+- **Next step:** open PR and merge to fix live production 404.
+- **Open risks:** none.
+
+## 2026-10-23 — Fix O4 gyro swap article filenames (feature 14)
+
+- Investigated Cloudflare Pages deployment 404 on `/en/fpv/recovering-o4-pro-footage-2026-gyro-swap` and `/id/fpv/selamatkan-footage-o4-pro-pergantian-gyro-2026`.
+- Root cause: `lib/content.ts` fast-path `getArticleByRoute` resolves article MDX files using `${slug}.mdx`. The articles added in PR #54 were named with prefixes (`en-recovering-o4-pro-footage-2026-gyro-swap.mdx` and `id-selamatkan-footage-o4-pro-pergantian-gyro-2026.mdx`), causing `getArticleByRoute` to throw ENOENT, catch, and return `null`, rendering Next.js `notFound()` error pages during static export.
+- Also resolved secondary issue where `scripts/set-html-lang.mjs` skipped the Indonesian page (because the 404 page rendered `<html id="__next_error__">` instead of `<html lang="en">`).
+- Renamed both MDX files to match their frontmatter slugs exactly.
+- Verification: `./init.sh` exit 0 (137 pages, 7142 internal links, 66/66 Indonesian pages `lang="id"`). Built HTML files in `out/` contain full article content and exact titles.
 
 ## 2026-08-19
 - Added `next-themes` and `lucide-react` dependencies.
