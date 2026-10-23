@@ -1,0 +1,85 @@
+---
+title: "Before You Bin That O4 Clip: Recovering Footage From the 2026 Gyro Swap"
+description: "Some 2026 DJI O4 Pro units produce gyro data that breaks stabilisation in Gyroflow and RockSteady while the raw footage looks fine. How to tell whether your unit is affected, what to rule out first, and the community rescue workflow that can save the clips."
+locale: "en"
+domain: "fpv"
+slug: "recovering-o4-pro-footage-2026-gyro-swap"
+canonicalGroup: "fpv-o4-pro-gyro-swap-footage-recovery"
+publishedAt: "2026-10-23"
+updatedAt: "2026-10-23"
+tags: ["o4-pro", "gyroflow", "stabilization", "troubleshooting", "workflow"]
+featured: false
+draft: false
+coverImage: "/assets/o4-gyro-swap/thumbnail-en.png"
+---
+
+The flight looked perfect in the goggles. The raw recording looks clean. Then you run it through Gyroflow and the footage starts juddering, swaying, and twitching in ways the quad never moved.
+
+The instinct is to blame the tune, reflash something, or delete the clip and fly again. On a 2026-production DJI O4 Pro, there is a fourth possibility worth checking first: the gyro data itself.
+
+## What changed in 2026 production?
+
+DJI changed components in the O4 Pro during 2026 production. The camera's original gyro, marked MP66, was replaced by an ICM gyro marked I469D, the ICM-40609-D. That is the same gyro family the O4 Lite has used since launch.
+
+The gyro was not the only change. The 2026 units also got a different SRAM chip, and DJI shipped two O4 Pro firmware updates in quick succession. Several variables moved at once, which matters for how confidently anyone can assign blame.
+
+Here is the part the angry forum threads skip: not every 2026 unit is affected. Reviewers have 2026 units with the new gyro that stabilise perfectly in both RockSteady and Gyroflow. Some owners returned a bad unit and received a fine replacement from the same production run. Whatever this is, it is not a universal hardware failure.
+
+## Why would the new gyro data break stabilisation?
+
+The community investigation behind the o4fix project describes the leading theory. On affected units, the new gyro appears to mistake motor vibration for rotation. Gyroflow trusts that data, so it corrects movement that never happened. The result is jerks and slow swaying added by the stabiliser itself.
+
+That theory fits the signature symptom: the raw footage is fine, because the image sensor was never the problem. Only the motion data is suspect. It also explains why the failure looks different from ordinary prop wash or a bad tune.
+
+It is still a theory. The fault could sit in firmware, in a production batch, or in how the data is written. DJI changed the sensor, the memory, and the firmware together, so nobody outside DJI can yet separate those causes cleanly.
+
+## Is your unit one of the affected ones?
+
+Start with the production date, which you can decode from the serial number on the box or the sticker on the air unit. After the `9F2K` prefix, three characters encode the date:
+
+- First character is the year: `N` is 2025, `P` is 2026.
+- Second character is the month: `1` to `9` for January to September, then `A` for October, `B` for November, `C` for December.
+- Third character is the day, counting up with letters after `9`.
+
+So `9F2KP2B001` decodes to a unit built on 12 February 2026. Units produced after February 2026 carry the higher chance of the new gyro. A production date tells you the risk, not the verdict. The verdict comes from your footage.
+
+## What should you rule out before blaming the gyro?
+
+Plenty of ordinary problems produce the same complaint. Work through the boring list first:
+
+- **Tune and filters.** A bad PID or filter tune shakes footage with any gyro.
+- **Props and motors.** Bent props, a rough motor, or loose screws feed real vibration into the camera.
+- **Soft mounting.** The O4 Pro gyro is hard-mounted inside the camera, so the camera's own soft mount does heavy lifting. Frames with a well-designed soft-mount platform have produced clean stabilised footage even from new-gyro units.
+- **Electrical noise.** ESCs not running 48 kHz PWM and missing power-filtering capacitors can pollute the whole system.
+- **Software versions.** Update the air unit firmware, the goggles, and Gyroflow before concluding anything.
+
+One test separates the paths. Stabilise the same clip in RockSteady and in Gyroflow. If only Gyroflow fails, the data interpretation path deserves suspicion. If both fail the same way, the motion data itself, or DJI's processing chain, is the problem.
+
+## How do you rescue footage from an affected unit?
+
+Two community routes appeared this month. Both work on copies, and both deserve a "keep your originals" warning.
+
+**Gyroflow nightly builds.** The Gyroflow developers have addressed the new-gyro jitters in their nightly builds. A nightly is a development build, so expect rough edges and check you are downloading the right one. This route fixes the Gyroflow path only. It does nothing for RockSteady, which remains DJI's side of the fence.
+
+**FPVFlow v1.0.3 with o4fix.** FPVFlow is an unofficial Gyroflow fork that packages the o4fix repair into a desktop app. Its maintainer says it writes corrected motion data into a separate copy, leaving your video and audio untouched. The requirements are strict: the recording needs the camera's 1 kHz orientation track, which means RockSteady and HorizonSteady must have been off when you recorded. The build is unsigned, so read the release notes before installing.
+
+While you test those, two Gyroflow settings are worth trying on the current release: set the integration method to Complementary, and try a low-pass filter around 5 Hz. Neither is guaranteed. Both are cheap to test on a copy.
+
+## What are the honest limits?
+
+This is a partial workaround, not a fix. The sources reporting the rescue workflow are explicit that they have not fully tested it. Nobody can promise it saves your specific clips, because nobody has proven which units are affected or why.
+
+If your unit stabilises badly after the boring checks and the workarounds, an RMA is a reasonable move. Replacement units from the same 2026 run have come back fine, which is hard to explain if the design itself were broken.
+
+## Conclusion
+
+A clip that looks broken after stabilisation is not automatically a deleted flight. On a 2026 O4 Pro, check the production date, rule out the mechanical suspects, then test the rescue workflow on a copy before you bin anything.
+
+The raw footage was fine all along. It is the motion data that needs help, and for the first time this month, help exists.
+
+## References
+
+- Unmanned Tech (2026). DJI O4 Pro Gyro Issue (2026): What's Real, What's Rumour, and What to Watch. blog.unmanned.tech
+- Unmanned Tech (2026). Before you bin that O4 clip. The FPV, 19 October 2026. blog.unmanned.tech
+- Oscar Liang (2026). New Gyro in DJI O4 Pro Air Unit Might Be Causing Image Stabilization Issues. Published 13 May 2026, updated 17 October 2026. oscarliang.com
+- Squadding Quads (2026). DJI O4 Pro FINALLY FIXED… But DJI Didn't Fix It! youtube.com
