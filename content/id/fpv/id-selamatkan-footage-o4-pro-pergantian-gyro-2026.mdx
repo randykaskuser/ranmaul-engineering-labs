@@ -1,0 +1,85 @@
+---
+title: "Jangan Hapus Dulu Klip O4 Itu: Menyelamatkan Footage dari Pergantian Gyro 2026"
+description: "Sebagian unit DJI O4 Pro produksi 2026 menghasilkan data gyro yang merusak stabilisasi di Gyroflow dan RockSteady, padahal footage mentahnya bersih. Cara tahu unit kamu terdampak atau tidak, apa yang harus disingkirkan dulu, dan workflow penyelamatan komunitas yang bisa menyelamatkan klip kamu."
+locale: "id"
+domain: "fpv"
+slug: "selamatkan-footage-o4-pro-pergantian-gyro-2026"
+canonicalGroup: "fpv-o4-pro-gyro-swap-footage-recovery"
+publishedAt: "2026-10-23"
+updatedAt: "2026-10-23"
+tags: ["o4-pro", "gyroflow", "stabilization", "troubleshooting", "workflow"]
+featured: false
+draft: false
+coverImage: "/assets/o4-gyro-swap/thumbnail-id.png"
+---
+
+Penerbangannya terlihat sempurna di goggles. Rekaman mentahnya bersih. Lalu kamu jalankan lewat Gyroflow dan footage-nya mulai bergetar, bergoyang, dan menyentak dengan cara yang tidak pernah dilakukan quad kamu.
+
+Refleksnya adalah menyalahkan tune, flash ulang sesuatu, atau menghapus klipnya dan terbang lagi. Pada DJI O4 Pro produksi 2026, ada kemungkinan keempat yang layak dicek dulu: data gyro-nya sendiri.
+
+## Apa yang berubah di produksi 2026?
+
+DJI mengganti komponen di O4 Pro selama produksi 2026. Gyro asli kameranya, bertanda MP66, diganti gyro ICM bertanda I469D, yaitu ICM-40609-D. Itu keluarga gyro yang sama yang dipakai O4 Lite sejak rilis.
+
+Gyro bukan satu-satunya perubahan. Unit 2026 juga mendapat chip SRAM yang berbeda, dan DJI merilis dua update firmware O4 Pro dalam waktu berdekatan. Beberapa variabel bergerak bersamaan, dan itu penting untuk seberapa yakin siapa pun boleh menunjuk penyebab.
+
+Ini bagian yang dilewatkan thread forum yang marah-marah: tidak semua unit 2026 terdampak. Reviewer punya unit 2026 dengan gyro baru yang stabil sempurna di RockSteady dan Gyroflow. Sebagian pemilik mengembalikan unit bermasalah dan menerima pengganti yang baik dari produksi yang sama. Apa pun ini, ini bukan kegagalan hardware yang universal.
+
+## Kenapa data gyro baru bisa merusak stabilisasi?
+
+Investigasi komunitas di balik proyek o4fix menjelaskan teori terkuatnya. Pada unit terdampak, gyro baru tampaknya salah membaca getaran motor sebagai rotasi. Gyroflow memercayai data itu, jadi ia mengoreksi gerakan yang tidak pernah terjadi. Hasilnya adalah sentakan dan goyangan lambat yang ditambahkan oleh stabilizer itu sendiri.
+
+Teori itu cocok dengan gejala khasnya: footage mentah baik-baik saja, karena sensor gambar memang tidak pernah bermasalah. Hanya data gerakannya yang patut dicurigai. Teori itu juga menjelaskan kenapa kegagalannya terlihat berbeda dari prop wash biasa atau tune yang jelek.
+
+Itu tetap teori. Kesalahannya bisa berada di firmware, di satu batch produksi, atau di cara data ditulis. DJI mengganti sensor, memori, dan firmware bersamaan, jadi belum ada pihak di luar DJI yang bisa memisahkan penyebabnya dengan bersih.
+
+## Apakah unit kamu termasuk yang terdampak?
+
+Mulai dari tanggal produksi, yang bisa kamu baca dari nomor seri di kotak atau stiker pada air unit. Setelah awalan `9F2K`, tiga karakter menyimpan tanggalnya:
+
+- Karakter pertama adalah tahun: `N` berarti 2025, `P` berarti 2026.
+- Karakter kedua adalah bulan: `1` sampai `9` untuk Januari sampai September, lalu `A` untuk Oktober, `B` untuk November, `C` untuk Desember.
+- Karakter ketiga adalah hari, berurutan dengan huruf setelah `9`.
+
+Jadi `9F2KP2B001` terbaca sebagai unit yang dibuat pada 12 Februari 2026. Unit yang diproduksi setelah Februari 2026 berpeluang lebih besar memakai gyro baru. Tanggal produksi menunjukkan risiko, bukan vonis. Vonisnya datang dari footage kamu.
+
+## Apa yang harus disingkirkan sebelum menyalahkan gyro?
+
+Banyak masalah biasa menghasilkan keluhan yang sama. Kerjakan dulu daftar membosankannya:
+
+- **Tune dan filter.** Tune PID atau filter yang jelek mengguncang footage dengan gyro apa pun.
+- **Props dan motor.** Props bengkok, motor kasar, atau baut longgar memberi getaran sungguhan ke kamera.
+- **Soft mounting.** Gyro O4 Pro terpasang hard-mounted di dalam kamera, jadi soft mount kameranya memikul beban berat. Frame dengan platform soft mount yang dirancang baik menghasilkan footage stabil yang bersih bahkan dari unit gyro baru.
+- **Noise elektrik.** ESC yang tidak menjalankan PWM 48 kHz dan kapasitor filter daya yang absen bisa mengotori seluruh sistem.
+- **Versi software.** Update firmware air unit, goggles, dan Gyroflow sebelum menyimpulkan apa pun.
+
+Satu tes memisahkan jalurnya. Stabilkan klip yang sama di RockSteady dan di Gyroflow. Kalau hanya Gyroflow yang gagal, jalur interpretasi data patut dicurigai. Kalau keduanya gagal dengan cara yang sama, data gerakannya sendiri, atau alur pemrosesan DJI, yang bermasalah.
+
+## Bagaimana menyelamatkan footage dari unit terdampak?
+
+Dua jalur komunitas muncul bulan ini. Keduanya bekerja pada salinan file, dan keduanya pantas dapat peringatan "simpan file aslimu".
+
+**Gyroflow nightly build.** Developer Gyroflow sudah menangani jitter gyro baru di nightly build mereka. Nightly adalah build development, jadi siapkan ekspektasi soal bagian yang belum mulus dan pastikan kamu mengunduh yang benar. Jalur ini memperbaiki sisi Gyroflow saja. Ia tidak melakukan apa pun untuk RockSteady, yang tetap wilayah DJI.
+
+**FPVFlow v1.0.3 dengan o4fix.** FPVFlow adalah fork tidak resmi Gyroflow yang membungkus perbaikan o4fix menjadi aplikasi desktop. Maintainer-nya menyatakan aplikasi ini menulis data gerakan yang sudah dikoreksi ke salinan terpisah, membiarkan video dan audio kamu utuh. Syaratnya ketat: rekamannya harus membawa orientation track 1 kHz dari kamera, artinya RockSteady dan HorizonSteady harus mati saat kamu merekam. Build-nya unsigned, jadi baca release notes sebelum memasang.
+
+Sambil menguji keduanya, dua setting Gyroflow layak dicoba di rilis saat ini: atur integration method ke Complementary, dan coba low-pass filter di sekitar 5 Hz. Keduanya tidak dijamin berhasil. Keduanya murah untuk diuji pada salinan file.
+
+## Apa batasan jujurnya?
+
+Ini workaround parsial, bukan perbaikan. Sumber yang melaporkan workflow penyelamatan ini secara eksplisit menyatakan belum mengujinya secara penuh. Tidak ada yang bisa menjanjikan ia menyelamatkan klip spesifik kamu, karena belum ada yang membuktikan unit mana yang terdampak atau kenapa.
+
+Kalau unit kamu tetap stabilnya buruk setelah cek membosankan dan workaround, RMA adalah langkah yang masuk akal. Unit pengganti dari produksi 2026 yang sama ada yang kembali dalam kondisi baik, dan itu sulit dijelaskan kalau desainnya sendiri yang rusak.
+
+## Kesimpulan
+
+Klip yang terlihat rusak setelah stabilisasi bukan otomatis penerbangan yang harus dihapus. Pada O4 Pro 2026, cek tanggal produksinya, singkirkan tersangka mekanisnya, lalu uji workflow penyelamatan pada salinan file sebelum menghapus apa pun.
+
+Footage mentahnya baik-baik saja sejak awal. Data gerakan yang butuh pertolongan, dan untuk pertama kalinya bulan ini, pertolongan itu ada.
+
+## Referensi
+
+- Unmanned Tech (2026). DJI O4 Pro Gyro Issue (2026): What's Real, What's Rumour, and What to Watch. blog.unmanned.tech
+- Unmanned Tech (2026). Before you bin that O4 clip. The FPV, 19 Oktober 2026. blog.unmanned.tech
+- Oscar Liang (2026). New Gyro in DJI O4 Pro Air Unit Might Be Causing Image Stabilization Issues. Terbit 13 Mei 2026, diperbarui 17 Oktober 2026. oscarliang.com
+- Squadding Quads (2026). DJI O4 Pro FINALLY FIXED… But DJI Didn't Fix It! youtube.com
