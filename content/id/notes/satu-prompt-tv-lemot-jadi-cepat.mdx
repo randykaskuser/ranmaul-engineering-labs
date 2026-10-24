@@ -1,0 +1,119 @@
+---
+title: "TV Saya Bukan Lemot, Cuma Sibuk: Satu Prompt, Tanpa Root, Tanpa Ganti TV"
+description: "TV TCL Android saya terasa lemot, tapi hardware bukan satu-satunya cerita. Satu prompt dengan guard yang jelas, lewat CleanYourTV, menonaktifkan telemetry dan baris sponsor, menjaga aplikasi yang saya pakai, dan menyisakan jalan kembali ke home screen lama."
+locale: "id"
+domain: "notes"
+slug: "satu-prompt-tv-lemot-jadi-cepat"
+canonicalGroup: "notes-cleanyourtv-one-prompt-android-tv"
+publishedAt: "2026-10-24"
+updatedAt: "2026-10-24"
+tags: ["android-tv", "google-tv", "adb", "debloat", "launcher", "tcl"]
+featured: false
+draft: false
+coverImage: "/assets/cleanyourtv-one-prompt/thumbnail-id.png"
+---
+
+TV saya bukan lemot. TV saya sibuk.
+
+Setiap kali saya membuka home screen, TV itu punya pekerjaan lain dulu. Ia memuat baris sponsor yang tidak pernah saya minta. Ia menjalankan telemetry dan background services yang tidak pernah saya buka. Setelah semua itu, barulah ia menampilkan Netflix, YouTube, dan Vidio. Aplikasi videonya baik-baik saja. Home screen-nya yang penuh.
+
+Jadi saya tidak membeli TV baru. Saya menjalankan satu prompt, lewat proyek open source bernama CleanYourTV, di TV TCL Android saya. TV itu sekarang terasa cepat untuk pemakaian sehari-hari. Netflix, YouTube, dan Vidio masih ada. HDMI, remote, casting, dan Wi-Fi masih jalan. Dan saya menyimpan jalan kembali ke home screen lama.
+
+Artikel ini menjelaskan apa yang sebenarnya dilakukan prompt itu, kenapa ia berhasil, dan di mana batasnya. Ini bukan laporan benchmark. Saya tidak mengukur RAM atau frame time. "Super cepat" di sini berarti rasa pemakaian sehari-hari: home screen terbuka, remote merespons, dan saya langsung menonton, bukan menunggu.
+
+## Apa arti "lemot" di TV Android budget
+
+TV budget bisa memutar video dengan baik dan tetap terasa lemot. Memutar stream hanya satu pekerjaan. Menjalankan home screen yang penuh rekomendasi, iklan, dan background services berarti banyak pekerjaan sekaligus, dan semuanya berebut CPU dan memory yang sama.
+
+Perbedaan ini penting. Kalau masalahnya hanya hardware yang lemah, solusinya adalah hardware baru. Kalau masalahnya adalah software yang berebut sumber daya, solusinya adalah menghentikan software yang tidak kita pakai.
+
+CleanYourTV berangkat dari pandangan kedua. Ia tidak meng-overclock apa pun. Ia mengurangi pekerjaan di jalur home screen.
+
+## Kenapa solusi biasa tidak bertahan
+
+Membersihkan cache membantu sehari. Services itu kembali, karena tidak ada yang berubah dari apa yang dimuat TV saat startup.
+
+Factory reset lebih kuat, tapi ia juga mengembalikan masalah awal. Launcher bawaan pabrik, baris sponsor, dan aplikasi bawaan ikut kembali. Kamu lalu menghabiskan satu malam untuk login lagi, hanya untuk kembali ke titik awal.
+
+Membeli TV baru bisa berhasil, tapi itu jawaban yang mahal untuk pertanyaan software. Sebelum belanja, ada baiknya dicek dulu: TV ini lemot, atau cuma sibuk?
+
+## Apa yang sebenarnya dilakukan CleanYourTV
+
+CleanYourTV adalah kit open source untuk Android TV dan Google TV. Ia bekerja lewat ADB, debug bridge yang sama dengan yang dipakai HP Android, lewat Wi-Fi. Tidak perlu kabel, dan tidak perlu root.
+
+Ia melakukan tiga hal, berurutan:
+
+1. **Backup dulu.** Ia menyimpan daftar package yang terinstal, daftar package yang di-disable, system properties, dan settings, lalu menulis restore script.
+2. **Disable, bukan uninstall.** Ia men-disable telemetry pabrik, ad services, content rows, dan aplikasi bawaan yang tidak perlu dengan `pm disable-user`. Tidak ada yang di-uninstall. Package yang di-disable bisa di-enable lagi, dan karena itulah restore bisa dilakukan.
+3. **Mengganti home screen.** Ia menginstal launcher native yang ringan dan menjadikannya home screen default.
+
+Prompt-nya adalah bagian yang menarik. Kamu tidak menempel perintah buta. Kamu menempel instruksi untuk coding assistant, misalnya Claude Code, Codex, atau Gemini CLI, yang jalan di komputer yang satu Wi-Fi dengan TV. Assistant itu memeriksa TV yang asli, memilah package yang ia temukan, dan diminta bertanya dulu sebelum menyentuh apa pun yang tergantung pada preferensimu.
+
+Prompt saya punya guard tambahan. Saya meminta assistant untuk memeriksa TV saya dulu. Ia harus menjaga aplikasi, HDMI, remote, casting, dan Wi-Fi saya tetap jalan, menyimpan jalan kembali ke home screen lama, dan bertanya kepada saya sebelum menginstal apa pun atau mengubah Home. Guard itu bukan hiasan. Guard itu yang membedakan debloat dengan merusak TV yang masih dipakai tiap malam.
+
+## Periksa TV dulu
+
+Sebelum ada perubahan, catat tiga hal:
+
+- **Model TV-mu.** Bloat berbeda tiap brand, jadi assistant butuh model yang asli, bukan tebakan.
+- **Keep-list-mu.** Sebut aplikasi dan fungsi yang wajib selamat. Punya saya: Netflix, YouTube, dan Vidio, plus input HDMI, remote, casting, dan Wi-Fi.
+- **Jalan kembali-mu.** Pastikan di mana backup dan restore script akan disimpan, sebelum ada package yang di-disable.
+
+Sebagian package tidak boleh di-disable. Aplikasi TV dan input services untuk HDMI dan tuner, menu input dan source, remote control dan Bluetooth pairing services, on-screen keyboard, Google Play Store, dan Play Services harus tetap jalan. Core packages Android juga harus tetap jalan. Nama package saja tidak selalu menjelaskan fungsinya, jadi prompt meminta assistant memeriksa activities dan services-nya dulu, dan bertanya kalau masih belum jelas.
+
+Kalau TV-mu memakai Samsung Tizen atau LG webOS, tool ini bukan untukmu. Tool ini dibuat untuk Android TV dan Google TV. Prompt upstream juga menyatakan tool ini tidak bekerja di Fire TV sebagai pengganti home screen.
+
+## Satu prompt, langkah demi langkah
+
+Alur di bawah ini mengikuti prompt dan README upstream. Kerjakan dalam satu sesi, dengan TV menyala.
+
+**1. Nyalakan developer options di TV.** Buka Settings, lalu Device Preferences, lalu About. Tekan OK pada Build tujuh kali sampai TV menyatakan kamu sudah menjadi developer. Kembali ke Developer options dan nyalakan USB debugging. Kalau ada toggle Network debugging atau ADB debugging, nyalakan juga.
+
+**2. Taruh proyek di komputermu.** Clone repository dan jalankan coding assistant di dalam folder itu, supaya ia memakai tools yang sudah teruji, bukan menulis tools baru dari nol:
+
+```bash
+git clone https://github.com/Gathin23/cleanyourtv.git
+cd cleanyourtv
+```
+
+**3. Tempel prompt, dengan modelmu sudah diisi.** Buka `PROMPT.md` di repository dan tempel teks prompt ke assistant, dengan model TV-mu menggantikan placeholder. Saat TV bertanya "Allow USB debugging?", tekan Allow lewat remote TV.
+
+**4. Biarkan assistant memeriksa dulu sebelum mengubah apa pun.** Ia harus mendaftar package yang terinstal dan memilahnya. Kelompoknya adalah telemetry dan analytics, content dan ad services, background services yang mungkin tidak kamu butuhkan, aplikasi bawaan, dan streaming apps. Ia harus bertanya soal apa pun yang belum jelas, dan soal apa pun yang mungkin kamu pakai.
+
+**5. Setujui sendiri tiap instalasi dan tiap perubahan Home.** Ini guard yang paling penting. Launcher baru dan home screen default yang baru adalah perubahan yang terlihat. Jangan biarkan keduanya terjadi diam-diam.
+
+Di sebagian set Google TV, port 5555 tetap tertutup karena set itu hanya menyediakan Wireless debugging. Kalau begitu, pakai Developer options, lalu Wireless debugging, lalu Pair device with pairing code, dan berikan code dan port yang diminta assistant. Perlu diingat, Android mematikan Wireless debugging setiap kali Wi-Fi terputus.
+
+Satu keanehan lain perlu diketahui sebelum mulai. Sebagian set memutus daya ke port USB-nya saat USB debugging menyala. Speaker USB, drive USB, atau adapter Ethernet USB di port itu bisa mati sampai debugging dimatikan lagi. Kalau jaringanmu sendiri lewat adapter Ethernet USB, sampaikan itu di awal dan selesaikan seluruh pekerjaan dalam satu sesi.
+
+## Jalan kembali, dan menutup ADB
+
+Debloat tanpa jalan kembali adalah taruhan. Yang ini punya dua langkah penutup, dan keduanya penting.
+
+Pertama, restore script meng-enable lagi semua yang tadi di-disable. Kalau aplikasi yang kamu jaga bermasalah, atau kamu ternyata lebih suka home screen lama, kamu bisa kembali tanpa menginstal ulang sistem.
+
+Kedua, tutup network ADB setelah selesai. Matikan USB debugging dan Network atau ADB debugging di TV, revoke USB debugging authorisations, reboot, dan periksa bahwa port menolak koneksi. Port 5555 adalah plaintext, dan di sebagian firmware, perangkat apa pun di jaringan lokal bisa mendapat shell. Membiarkan ADB terbuka setelah pekerjaan selesai berarti menukar home screen yang lebih cepat dengan pintu yang terbuka.
+
+## Apa yang tidak dibuktikan artikel ini
+
+Artikel ini membuktikan klaim yang sempit: di TCL saya, dengan keep-list saya, satu prompt dengan guard membuat pemakaian sehari-hari terasa cepat lagi, dan tidak ada yang saya pakai rusak. Artikel ini tidak membuktikan TV-mu akan terasa sama. Brand lain, launcher lain, atau kumpulan aplikasi bawaan lain bisa mengubah hasilnya.
+
+Artikel ini juga tidak membuktikan TV itu lebih cepat secara objektif dan terukur. Saya tidak punya angka sebelum dan sesudah untuk ditunjukkan, dan saya tidak akan meminjam angka dari TV orang lain lalu mengakuinya sebagai angka saya. Klaim yang jujur lebih kecil, dan justru karena itu lebih berguna: home screen berhenti mengerjakan hal yang tidak pernah saya minta, dan aplikasi yang saya buka tiap malam masih jalan.
+
+## Checklist, kalau kamu mencoba
+
+- Pastikan Android TV atau Google TV, bukan Tizen atau webOS.
+- Tulis keep-list-mu: aplikasi, HDMI, remote, casting, Wi-Fi.
+- Pastikan folder backup dan restore script sebelum ada disable.
+- Nyalakan USB debugging, dan Network atau ADB debugging kalau ada.
+- Tempel prompt dengan model TV-mu yang asli, dan setujui sendiri instalasi dan perubahan Home.
+- Setelah selesai, matikan debugging, revoke authorisations, reboot, dan verifikasi port sudah tertutup.
+- Simpan restore script. Itu jalan kembali-mu.
+
+TV saya tidak meminta hardware baru. Ia meminta pekerjaan yang lebih sedikit. Satu prompt memberinya itu, dengan home screen lama yang masih bisa dijangkau kalau saya berubah pikiran.
+
+## Referensi
+
+- Gathin23. CleanYourTV, README. https://github.com/Gathin23/cleanyourtv
+- Gathin23. CleanYourTV, PROMPT.md. https://github.com/Gathin23/cleanyourtv/blob/main/PROMPT.md
+- Situs proyek CleanYourTV. https://cleanyour.tv/
