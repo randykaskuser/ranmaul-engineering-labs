@@ -82,9 +82,16 @@
     {
       "id": 14,
       "title": "Fix O4 gyro swap article filenames to match slugs",
-      "status": "in_progress",
-      "reason": "Articles were merged with en- and id- filename prefixes, causing getArticleByRoute to fail on fast path and render 404 pages during SSG build.",
+      "status": "completed",
+      "reason": "Articles were merged with en- and id- filename prefixes, causing getArticleByRoute to fail on fast path and render 404 pages during SSG build. Files renamed to match slugs; merged in PR #56.",
       "verification": "./init.sh exit 0 (lint 0 errors, build 137 pages, smoke OK 66/66 id pages lang=id)"
+    },
+    {
+      "id": 15,
+      "title": "Fix mobile horizontal overflow on article pages + dependency/security bumps",
+      "status": "completed",
+      "reason": "At 390px, article pages scrolled sideways and cut text off: the single-column grid had no explicit track (min-content grew with long code/URLs), raw reference URLs did not wrap, and the sidebar Reveal x-offset added 10px. Fixed with grid-cols-[minmax(0,1fr)], overflow-wrap:anywhere on prose links, overflow-x-clip on the article section. Also bumped next 16.3.3->16.4.3 (clears GHSA-2464-fhr4-w9xw, GHSA-p3m5-59mp-jv5r, GHSA-673q-mjm6-r5xr), wrangler, sharp, undici, brace-expansion, source-map-js, zod (npm audit: 0 vulnerabilities). Replaces Dependabot PRs #44-#47, #49.",
+      "verification": "./init.sh exit 0 (lint 0 errors, 169 pages, smoke OK, 82/82 id pages lang=id). Playwright: 34 article pages x 390px/1440px, scrollWidth <= viewport on all 68 (before: 30+ overflowed at 390px, up to 736px). Sticky aside still pins at top-24 on 1440px."
     }
   ]
 }

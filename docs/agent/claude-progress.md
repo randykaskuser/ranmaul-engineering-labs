@@ -4,10 +4,17 @@
 
 Keep this block short and current. Rewrite it at the end of every session.
 
-- **Last verified:** 2026-10-23. `./init.sh` exit 0: lint 0 errors (2 warnings in untouched files), build 137 pages, smoke OK (7142 internal links, 17 key routes, 66/66 `/id` pages `lang="id"`).
-- **Active feature:** 14 (Fix O4 gyro swap article filenames to match slugs).
-- **Next step:** open PR and merge to fix live production 404.
-- **Open risks:** none.
+- **Last verified:** 2026-10-25. `./init.sh` exit 0: lint 0 errors (2 warnings in untouched files), build 169 pages, smoke OK (8812 internal links, 17 key routes, 82/82 `/id` pages `lang="id"`). `npm audit`: 0 vulnerabilities.
+- **Active feature:** none (15 completed).
+- **Next step:** ask the owner. Notion sync PR #37 is broken (wraps `channa-andrao` body in a code fence, rewinds `updatedAt`); the Notion→MDX converter needs a fix before it is merged.
+- **Open risks:** production deploy could not be checked from the agent container (ranmaul.com blocked by proxy); confirm the live article pages after deploy.
+
+## 2026-10-25 — PR triage + mobile article overflow (feature 15)
+
+- Reviewed 7 open PRs. Merged #57 (smoke guard for silent 404 article pages) after fixing a false positive: titles with an apostrophe are HTML-escaped (`&#x27;`) in `<title>`, so the guard now decodes entities before comparing.
+- Combined Dependabot PRs #44, #45, #46, #47, #49 into one verified bump; also moved `next` to 16.4.3 (3 advisories for 16.0.0-16.4.0) and fixed dev-only `zod` advisory.
+- Not merged: #37 (Notion sync) - corrupts article content.
+- Found article pages overflowing horizontally at 390px (text cut off on the right). Root causes and fixes in feature 15.
 
 ## 2026-10-23 — Fix O4 gyro swap article filenames (feature 14)
 

@@ -372,6 +372,8 @@ a {
 .article-prose a {
   text-decoration: underline;
   text-underline-offset: 0.2em;
+  /* Long raw URLs (reference lists) must wrap instead of widening the page on mobile. */
+  overflow-wrap: anywhere;
 }
 
 .article-prose code {
