@@ -1,0 +1,86 @@
+---
+title: "Upgrading to Playwright 1.64? Check These Four Silent Behaviour Changes First"
+description: "Playwright 1.64 ships four breaking changes that do not announce themselves. Three can turn green tests red, and one can turn a red run green. Check all four before you call the upgrade done."
+locale: "en"
+domain: "qa"
+slug: "playwright-164-silent-behaviour-changes-upgrade-checklist"
+canonicalGroup: "qa-playwright-164-behaviour-changes"
+publishedAt: "2026-10-27"
+updatedAt: "2026-10-27"
+tags: ["playwright", "snapshots", "ci", "upgrade"]
+featured: false
+draft: true
+coverImage: "/assets/playwright-164/thumbnail-en.png"
+---
+
+Playwright 1.64, released 7 October 2026, is easy to upgrade badly. The headline features are loud: WebMCP support, `locator.within()`, `--shuffle`. The breaking changes are quiet. Four of them alter what your existing tests do, and none of them shows up as a new API you chose to use.
+
+This article covers only those four changes. The shuffle and retry stories live in their own articles. Run these four checks before you merge the upgrade.
+
+## Check 1: screen now comes from the device descriptor
+
+In 1.64, the `screen` property is forwarded from device descriptors. If you spread a descriptor into `use`, `window.screen` and screen-based media queries now see the emulated screen size instead of the host machine's size.
+
+Who is affected: any suite with responsive layouts driven by `window.screen`, and any setup that compares desktop and phone descriptors. A mobile layout test can start behaving differently for no reason visible in its own code.
+
+In most cases the new behaviour is the correct one. Treat the opt-out as a bridge, not a destination:
+
+```ts
+export default defineConfig({
+  use: {
+    ...devices['Desktop Chrome'],
+    screen: undefined,
+  },
+});
+```
+
+Check: search your suite for `window.screen` and screen-width media queries, and run those tests against the upgrade first.
+
+## Check 2: JSX in test files now follows tsconfig.json
+
+Playwright now compiles JSX in test files according to your `tsconfig.json` options: `jsx`, `jsxFactory`, `jsxFragmentFactory`, and `jsxImportSource`. The default is the automatic runtime from `react/jsx-runtime`.
+
+Most React setups will not notice. Component-testing setups with a custom factory will. If your project uses Preact, Solid, or a custom pragma, set `jsxImportSource` or `jsxFactory` explicitly instead of relying on Playwright's old built-in default.
+
+Check: open `tsconfig.json`, confirm the JSX options say what you think they say, and run any component test that uses a non-React factory.
+
+## Check 3: --update-snapshots=missing now passes the run
+
+This is the dangerous one, because it moves in the green direction. Tests that only create missing snapshots now pass in the `'missing'` mode of `testConfig.updateSnapshots`. The mode used when you specify nothing is now called `'default'`, and it behaves as before: missing snapshots are written and the test fails.
+
+| Mode | Missing snapshots | Run result |
+| --- | --- | --- |
+| `default` | Written | Fails on the tests that wrote files |
+| `missing` | Written | Passes (new in 1.64) |
+| `changed` | Written | Passes |
+| `all` | Rewritten | Passes |
+| `none` | Not written | Fails on anything missing or different |
+
+The risk is a CI job configured with `missing` as a safety net. Before 1.64 it failed loudly when a baseline was absent. Now it passes and quietly commits a new baseline that no human verified.
+
+Check: audit every workflow that sets a snapshot mode. If CI is supposed to catch missing baselines, it must use `default` or `none`, never `missing`.
+
+## Check 4: elements inside hidden iframes are now hidden
+
+Elements inside an iframe that is not visible, for example with `visibility: hidden`, are now considered hidden by actions, `locator.isVisible()`, and `expect(locator).toBeVisible()`.
+
+Check any test that relied on the old behaviour around embedded widgets: third-party embeds, hidden payment frames, collapsed panels containing iframes. A test that asserted visibility inside a hidden frame will now fail, and this time the test is right and the assumption was wrong.
+
+Check: search for `toBeVisible` assertions near iframes, and for any test that interacts with content inside a frame that starts hidden.
+
+## The upgrade checklist
+
+- Bump to 1.64 on a branch, not on main. Run the full suite once and read the failures as a list, not one by one.
+- Audit `window.screen` usage and screen-based media queries (Check 1).
+- Confirm `tsconfig.json` JSX options for any non-React factory (Check 2).
+- Audit every CI snapshot mode; `missing` must not be your safety net (Check 3).
+- Search visibility assertions around iframes (Check 4).
+- Only then merge. A green run after these checks means something. A green run before them might mean nothing at all.
+
+## Conclusion
+
+Four silent changes, four one-line fixes, and one habit: read the breaking-changes section before the features section. The features are why you upgrade. The breaking changes are what the upgrade actually does to your suite.
+
+## References
+
+- [Playwright release notes, version 1.64](https://playwright.dev/docs/release-notes)
