@@ -6,7 +6,7 @@ domain: "qa"
 slug: "retry-that-passes-is-not-a-pass-playwright"
 canonicalGroup: "qa-playwright-retry-flaky-discipline"
 publishedAt: "2026-10-25"
-updatedAt: "2026-10-25"
+updatedAt: "2026-10-29"
 tags: ["playwright", "flaky-tests", "retries", "ci", "debugging"]
 featured: false
 draft: false
@@ -62,6 +62,8 @@ export default defineConfig({
 The documented meaning of that value is exact: record a trace only when retrying a test for the first time. Clean runs stay fast and disk stays empty. Every failure that matters leaves a recording.
 
 Open it with `npx playwright show-trace path/to/trace.zip`, or from the HTML report's View trace button. Read it in this order: Actions first, which shows the locator used for every action and how long each one took. Click the action that failed, then compare its Before and After snapshots. That pair is where a locator that matched the wrong element stops being a theory. Network and Console filter to the selected action, so a response that arrived late sits in the same view as the action that needed it.
+
+How does a locator end up matching the wrong element without an error? Re-sorting a list is enough: `.first()` still finds an "Add to cart" button, just for a different product. [Locator Lab](https://locator.ranmaul.com) lets you refactor a sample shop and see which locators survive, break, or silently move to another element.
 
 A failing assertion with a trace attached tells you what the DOM, network, and console looked like at the moment it broke. A failing assertion with just a red X in CI tells you to reproduce it locally and hope it happens again.
 

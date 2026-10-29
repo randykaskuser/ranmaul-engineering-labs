@@ -6,7 +6,7 @@ domain: "qa"
 slug: "passing-order-failing-shuffled-playwright"
 canonicalGroup: "qa-playwright-shuffle-order-dependence"
 publishedAt: "2026-10-22"
-updatedAt: "2026-10-22"
+updatedAt: "2026-10-29"
 tags: ["playwright", "flaky-tests", "test-order", "ci", "debugging"]
 featured: false
 draft: false
@@ -102,6 +102,8 @@ test('cancel order', async ({ page, request }) => {
 ```
 
 No shared variable, no predecessor, no order. The test now fails only when cancel is actually broken, which is the entire point of having it.
+
+The test also finds the button by role and accessible name, not by CSS class or position, so renamed classes or a re-ordered page do not break it. To see the difference on a sample page, try both kinds of locator in [Locator Lab](https://locator.ranmaul.com).
 
 Where several tests need the same setup, put the creation in a fixture rather than a shared variable. A fixture runs per test, so each test still gets its own data.
 
