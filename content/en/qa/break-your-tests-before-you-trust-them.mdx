@@ -1,0 +1,83 @@
+---
+title: "Green Does Not Mean Proven: Break Your Tests Before You Trust Them"
+description: "An AI-generated Playwright suite ran 360 times without a single failure — and one of its tests would still pass with the server down. A test you have never seen go red has proven nothing. Break it on purpose first."
+locale: "en"
+domain: "qa"
+slug: "break-your-tests-before-you-trust-them"
+canonicalGroup: "qa-break-your-tests-before-you-trust-them"
+publishedAt: "2026-10-30"
+updatedAt: "2026-10-30"
+tags: ["playwright", "ai-generated-tests", "mutation-testing", "test-design"]
+featured: false
+draft: false
+coverImage: "/assets/break-your-tests/thumbnail-en.png"
+---
+
+An AI was given a Playwright and TypeScript repo and ten test scenarios. It wrote 13 tests. Every test in the repo was then run 20 times, retries off: 360 runs, 360 passed.
+
+Then the author read the tests. One of them would still pass if the server were down.
+
+This is not an article about flaky tests. The site already covered shuffle order and retry discipline. This is about the opposite failure: a suite that is perfectly stable and still proves nothing.
+
+## Stable is not the same as correct
+
+360 out of 360 proves the tests do not flake. It does not prove they check the right thing. A test that never fails might simply be unable to fail, and a suite full of such tests is a green dashboard over an untested product.
+
+The experiment behind this article, published by FlakeLab in October 2026, makes the distinction measurable. The AI's raw output is committed in a public repo before any fix, so every claim below can be checked against the actual tests.
+
+## How a test passes with the server down
+
+One scenario was: "Creating a booking with an invalid payload is rejected." The demo API answers a booking with missing fields with 500. A validation error should be 400; a 500 means the server failed. The AI knew this, and wrote an assertion that accommodates it:
+
+```ts
+// Restful Booker answers 500 here rather than 400; the test checks rejection, not the code.
+expect(response.ok()).toBe(false);
+expect(response.status()).toBeGreaterThanOrEqual(400);
+```
+
+This passes with 400, with 500, and with 503. A 503 is an outage. The test called "invalid payload is rejected" would pass while the server is down, because it asserts a range instead of an outcome. The AI loosened the assertion to fit the bug, and the green run blessed the compromise.
+
+A second pattern from the same experiment: without a spec, the AI turns current behavior into expected behavior. It also copied a gap from the author's own tests. These are not coding mistakes. The code was good and followed the repo's structure. The mistakes were about what to check.
+
+## Seeded bugs tell more than green runs
+
+The experiment's second result is the method this article recommends. SauceDemo, one of the two demo apps used, has demo users with deliberate bugs. Running the same 7 UI tests as each user, 3 times each, gave:
+
+| User | Passed | What failed |
+| --- | --- | --- |
+| standard_user | 21/21 | Nothing (control) |
+| problem_user | 9/21 | Sorting doesn't sort; the last name field ignores input, so checkout breaks |
+| error_user | 12/21 | Sorting doesn't sort; checkout can't finish; a missing last name isn't reported |
+
+The control run proves the tests pass on good behavior. The seeded runs prove they fail on specific bad behavior — and show exactly which bugs slip through. A suite that passes the control but misses the seeded bugs is not a safety net. It is a list of things you have not checked.
+
+## The ritual: break one thing, expect red
+
+For every new test, and especially for every AI-generated test, run this ritual before you trust it:
+
+1. Break one thing the test is supposed to catch. Invert a condition, delete a handler, return the wrong data, point at the wrong user.
+2. Run only that test, retries off.
+3. Expect red. If it stays green, the test does not check what you think it checks. Fix the test, not your confidence.
+
+Cheap variants work too: temporarily change the expected value, block the network for one API test, or run the suite against a demo user with a known bug. The point is never the breakage itself. The point is watching the test fail for the right reason, once, with your own eyes.
+
+This is mutation-style thinking without a mutation framework. A framework that seeds faults automatically is worth adopting later. The ritual is worth adopting today, because it costs minutes and it catches the loosened assertion before production does.
+
+## Four questions for reviewing AI-generated tests
+
+Use these on every test you did not write yourself:
+
+1. What specific failure would make this test go red? If you cannot name one, it proves nothing.
+2. Does it assert an outcome or a range? A range like "status >= 400" is a confession that the author did not know the right answer.
+3. Does it encode the spec or the current behavior? A test written from observed behavior will bless bugs it observed.
+4. Would it catch a seeded bug? If you cannot say, seed one and find out.
+
+## Conclusion
+
+A green suite earns trust in two steps, not one. Step one is stability: run it many times, retries off, and watch it stay green. Step two is provability: break something, and watch it go red. Most teams do step one and call it done. The 360 green runs show why that is not enough.
+
+A test you have never seen fail is a hypothesis, not evidence. Break it before you trust it.
+
+## References
+
+- [FlakeLab: 360 green runs, and one test that would pass with the server down](https://flakelab.dev/blog/ai-generated-playwright-tests-measured/)
