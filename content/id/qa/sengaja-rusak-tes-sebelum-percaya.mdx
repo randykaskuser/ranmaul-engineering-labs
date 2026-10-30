@@ -1,0 +1,83 @@
+---
+title: "Suite Hijau Belum Tentu Benar: Sengaja Rusak Tesmu Sebelum Memercayainya"
+description: "Suite Playwright hasil AI berjalan 360 kali tanpa satu kegagalan pun — dan salah satu tesnya tetap lolos kalau server mati. Tes yang belum pernah kamu lihat merah belum membuktikan apa-apa. Rusak dengan sengaja dulu."
+locale: "id"
+domain: "qa"
+slug: "sengaja-rusak-tes-sebelum-percaya"
+canonicalGroup: "qa-break-your-tests-before-you-trust-them"
+publishedAt: "2026-10-30"
+updatedAt: "2026-10-30"
+tags: ["playwright", "ai-generated-tests", "mutation-testing", "test-design"]
+featured: false
+draft: false
+coverImage: "/assets/break-your-tests/thumbnail-id.png"
+---
+
+Sebuah AI diberi repo Playwright dan TypeScript plus sepuluh skenario tes. Ia menulis 13 tes. Setiap tes di repo lalu dijalankan 20 kali, tanpa retry: 360 run, 360 lolos.
+
+Lalu penulisnya membaca tes-tes itu. Salah satunya tetap lolos kalau server mati.
+
+Ini bukan artikel tentang tes flaky. Situs ini sudah membahas shuffle order dan disiplin retry. Ini tentang kegagalan sebaliknya: suite yang sangat stabil namun tetap tidak membuktikan apa-apa.
+
+## Stabil tidak sama dengan benar
+
+360 dari 360 membuktikan tes-tes itu tidak flaky. Itu tidak membuktikan mereka memeriksa hal yang benar. Tes yang tidak pernah gagal mungkin memang tidak mampu gagal, dan suite yang penuh tes semacam itu adalah dashboard hijau di atas produk yang belum teruji.
+
+Eksperimen di balik artikel ini, diterbitkan FlakeLab pada Oktober 2026, membuat perbedaan itu terukur. Output mentah AI di-commit di repo publik sebelum perbaikan apa pun, sehingga setiap klaim di bawah ini bisa dicek ke tes yang sebenarnya.
+
+## Cara tes lolos saat server mati
+
+Salah satu skenarionya: "Membuat booking dengan payload tidak valid ditolak." API demo menjawab booking dengan field yang hilang dengan 500. Error validasi seharusnya 400; 500 berarti server gagal. AI itu tahu, dan menulis assertion yang mengakomodasinya:
+
+```ts
+// Restful Booker answers 500 here rather than 400; the test checks rejection, not the code.
+expect(response.ok()).toBe(false);
+expect(response.status()).toBeGreaterThanOrEqual(400);
+```
+
+Ini lolos pada 400, pada 500, dan pada 503. 503 adalah outage. Tes bernama "payload tidak valid ditolak" akan lolos saat server mati, karena ia meng-assert range, bukan outcome. AI melonggarkan assertion agar cocok dengan bug, dan run hijau memberkati kompromi itu.
+
+Pola kedua dari eksperimen yang sama: tanpa spec, AI mengubah perilaku saat ini menjadi perilaku yang diharapkan. Ia juga menyalin gap dari tes penulisnya sendiri. Ini bukan kesalahan coding. Kodenya bagus dan mengikuti struktur repo. Kesalahannya adalah soal apa yang dicek.
+
+## Seeded bug memberi tahu lebih banyak daripada run hijau
+
+Hasil kedua eksperimen ini adalah metode yang direkomendasikan artikel ini. SauceDemo, salah satu dari dua aplikasi demo yang dipakai, memiliki demo user dengan bug yang disengaja. Menjalankan 7 tes UI yang sama sebagai setiap user, masing-masing 3 kali, menghasilkan:
+
+| User | Lolos | Apa yang gagal |
+| --- | --- | --- |
+| standard_user | 21/21 | Tidak ada (kontrol) |
+| problem_user | 9/21 | Sorting tidak mengurutkan; field last name mengabaikan input, sehingga checkout rusak |
+| error_user | 12/21 | Sorting tidak mengurutkan; checkout tidak bisa selesai; last name yang hilang tidak dilaporkan |
+
+Run kontrol membuktikan tes lolos pada perilaku yang baik. Run seeded membuktikan tes gagal pada perilaku buruk tertentu — dan menunjukkan persis bug mana yang lolos diam-diam. Suite yang lolos kontrol tapi melewatkan seeded bug bukan jaring pengaman. Ia adalah daftar hal yang belum kamu cek.
+
+## Ritualnya: rusak satu hal, harapkan merah
+
+Untuk setiap tes baru, dan terutama untuk setiap tes hasil AI, jalankan ritual ini sebelum kamu memercayainya:
+
+1. Rusak satu hal yang seharusnya ditangkap tes itu. Balik sebuah kondisi, hapus sebuah handler, kembalikan data yang salah, arahkan ke user yang salah.
+2. Jalankan hanya tes itu, tanpa retry.
+3. Harapkan merah. Kalau tetap hijau, tes itu tidak memeriksa apa yang kamu kira ia periksa. Perbaiki tesnya, bukan kepercayaan dirimu.
+
+Varian murahnya juga bekerja: ubah sementara nilai yang diharapkan, blokir network untuk satu tes API, atau jalankan suite terhadap demo user dengan bug yang diketahui. Intinya tidak pernah soal kerusakannya sendiri. Intinya adalah melihat tes gagal karena alasan yang benar, satu kali, dengan matamu sendiri.
+
+Ini adalah cara berpikir ala mutation testing tanpa framework mutation. Framework yang menanam fault secara otomatis layak diadopsi nanti. Ritualnya layak diadopsi hari ini, karena biayanya hitungan menit dan ia menangkap assertion yang dilonggarkan sebelum production yang menangkapnya.
+
+## Empat pertanyaan untuk me-review tes hasil AI
+
+Pakai ini pada setiap tes yang tidak kamu tulis sendiri:
+
+1. Kegagalan spesifik apa yang akan membuat tes ini merah? Kalau kamu tidak bisa menyebutkannya, ia tidak membuktikan apa-apa.
+2. Apakah ia meng-assert outcome atau range? Range seperti "status >= 400" adalah pengakuan bahwa penulisnya tidak tahu jawaban yang benar.
+3. Apakah ia mengkodekan spec atau perilaku saat ini? Tes yang ditulis dari perilaku yang diamati akan memberkati bug yang ia amati.
+4. Apakah ia akan menangkap seeded bug? Kalau kamu tidak bisa menjawab, tanam satu dan cari tahu.
+
+## Kesimpulan
+
+Suite hijau mendapatkan kepercayaan dalam dua langkah, bukan satu. Langkah satu adalah stabilitas: jalankan berkali-kali, tanpa retry, dan lihat ia tetap hijau. Langkah dua adalah provability: rusak sesuatu, dan lihat ia merah. Kebanyakan tim melakukan langkah satu dan menyebutnya selesai. 360 run hijau menunjukkan kenapa itu tidak cukup.
+
+Tes yang belum pernah kamu lihat gagal adalah hipotesis, bukan bukti. Rusak dulu sebelum percaya.
+
+## Referensi
+
+- [FlakeLab: 360 green runs, and one test that would pass with the server down](https://flakelab.dev/blog/ai-generated-playwright-tests-measured/)
