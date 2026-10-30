@@ -4,10 +4,17 @@
 
 Keep this block short and current. Rewrite it at the end of every session.
 
-- **Last verified:** 2026-10-25. `./init.sh` exit 0: lint 0 errors (2 warnings in untouched files), build 169 pages, smoke OK (8812 internal links, 17 key routes, 82/82 `/id` pages `lang="id"`). `npm audit`: 0 vulnerabilities.
-- **Active feature:** none (15 completed).
+- **Last verified:** 2026-10-29. `./init.sh` exit 0: lint 0 errors, build 196 pages, smoke OK (10278 internal links, 17 key routes, 96/96 `/id` pages `lang="id"`).
+- **Active feature:** none (16 completed).
 - **Next step:** ask the owner. Notion sync PR #37 is broken (wraps `channa-andrao` body in a code fence, rewinds `updatedAt`); the Notion→MDX converter needs a fix before it is merged.
 - **Open risks:** production deploy could not be checked from the agent container (ranmaul.com blocked by proxy); confirm the live article pages after deploy.
+
+## 2026-10-29 — Link Locator Lab (feature 16)
+
+- Locator Lab (https://locator.ranmaul.com) is a separate static site; repo randykaskuser/Locator-Lab.
+- Added it as the third card on `/{locale}/tools`; hero copy now names which tools are open source (Locator-Lab has no license yet).
+- Added one contextual link to each EN+ID pair of the three `playwright`-tagged articles (retry, shuffle, 1.64 upgrade); bumped their `updatedAt` to 2026-10-29.
+- Verification: see feature 16 in `feature_list.json`.
 
 ## 2026-10-25 — PR triage + mobile article overflow (feature 15)
 
