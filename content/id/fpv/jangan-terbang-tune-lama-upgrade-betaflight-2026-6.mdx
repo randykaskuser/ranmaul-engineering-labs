@@ -1,0 +1,87 @@
+---
+title: "Jangan Terbang dengan Tune Lama: Upgrade ke Betaflight 2026.6 Tanpa Kejutan"
+description: "Betaflight 2026.6 mengubah cara gyro IIM-42652 dibaca, sehingga PID gain lama tidak lagi berskala sama. Flash firmwarenya, reset tunenya, dan buktikan dengan log sebelum terbang jauh."
+locale: "id"
+domain: "fpv"
+slug: "jangan-terbang-tune-lama-upgrade-betaflight-2026-6"
+canonicalGroup: "fpv-betaflight-2026-6-upgrade-old-tune"
+publishedAt: "2026-11-01"
+updatedAt: "2026-11-01"
+tags: ["betaflight", "fpv", "pid-tuning", "autotune", "gyro"]
+featured: false
+draft: false
+coverImage: "/assets/betaflight-2026-6/thumbnail-id.png"
+---
+
+Kamu flash pada Jumat malam. Quad itu arm dengan baik di firmware lama, jadi kamu menempelkan `diff` yang tersimpan, arm, dan punch out. Quad berosilasi hebat, motor turun dalam keadaan panas, dan kamu beruntung itu terjadi di atas rumput.
+
+Tidak ada yang rusak. Firmware mengubah arti angka lamamu.
+
+Betaflight 2026.6 adalah rilis pertama di bawah versioning kalender yang baru: dua rilis besar setahun, pada Juni dan Desember, dengan lebih dari 260 pull request di rilis ini. Stable saat ini adalah 2026.6.2, terbit 16 September 2026. Sebagian besar rilis ini adalah perluasan platform: GPS, fondasi autopilot, wing, dan workflow. Tapi satu perubahan adalah jebakan untuk quad freestyle dan long-range biasa, dan perubahan itu ada di puncak catatan upgrade karena sebuah alasan.
+
+## Apa yang berubah, dan kenapa tune lama tidak aman
+
+Peringatan ini menyangkut flight controller yang memakai gyro IIM-42652. Betaflight mengubah cara menafsirkan data dari gyro ini, memperbaiki sensor range yang salah. PID gain yang ada tidak lagi berskala sama di firmware baru. Menurut ringkasan QuadMeUp atas release notes, nilai PID lama bekerja kira-kira dua kali lebih kuat setelah update. Panduan upgrade Oscar Liang mengatakannya dengan lugas: reset PID, retune, dan jangan arm quadmu dengan tune lama.
+
+Ini bukan retune yang halus. Gain P yang tadinya benar kini mendorong koreksi dua kali lipat. Di bench, quad terlihat baik-baik saja. Di udara ia berosilasi, dan osilasi yang berlangsung terus-menerus membuat motor panas. Solusinya bukan mengecilkan angka lamamu berdasarkan perasaan. Solusinya adalah mulai dari default dan retune.
+
+Dua perubahan tuning lain ikut dalam 2026.6. Setting D-term diganti namanya, dengan base dan peak D yang tertukar relatif terhadap nama lama, dan default feedforward berubah. Konsekuensi praktisnya sama: `diff` yang disimpan di versi lebih lama tidak lagi berarti seperti dulu. Menempelkannya baris demi baris ke CLI baru bisa diam-diam menerapkan nilai D yang salah. Periksa setiap baris D dan feedforward sebelum mendekati quad, atau mulai dari default dan masukkan ulang hanya yang kamu pahami.
+
+## Sebelum kamu flash
+
+Tiga pengecekan, dilakukan selagi firmware lama masih terbang dengan baik.
+
+Pertama, konfirmasi gyro apa yang dipakai flight controllermu. Buka tab Sensors di Betaflight App dan baca gyro yang terdeteksi, atau periksa halaman produk boardnya. Kalau itu IIM-42652, peringatan reset-dan-retune berlaku langsung untukmu. Kalau itu gyro lain, perubahan nama D-term tetap berlaku untuk `diff` lama yang kamu tempel.
+
+Kedua, buat backup lengkap. Simpan `diff all` dari CLI, dan ambil screenshot tab Ports, PID, Modes, dan OSD. Backup itu adalah jalanmu kembali, bukan jalanmu maju: backup mengembalikan setup firmware lama, bukan memindahkan tune ke 2026.6.
+
+Ketiga, catat apa yang bekerja hari ini. Tuliskan satu hal yang dilakukan tune saat ini dengan baik, misalnya handling propwash yang bersih atau motor yang dingin setelah satu pack penuh. Catatan itu adalah titik perbandinganmu setelah retune. Tanpanya, kamu akan mengejar rasa yang tidak bisa kamu gambarkan.
+
+## Urutan upgrade yang aman
+
+Flash 2026.6.2 lewat Betaflight App, yang kini berupa web app di app.betaflight.com dan berbagi nama versi dengan firmware. Setelah flashing, reset PID ke default sebelum melakukan apa pun. Jangan mengembalikan `diff` lama.
+
+Lalu verifikasi di bench, tanpa prop. Periksa gyro terbaca dengan benar di tab Sensors, receiver merespons, mode dan arming berperilaku normal, dan motor berputar ke arah yang benar pada throttle rendah. Baru setelah itu lakukan hover pertama yang hati-hati: singkat, rendah, di atas rumput, dengan jari siap di disarm. Mendaratlah dan periksa suhu motor dengan tangan. Hangat itu normal setelah terbang keras. Terlalu panas untuk disentuh setelah hover yang lembut itu tidak normal, dan artinya tune sedang melawan quad.
+
+Retune dari default. Mulai dari PID bawaan dan tuning slider, ubah satu hal setiap kalinya, dan terbangkan satu pack di antara perubahan. Default di versi Betaflight terbaru terbang dengan baik di sebagian besar build 5 inci. Kalau quad terbang bersih dengan default, itu adalah tune yang selesai, bukan titik awal yang harus kamu perbaiki.
+
+## Chirp dan autotune: ukur dulu, percaya belakangan
+
+Betaflight 2026.6 menambahkan cara bawaan untuk mengukur quadmu alih-alih menebak. Tes chirp menyuntikkan frequency sweep langsung ke setpoint dan merekam respons quad di berbagai frekuensi. Hasilnya adalah pengukuran frequency response yang nyata dari pesawatmu, bukan perasaan.
+
+Prosedurnya, dari panduan Oscar Liang: set debug mode ke CHIRP, aktifkan Blackbox logging pada rate tinggi seperti 2 kHz, tetapkan mode CHIRP ke sebuah switch, dan terbangkan hover yang stabil di hari yang tenang. Aktifkan chirp dan biarkan tes selesai. Quad akan bergoyang, dan frekuensi osilasi akan naik seiring tes berjalan. Itu memang seharusnya terjadi. Hindari menyentuh stick kecuali terpaksa, karena tes yang bersih menghasilkan data yang lebih baik.
+
+Tes ini berjalan satu axis setiap kalinya, dengan urutan roll, pitch, yaw. Kamu mengulangi switch tiga kali untuk tes lengkap. Betaflight mengingat axis berikutnya bahkan kalau kamu disarm, tapi power cycle me-reset urutan kembali ke roll. Muat Blackbox log ke tab AutoTune di configurator, dan tab itu menampilkan frequency response, step response, dan rekomendasi nilai slider.
+
+Perlakukan rekomendasi itu sebagai pengukuran yang harus dicek kewarasannya, bukan tune yang bisa diterapkan begitu saja. Oscar Liang memperingatkan fitur ini masih sangat baru dan mungkin masih mengandung bug, dan rekomendasinya tidak boleh diterapkan tanpa pengujian lebih lanjut. Bandingkan rekomendasi itu dengan tune saat ini. Kalau rekomendasinya menyarankan sesuatu yang sangat berbeda, terbangkan tune saat ini, catat lognya, dan selidiki sebelum mengubah apa pun. Alat ukur mendapatkan kepercayaan dengan benar berulang kali, dan alat ini belum punya waktu itu.
+
+## Dua jebakan untuk pilot yang lompat langsung dari 4.5
+
+Kalau quadmu masih memakai 4.5, lompatan ke 2026.6 melewati dua rilis, dan dua jebakan ikut bersamanya.
+
+Yang pertama adalah compass. Alamat I2C default untuk magnetometer IST8310 berubah dari `0x0C` (12) menjadi `0x0E` (14), sesuai alamat yang dipakai sebagian besar modul IST8310. Perhatikan atribusinya: perubahan ini masuk di 2025.12, bukan di 2026.6. Kalau compass IST8310-mu berhenti terdeteksi setelah lompatan itu, kembalikan alamat lama dari CLI dengan `set mag_i2c_address = 12`, lalu `save`. Kalau 12 tidak bekerja, coba 13 atau 15. Dan ingat bahwa 2026.6 menambahkan `trust_mag`, yang defaultnya off: jangan aktifkan sampai compass terpasang, terorientasi, dan terkalibrasi dengan benar, karena compass yang buruk lebih berbahaya daripada tidak ada compass.
+
+Jebakan kedua adalah `diff` itu sendiri. Jangan pernah menempelkan `diff` dari build yang lebih lama ke build yang baru, bahkan dari major version sebelumnya. Setting diganti namanya, default berubah, dan `diff` yang ditempel membawa arti lama ke firmware baru. Masukkan ulang setting dengan tangan, di configurator, tempat setiap nilai menampilkan artinya yang sekarang.
+
+## Apa yang membuat upgrade ini layak
+
+Begitu tune sudah stabil, 2026.6 membuktikan nilainya di tiga tempat.
+
+GPS Rescue dibangun ulang di sekitar 3D position estimator yang menggabungkan data GPS, accelerometer, optical flow, rangefinder, dan compass. Rescue dan Position Hold kini berbagi satu position-control system, sehingga men-tune Position Hold juga memperbaiki perilaku Rescue. Jarak minimum turun ke 5 meter, yang membuat Rescue praktis di sekitar taman dan bangunan. Di Position Hold, input stick kini bertindak sebagai velocity request: stick di tengah berarti diam, stick digerakkan berarti quad bergerak, stick dilepas berarti quad diam di posisi baru.
+
+Battery profile adalah kemenangan praktis untuk pilot long-range. Kamu bisa menyiapkan hingga tiga profile dengan cell count, kapasitas, dan voltage threshold masing-masing, dan berganti di antaranya dari configurator, CLI, menu OSD, atau switch radio. LiPo pada 3,5V per cell hampir habis; Li-ion pada tegangan yang sama baru setengah jalan. Satu quad yang terbang dengan kedua kimia itu tidak lagi butuh edit threshold manual antar pack.
+
+Configurator itu sendiri kini berupa web app dengan Blackbox Explorer bawaan, cloud backup hingga lima konfigurasi, dan pre-flight environment check. Semua itu tidak membuat quad terbang lebih baik. Semua itu membuat pekerjaan di sekitar terbang menjadi lebih cepat.
+
+Semua ini bukan berarti setiap quad harus update hari ini. Nasihat Oscar Liang tetap berlaku: kalau sebuah build terbang sempurna dan kamu tidak butuh fitur baru, menunggu beberapa maintenance release adalah hal yang sangat wajar. Upgrade quad yang fiturnya benar-benar akan kamu pakai, dan biarkan quad yang sudah terbukti itu sampai ada alasan.
+
+## Kesimpulan
+
+Upgrade 2026.6 punya tepat satu langkah berbahaya, dan langkah itu adalah langkah yang terasa paling aman: mengembalikan tune yang bekerja kemarin. Flash firmwarenya, reset PID, verifikasi di bench, retune dari default, dan biarkan tes chirp mengukur apa yang tidak bisa diukur oleh jempolmu. Tune lama itu benar untuk firmware lama. Biarkan ia tinggal di sana.
+
+## Referensi
+
+- [Oscar Liang: fitur baru Betaflight 2026.6, peringatan IIM-42652, dan panduan chirp/autotune](https://oscarliang.com/betaflight-2026-6/)
+- [QuadMeUp: cara install dan setup Betaflight, stable 2026.6.2 dan jebakan upgrade 2026.6](https://blog.quadmeup.com/2026/10/14/how-to-install-and-set-up-betaflight-on-your-fpv-drone/)
+- [FPV PID Tune: apa yang berubah untuk tuning di 2025.12 dan 2026.6, termasuk perubahan nama D-term](https://fpvpidtune.com/guides)
+- [Release notes Betaflight 2025.12: perubahan alamat I2C default IST8310](https://betaflight.com/docs/wiki/release/Betaflight-2025-12-Release-Notes)
