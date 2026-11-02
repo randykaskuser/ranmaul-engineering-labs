@@ -1,0 +1,113 @@
+---
+title: "Healer Boleh Perbaiki Locator, Bukan Assertion: Aturan untuk Agen Playwright"
+description: "Healer Playwright menjalankan ulang test yang gagal sampai lolos. Tanpa aturan, jalan tercepat menuju hijau adalah test yang lebih lemah. Beri healer anggaran locator, larangan mengubah assertion, dan review gate manusia."
+locale: "id"
+domain: "qa"
+slug: "healer-perbaiki-locator-bukan-assertion-playwright"
+canonicalGroup: "qa-playwright-healer-locator-not-assertion"
+publishedAt: "2026-11-02"
+updatedAt: "2026-11-02"
+tags: ["playwright", "ai-testing", "healer", "mutation-testing", "locators"]
+featured: false
+draft: false
+coverImage: "/assets/playwright-healer/thumbnail-id.png"
+---
+
+Sebuah test gagal di main. Kamu menempelkan kegagalannya ke agen, agen mengusulkan patch, test menjadi hijau, dan semua orang lanjut bekerja. Tiga minggu kemudian sebuah bug checkout lolos ke production, dan test yang seharusnya menangkapnya lolos selama itu.
+
+Tidak ada yang merusak test itu dengan sengaja. Healer memperbaikinya seperti yang diminta: ia menghilangkan warna merah. Pertanyaannya adalah apakah ia memperbaiki test atau melemahkannya. Itu dua hasil yang berbeda, dan dari dashboard CI keduanya terlihat sama.
+
+Artikel ini adalah pendamping pencegahan dari artikel break-your-tests yang terbit di situs ini pada 30 Oktober. Artikel itu mengajarkan cara mendeteksi test yang tidak membuktikan apa-apa. Artikel ini menghentikan agen membuat test semacam itu sejak awal.
+
+## Tiga agen, dan apa yang sebenarnya dilakukan healer
+
+Playwright membawa tiga test agent: planner, generator, dan healer. Planner menjelajahi aplikasi dan menulis test plan dalam Markdown. Generator mengubah plan menjadi file test Playwright. Healer mengeksekusi suite dan memperbaiki test yang gagal. Kamu menambahkan definisi mereka dengan `npx playwright init-agents`, dan me-regenerate definisi itu setiap kali Playwright di-upgrade.
+
+Saat sebuah test gagal, healer memutar ulang langkah yang gagal dan memeriksa UI saat ini untuk menemukan elemen atau alur yang setara. Ia mengusulkan patch seperti update locator, penyesuaian wait, atau perbaikan data, lalu menjalankan ulang test sampai lolos atau sampai guardrail menghentikan loop. Loop itu sendiri adalah risikonya. Loop yang hanya berhenti di warna hijau pada akhirnya akan menemukan warna hijau yang mengorbankan makna test.
+
+Dokumentasi mengonfirmasi satu output lain yang tidak nyaman: hasil healer bisa berupa test yang lolos, atau test yang di-skip kalau ia yakin fungsionalitasnya rusak. Test yang di-skip bukan test yang diperbaiki. Test itu berhenti mengawasi. Kalau pipeline-mu menghitung skip sebagai sesuatu yang bisa diterima, healer punya jalan keluar kedua menuju hijau yang tidak direview siapa pun.
+
+## Cara healer melemahkan sebuah test
+
+Ada empat pelemahan yang umum, dan semuanya terlihat seperti perbaikan di dalam diff.
+
+Pertama, assertion yang dilonggarkan. Test mengharapkan total yang persis, halaman kini menampilkan angka yang berbeda, dan patch melebarkan pengecekan menjadi range atau menghapus nilai persisnya. Ini kegagalan yang sama dengan yang diekspos eksperimen FlakeLab di artikel break-your-tests: assertion yang mengakomodasi bug. Test lolos pada perilaku yang rusak dan pada perilaku yang benar sekaligus.
+
+Kedua, locator ke elemen yang salah. Selector lama tidak lagi cocok, jadi healer memilih elemen yang paling mirip. Test mengklik sesuatu, halaman merespons dengan cara tertentu, dan assertion memeriksa alur yang bukan lagi alur yang ditulis untuk test itu. Selector yang berhasil resolve bukan bukti elemen yang benar sudah ditemukan.
+
+Ketiga, wait yang dihapus dan disamarkan sebagai perbaikan timing. Test yang menunggu hal yang salah "diperbaiki" dengan menghapus wait atau assertion di belakangnya, alih-alih menunggu state yang benar. Test menjadi lebih cepat dan lebih lemah pada saat yang sama.
+
+Keempat, skip. Healer tidak bisa memperbaiki kegagalan, memutuskan fungsionalitasnya rusak, dan men-skip test. Suite menjadi hijau, bug tetap ada, dan skip itu terbaca sebagai keputusan yang disengaja di file test. Tidak ada yang ingat siapa yang memutuskannya, karena tidak ada yang memutuskannya.
+
+## Aturan yang tidak bisa dinegosiasikan healer
+
+Constraint harus ada di definisi agen, bukan di prompt yang kamu ketik setiap kali. Definisi agen Playwright di-regenerate saat upgrade, jadi taruh aturan proyekmu di file yang selalu dibaca agen, seperti `AGENTS.md`, dan buat aturan itu cukup pendek untuk bertahan. Aturan di bawah ini adalah titik awal. Sesuaikan path dengan repomu.
+
+```
+## Playwright healer rules
+
+- You may fix locators, waits, and test data. You may not change
+  assertions, expected values, or test intent.
+- Never delete an assertion, loosen an expectation, or skip a test
+  to make the suite green.
+- Prefer getByRole / getByLabel over CSS / XPath. A candidate
+  locator must be unique and in the same dialog, form, or section
+  as the original.
+- Limit every patch to the failing test and at most one page
+  object. Do not refactor the suite.
+- If the failure looks like a real product bug, STOP. Describe
+  what to verify in the app. Do not paper over it in the test.
+- Every patch needs a one-sentence root cause before it is
+  accepted: copy change, timing, wrong frame, or strict-mode
+  dual match.
+```
+
+Tiga sifat membuat aturan ini bekerja. Aturan ditulis sebagai larangan, bukan preferensi: "never" lebih kuat daripada "avoid". Aturan menyebut jalan keluar yang persis: assertion, skip, refactor seluruh suite. Dan aturan memaksa diagnosis sebelum patch, langkah yang paling ingin dilewati agen.
+
+Dua aturan pantas ditegaskan. Aturan berhenti berasal dari workflow praktisi yang terbit 31 Oktober 2026: kalau kegagalan terlihat seperti bug produk yang nyata, agen harus berhenti dan mengatakannya. Test hijau yang menyembunyikan checkout yang rusak lebih buruk daripada CI yang merah. Aturan keunikan berasal dari workflow self-healing yang terbit 28 Oktober 2026: locator kandidat harus cocok dengan intent dan konteks aslinya, dan kalau confidence rendah, workflow berhenti untuk human review. "Ia berhasil resolve" tidak sama dengan "ia adalah elemen yang benar."
+
+## Review gate: empat pertanyaan sebelum patch diterima
+
+Aturan membatasi agen. Review gate menangkap apa yang lolos. Sebelum patch healer mana pun di-merge, jawab empat pertanyaan.
+
+Pertama, kegagalan spesifik apa yang akan membuat test ini merah? Kalau test yang sudah di-patch tidak bisa menyebutkannya, test itu tidak membuktikan apa-apa, dan patch ditolak apa pun warna CI.
+
+Kedua, apakah patch meng-assert outcome atau range? Range yang diperkenalkan agen untuk mengakomodasi halaman saat ini adalah pengakuan, bukan perbaikan. Assertion harus memeriksa outcome yang sama dengan yang diperiksa sebelum kegagalan.
+
+Ketiga, apakah locator yang di-patch menunjuk elemen yang sama, dalam konteks yang sama? Baca selector baru terhadap halaman yang live. Periksa keunikannya. Periksa dialog atau section di sekitarnya. Locator yang cocok dengan tombol berbeda yang namanya mirip adalah test baru yang memakai nama test lama.
+
+Keempat, apakah test yang di-patch akan menangkap seeded bug? Ini ritual dari artikel break-your-tests, diterapkan saat review. Rusak satu hal yang seharusnya ditangkap test, jalankan hanya test itu tanpa retry, dan harapkan merah. Kalau tetap hijau, healer tidak memperbaiki test. Ia memensiunkannya.
+
+Tolak patch yang hanya berkata "updated selector." Mintalah kalimat root cause, diff yang terbatas pada path yang gagal, dan makna assertion yang sama. Kalau agen menulis ulang spec yang tidak terkait di tengah jalan, buang patch itu dan ketatkan promptnya. Disiplin itu adalah gatenya.
+
+## Kenapa gate itu penting: agen membangun apa yang tidak bisa diverifikasinya
+
+Ini bukan kehati-hatian hipotetis. TestSuiteBench adalah benchmark dari ETH Zurich yang terbit pada Oktober 2026. Benchmark itu meminta frontier coding agent men-generate test suite lengkap dari spesifikasi untuk 165 aplikasi command-line, lalu menjalankan setiap suite terhadap rata-rata 74 mutant yang masing-masing melanggar satu requirement. Suite-suite itu sebagian besar valid: 88% test yang di-generate lolos pada implementasi yang benar. Namun setiap agen mencetak skor di bawah 60% pada mutation kill, dan yang terkuat hanya menangkap 55,5% fault yang disuntikkan.
+
+Baca lagi. Test-nya valid. Test-nya lolos. Test-nya melewatkan hampir separuh bug. Validitas adalah apa yang ditunjukkan CI. Mutation score adalah apa yang benar-benar ditangkap test. Healer mengoptimalkan angka pertama. Gate-mu ada untuk memeriksa angka kedua.
+
+Asimetri yang sama berlaku untuk healing. Agen yang menulis test dari perilaku yang diamati akan memberkati bug yang ia amati. Agen yang meng-heal test agar cocok dengan halaman saat ini akan memberkati halaman apa adanya. Spec, plan di `specs/`, dan empat pertanyaan reviewer adalah satu-satunya hal yang berdiri di antara "hijau" dan "benar."
+
+## Checklistnya
+
+Sebelum membiarkan healer menyentuh suite yang gagal:
+
+- Definisi agen di-regenerate setelah upgrade Playwright terakhir.
+- `AGENTS.md` memuat aturan healer: anggaran locator, larangan mengubah assertion, larangan skip, kalimat root cause satu baris.
+- Patch healer terbatas pada test yang gagal plus paling banyak satu page object.
+- Review gate berjalan: kegagalan yang dinamai, assertion outcome, locator elemen yang sama, pengecekan seeded bug.
+- Skip direview seperti deletion, bukan seperti pass. Skip baru butuh keputusan manusia dan issue yang tertaut.
+- Setelah patch hasil heal, test dijalankan ulang sendirian, tanpa retry, dan test tetangga yang berbagi locator ikut dijalankan ulang.
+
+## Kesimpulan
+
+Healer adalah asisten yang baik dan hakim yang buruk. Ia cepat menemukan elemen yang setara, sabar menjalankan ulang, dan tak kenal lelah mencari warna hijau. Ia tidak bisa memberitahumu apakah hijau itu berarti produk bekerja. Penilaian itu milikmu, dan penilaian itu butuh empat pertanyaan dan satu seeded bug untuk dibuat.
+
+Beri healer locatornya. Pertahankan assertionnya. Dan jangan pernah membiarkan test menjadi hijau tanpa membuktikan ia masih bisa merah.
+
+## Referensi
+
+- [Dokumentasi Playwright: test agent, planner, generator, dan healer](https://playwright.dev/docs/test-agents)
+- [Paste failing Playwright into the agent, not into Slack: aturan berhenti dan workflow klasifikasi](https://dev.to/sherotree/paste-failing-playwright-into-the-agent-not-into-slack-28kp)
+- [Designing an AI-assisted locator self-healing workflow for Playwright: pertahankan intent, validasi kandidat, human review](https://dev.to/shubham_hiremath_61db664a/designing-an-ai-assisted-locator-self-healing-workflow-for-playwright-5b5j)
+- [TestSuiteBench: coding agent kesulitan men-generate test suite yang kuat dari spesifikasi](https://arxiv.org/abs/2610.13065)
