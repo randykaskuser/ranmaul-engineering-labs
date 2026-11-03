@@ -1,0 +1,86 @@
+---
+title: "FC Terpasang Miring? Jangan Tebak Arah Depannya, Ukur dengan Alignment Wizard"
+description: "Betaflight 2026.6 menambahkan FC Alignment Wizard yang mengukur orientasi board alih-alih memaksamu menghitungnya. Jalankan dengan urutan yang benar, lalu verifikasi di model 3D sebelum prop dipasang."
+locale: "id"
+domain: "fpv"
+slug: "wizard-alignment-fc-betaflight-2026-6"
+canonicalGroup: "fpv-board-alignment-wizard-betaflight-2026-6"
+publishedAt: "2026-11-04"
+updatedAt: "2026-11-04"
+tags: ["betaflight", "fpv", "board-alignment", "configurator", "setup"]
+featured: false
+draft: false
+coverImage: "/assets/board-alignment/thumbnail-id.png"
+---
+
+Kamu menyelesaikan sebuah build, mencolokkan baterai, arm di bench, dan quad terbalik begitu lepas dari tanah. Tidak ada yang rusak. Motor berputar ke arah yang benar, prop terpasang dengan benar, dan receiver bekerja. Flight controller hanya tidak tahu arah mana yang depan, karena kamu memasangnya miring dan menebak angkanya.
+
+Ini bagian dari build yang dulu menghukum tebakan. Betaflight 2026.6 menambahkan tool yang menghapus tebakan itu: FC Alignment Wizard. Wizard mengukur orientasi board dan menghitung alignment untukmu. Artikel ini membahas apa yang dilakukannya, urutan persis untuk menjalankannya, dan langkah verifikasi yang tetap menjadi milikmu.
+
+## Kenapa board alignment penting
+
+Sebagian besar flight controller membawa panah kecil yang tercetak di board. Panah itu menunjukkan arah yang dianggap Betaflight sebagai depan, dan idealnya begitulah kamu memasang board di drone.
+
+Kadang itu tidak mungkin dilakukan. Kamu mungkin perlu memasang board terbalik, diputar 90° atau 180° agar port USB atau slot SD card lebih mudah dijangkau, atau pada 45°, yang umum di micro quad dan Tiny Whoop. Saat itu terjadi, kamu harus memberitahu Betaflight orientasi board yang sebenarnya.
+
+Kalau alignment salah, konsekuensinya langsung dan keras. Quad bisa menolak takeoff, terbalik begitu kamu arm, atau melesat naik begitu kamu menyentuh throttle. Flight controller menstabilkan menuju "level" dan "depan" yang tidak cocok dengan kenyataan. Tidak ada PID tuning yang memperbaiki itu, karena tune dibangun di atas arah yang salah.
+
+Sebelumnya, kamu memasukkan alignment secara manual: tiga nilai, satu per axis, yang menggambarkan posisi board relatif terhadap frame. Rotasi 180° yang sederhana cukup mudah. Begitu board terbalik sekaligus terputar, kombinasinya cepat membingungkan. Kesalahan tanda menyusup masuk, satu axis tertukar dengan axis lain, dan bench test yang seharusnya menangkapnya dilewati karena angkanya "terlihat benar."
+
+## Di mana wizard berada
+
+Wizard hadir di Betaflight Configurator 2026.6, web app di app.betaflight.com yang berbagi nama versi dengan firmware. Di configurator, buka Sensors, lalu Auto-detect board alignment.
+
+Satu prasyarat datang lebih dulu: kamu mungkin perlu mengkalibrasi accelerometer sebelum alignment wizard tersedia. Lakukan di permukaan yang rata, dengan quad diam dan prop dilepas. Wizard yang mengukur orientasi dari accelerometer yang belum terkalibrasi mengukur dari titik nol yang miring. Kalibrasi dulu, lalu jalankan wizard.
+
+## Menjalankan wizard, sesuai urutan
+
+Wizard memintamu menggerakkan quad melalui urutan yang tetap. Ikuti persis, dengan urutan ini:
+
+1. Letakkan quad rata di permukaan yang level, dengan kamera menghadap menjauh darimu.
+2. Gerakkan quad di sekitar pitch axis: tundukkan hidungnya ke bawah.
+3. Kembalikan quad ke posisi level.
+4. Gerakkan quad di sekitar roll axis: miringkan quad ke samping.
+5. Kembalikan lagi ke posisi level.
+6. Putar quad di sekitar yaw axis.
+
+Betaflight mengukur respons accelerometer terhadap setiap gerakan dan menghitung board alignment secara otomatis. Saat selesai, tekan Apply. Hanya itu prosedurnya. Tanpa aritmetika, tanpa konvensi tanda, tanpa menebak axis mana yang mana.
+
+Dua detail penting saat kamu melakukannya. Pertama, mulailah dari posisi yang benar-benar rata dan benar-benar level, dan kembalilah ke level di antara gerakan. Wizard membandingkan setiap gerakan dengan baseline level, jadi baseline yang ceroboh menghasilkan jawaban salah yang terlihat percaya diri. Kedua, gerakkan quad itu sendiri, bukan meja di bawahnya, dan gerakkan cukup pelan agar accelerometer mencatat gerakan yang bersih. Gerakan cepat dan tersentak mengaburkan pengukuran.
+
+## Verifikasi sebelum terbang
+
+Wizard menghitung alignment. Wizard tidak memverifikasinya. Langkah itu tetap milikmu, dan terjadi sebelum propeller dipasang.
+
+Di configurator, buka halaman Setup dengan model 3D quad, dan gerakkan quad secara fisik dengan tanganmu. Tundukkan hidung ke bawah dan ke atas, roll ke kiri dan ke kanan, dan putar di sekitar yaw axis. Model harus mengikuti tanganmu ke arah yang sama.
+
+Kalau model bergerak ke arah yang salah pada axis mana pun, jangan terbang. Jalankan wizard lagi dan periksa setupmu: kalibrasi accelerometer, posisi awal yang level, dan apakah board terpasang dengan kuat. Board yang bergeser di mountingnya mengalahkan wizard maupun metode manual. Perbaiki mountingnya, lalu ukur ulang.
+
+Verifikasi ini memakan waktu satu menit dan mencegah crash yang paling memalukan di hobi ini: quad yang terbalik pada hover pertamanya karena depan ternyata belakang. Artikel upgrade 2026.6 di situs ini menyampaikan poin yang sama tentang tune: verifikasi di bench, tanpa prop, sebelum hover pertama. Alignment pantas mendapatkan disiplin yang sama.
+
+## Apa yang tidak dilakukan wizard
+
+Wizard mengukur orientasi. Wizard tidak memperbaiki board yang longgar, sensor yang rusak, atau frame yang melentur saat throttle. Kalau hasil alignment berubah setiap kali kamu menjalankannya, ada sesuatu yang bergerak padahal tidak seharusnya. Periksa mounting hardware, standoff, dan apakah board menyentuh frame atau kabel yang mendorongnya keluar dari posisi level.
+
+Wizard juga tidak menggantikan sisa setup 2026.6. Board alignment adalah satu langkah dalam urutan: kesehatan gyro dan accelerometer dulu, alignment diukur, lalu tune. Pilot yang lompat langsung dari 4.5 juga harus mengingat jebakan dari artikel upgrade: reset PID alih-alih mengembalikan diff lama, dan perhatikan perubahan alamat compass yang masuk di 2025.12. Wizard menyelesaikan orientasi. Wizard tidak menyelesaikan tune.
+
+## Checklistnya
+
+Untuk build baru atau rebuild:
+
+- Board terpasang kuat, arah panah dicatat, prop dilepas.
+- Accelerometer terkalibrasi di permukaan yang level.
+- Wizard dijalankan sesuai urutan: flat, pitch, level, roll, level, yaw, lalu Apply.
+- Model 3D di halaman Setup diverifikasi dengan tangan di ketiga axis.
+- Arah mana pun salah: jangan terbang. Jalankan ulang wizard, periksa ulang mounting.
+- Hasil alignment stabil di dua kali jalan sebelum hover pertama.
+
+## Kesimpulan
+
+Board alignment dulu adalah langkah setup di mana kepercayaan diri dan kebenaran berpisah jalan. Angkanya terlihat benar, quad tidak setuju, dan ketidaksetujuan itu terjadi di udara. Alignment Wizard menutup celah itu dengan mengukur alih-alih menghitung. Jalankan sesuai urutan, verifikasi dengan tangan, dan biarkan gerakan pertama quad menjadi gerakan yang kamu harapkan.
+
+## Referensi
+
+- [Cara memperbaiki FC board alignment di Betaflight: tidak perlu menebak lagi!](https://oscarliang.com/betaflight-fc-board-alignment-wizard/)
+- [Cara install dan setup Betaflight di drone FPV](https://blog.quadmeup.com/2026/10/14/how-to-install-and-set-up-betaflight-on-your-fpv-drone/)
+- [Jangan terbang dengan tune lama: upgrade ke Betaflight 2026.6 tanpa kejutan](https://ranmaul.com/id/fpv/jangan-terbang-tune-lama-upgrade-betaflight-2026-6)
