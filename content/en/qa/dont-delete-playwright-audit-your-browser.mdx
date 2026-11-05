@@ -1,0 +1,115 @@
+---
+title: "Don't Delete Playwright. Audit the Browser It Actually Runs."
+description: "A viral post told testers to delete Playwright because its browsers carry CVEs. The claim gets the mechanism wrong, but it hides a real question: which browser is your suite actually running, and how old is it?"
+locale: "en"
+domain: "qa"
+slug: "dont-delete-playwright-audit-your-browser"
+canonicalGroup: "qa-playwright-browser-security-scare-audit"
+publishedAt: "2026-11-06"
+updatedAt: "2026-11-06"
+tags: ["playwright", "browser-security", "test-automation", "chromium", "ci"]
+featured: false
+draft: false
+coverImage: "/assets/playwright-browser-audit/thumbnail-en.png"
+---
+
+A post made the rounds this week telling testers to delete Playwright. The argument was simple: Playwright ships browsers, browsers collect CVEs, so the tool is a security risk sitting on your machine. On November 3, 2026, the official Playwright account answered with a long security reminder on X, calling the claim a misconception and walking through how its browsers actually work.
+
+The official answer is right on the facts. But "the claim is wrong" is not the same as "there is nothing to do." The scare post aimed at the wrong mechanism, and underneath it sits a question worth answering for real: which browser is your test suite actually running, and how old is it?
+
+## What Playwright actually installs
+
+When you run `npm install playwright` or add `@playwright/test` to a project, you get the automation library and the test runner. You do not get a browser. The package contains no browser binary at all.
+
+Browsers arrive in a separate, explicit step:
+
+```bash
+npx playwright install
+```
+
+That command downloads browser builds into a local cache folder. On Linux it is `~/.cache/ms-playwright`, on macOS `~/Library/Caches/ms-playwright`, and on Windows `%USERPROFILE%\AppData\Local\ms-playwright`. Nothing about that step is hidden. It is a normal part of setup, listed as its own step in the getting-started guide.
+
+The builds it downloads are pinned. Each Playwright release declares, in its `browsers.json`, the exact browser revision it was tested against, and the install command fetches precisely that revision. Pinning is how Playwright guarantees that the same library version behaves identically on your laptop and on CI. Reproducibility is the feature.
+
+The Chromium build it downloads is a Chrome for Testing build. That is the label in `browsers.json` itself, next to the revision and version. I checked the file on the `v1.64.1` tag: Chromium revision 1248, Chrome for Testing 156.0.8078.4. On `main` it has already moved to revision 1254, Chrome for Testing 158.0.8127.18. The pin is public, in the repo, readable by anyone.
+
+So the honest summary is boring, which is good. Playwright downloads version-pinned, automation-only browser builds, on request, into a cache folder. Those builds are not your daily browser.
+
+## Three ways to run Playwright, three different browsers
+
+Almost all of the confusion comes from treating "Playwright" as one thing. It is at least three, and they make different choices about which browser runs and how it gets updated.
+
+| Mode | Which browser | Updates how | Sandbox default |
+| --- | --- | --- | --- |
+| Playwright MCP / CLI | Your installed Google Chrome (or Edge) | Vendor auto-update, like normal browsing | On |
+| Test runner (`npx playwright test`) | Pinned Chrome for Testing build for your Playwright version | Only when you upgrade Playwright and re-run `playwright install` | Off |
+| Library API (`chromium.launch()`) | The same pinned build, by default | Only when you upgrade Playwright and re-run `playwright install` | Off, but you can opt into your installed Chrome with the sandbox on |
+
+**MCP and CLI.** The agent-facing tools are the ones most people pictured when they read "browsers with CVEs," and they are the least exposed. The MCP configuration docs list `chrome` as the default browser: the Google Chrome already installed on your machine, with Edge as an option. Your installed Chrome updates itself through Google's normal channel. MCP exposes `--sandbox` and `--no-sandbox` flags, with the sandbox in effect unless you deliberately disable it. A malicious page an agent visits still has to break out of a current, sandboxed Chrome.
+
+**The test runner.** When you run your suite, Playwright launches the pinned Chrome for Testing build for your installed version. That build does not auto-update, by design. A browser that silently changed overnight would make test results non-reproducible. The sandbox is off by default. The API reference states plainly that the `chromiumSandbox` launch option defaults to `false`. Playwright's reasoning is that a test browser loads your own application, a trusted target, and that Chromium sandboxing fails outright in many CI and container environments.
+
+**The library API.** `chromium.launch()` uses the same pinned build and the same sandbox-off default. The difference is that library code is where people write scrapers, crawlers, and agent scripts that visit pages they do not control. For that case, the official post recommends switching both settings in one line:
+
+```ts
+const browser = await chromium.launch({
+  channel: 'chrome',        // use your installed, auto-updating Chrome
+  chromiumSandbox: true,    // turn the sandbox back on
+});
+```
+
+That is good advice, and it is the part of the official response worth copying into every scraping project.
+
+## Check your own machine
+
+The scare post is a good excuse to do a sixty-second audit. You do not need to trust anyone's summary. The evidence is on your disk.
+
+First, list what is installed:
+
+```bash
+npx playwright install --list
+```
+
+Then look at the cache folders. Each folder name carries its revision:
+
+```bash
+ls ~/.cache/ms-playwright
+# chromium-1248  chromium_headless_shell-1248  firefox-1555  webkit-2370
+```
+
+Compare the Chromium revision with the one your Playwright version pins. The pin lives in `node_modules/playwright-core/browsers.json` in your project, or in the same file on the Playwright repo for your release tag. When I checked, `@playwright/test` 1.64.1 pinned revision 1248. If your cache shows an older number, your suite is running an older browser than your library expects, or an older library than you think you have.
+
+Playwright also garbage-collects browsers that no installed version needs anymore, so stale builds disappear on their own when you upgrade. The check above still matters, because the garbage collector only removes builds no client claims. A project pinned to an old Playwright version keeps its old browser alive indefinitely.
+
+## Where the scare has a point
+
+If the story ended there, the verdict would be "nothing to see." It does not quite end there. The official post closes with "always keep Chrome / Edge updated" and says nothing about keeping Playwright updated. That is the gap.
+
+Follow the logic of the table above. The test runner's browser is pinned, and pinned means frozen. It receives security fixes only when a newer Playwright release pins a newer build and you actually upgrade and re-run `npx playwright install`. A Playwright install from several months ago runs a several-months-old Chrome for Testing build, with the sandbox off, and Chromium CVEs accumulate monthly. For a suite that only ever loads your own staging app, that is a theoretical exposure. For anything less controlled, it is a real one.
+
+Two smaller caveats deserve a mention. First, "tests only load trusted targets" is true of the application under test, but modern pages pull in third-party scripts, ads, analytics, and embedded content. A suite that browses the open web or tests third-party integrations is not visiting a fully trusted target either. Second, none of this is unique to Playwright. Every automation framework makes a reproducibility-versus-freshness trade somewhere. Playwright's version of the trade is unusually visible because the pinned build sits in a cache folder on your disk.
+
+## The checklist
+
+- **Upgrade Playwright on a schedule, and re-run install.** After every upgrade, `npx playwright install` swaps in the newly pinned browser build. Skipping it leaves the old browser in the cache while the library expects the new one. A monthly dependency pass keeps your pinned build within a release or two of current.
+- **Audit the cache once.** Run `npx playwright install --list` and compare the Chromium revision against `browsers.json` for your Playwright version. If they disagree, upgrade and re-run install.
+- **For scrapers and agent scripts, use your installed Chrome with the sandbox on.** That is the `channel: 'chrome'` plus `chromiumSandbox: true` snippet above. Untrusted pages get the same protection as your everyday browsing.
+- **Keep Chrome and Edge updated.** This is Playwright's own closing advice and it is correct. MCP, the CLI, and any `channel: 'chrome'` launch all inherit whatever state your installed browser is in.
+- **Match the mode to the target.** Sandbox off is a reasonable default for a test suite pointed at your own app on CI. It is not a reasonable default for code that crawls sites you do not control. The setting is one line. Choose it deliberately instead of inheriting it.
+- **Do not use the test builds as a general browser.** The pinned builds in the Playwright cache are automation tools. They are not patched on a browser's schedule and were never meant to be the window you read email in.
+
+## Conclusion
+
+The viral claim got the mechanism wrong. Playwright does not bundle browsers. Its agent tools drive your own auto-updating Chrome with the sandbox on. The sandbox-off default in test runs is a documented choice for trusted targets, not a hidden flaw.
+
+But the genuinely useful takeaway is simpler. A Playwright install hides a browser's patch cycle inside a library's update cycle, and library update cycles are exactly the ones teams let slide. So: don't delete Playwright. Put it on your regular dependency-upgrade rhythm, re-run the install command when you bump it, and flip on the sandbox with your installed Chrome for anything that wanders the open web. That is the whole fix, and it takes about a minute.
+
+## References
+
+- [Playwright, "Browsers"](https://playwright.dev/docs/browsers) — install, cache locations, `install --list`, and the update guidance quoted above.
+- [Playwright API, "BrowserType"](https://playwright.dev/docs/api/class-browsertype) — `chromiumSandbox` defaults to `false`; `channel` accepts `chrome`, `msedge`, and other branded channels.
+- [Playwright MCP, "Configuration options"](https://playwright.dev/mcp/configuration/options) — `chrome` is the default browser; `--sandbox` / `--no-sandbox` flags.
+- [Playwright source, `browsers.json` (v1.64.1)](https://github.com/microsoft/playwright/blob/v1.64.1/packages/playwright-core/browsers.json) — Chromium revision 1248, Chrome for Testing 156.0.8078.4.
+- [Playwright (@playwrightweb), "Playwright and browser security reminder," X, November 3, 2026](https://x.com/playwrightweb) — the official response to the viral claim; quoted and screenshotted in the Codecaf fact-check below.
+- [Codecaf, "Should You Delete Playwright?"](https://codecaf.com/should-you-delete-playwright/) — the fact-check that verified the official response against the docs, claim by claim.
+- [Upgrading to Playwright 1.64? Check these four silent behaviour changes first](https://ranmaul.com/en/qa/playwright-164-silent-behaviour-changes-upgrade-checklist) — the companion piece on what else changes when you bump the version.
