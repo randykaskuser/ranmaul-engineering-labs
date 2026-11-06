@@ -6,7 +6,7 @@ domain: "qa"
 slug: "lolos-urut-gagal-diacak-playwright"
 canonicalGroup: "qa-playwright-shuffle-order-dependence"
 publishedAt: "2026-10-22"
-updatedAt: "2026-10-22"
+updatedAt: "2026-10-29"
 tags: ["playwright", "flaky-tests", "test-order", "ci", "debugging"]
 featured: false
 draft: false
@@ -102,6 +102,8 @@ test('cancel order', async ({ page, request }) => {
 ```
 
 Tidak ada variabel bersama, tidak ada pendahulu, tidak ada urutan. Test ini sekarang hanya gagal ketika fitur cancel memang rusak, dan memang itu tujuan test ini ada.
+
+Test ini juga mencari tombol lewat role dan accessible name, bukan class CSS atau posisi, jadi class yang diganti atau halaman yang diurutkan ulang tidak membuatnya rusak. Untuk melihat bedanya di contoh halaman, coba kedua jenis locator di [Locator Lab](https://locator.ranmaul.com).
 
 Kalau beberapa test butuh setup yang sama, taruh pembuatannya di fixture, bukan di variabel bersama. Fixture berjalan per test, jadi setiap test tetap mendapat datanya sendiri.
 

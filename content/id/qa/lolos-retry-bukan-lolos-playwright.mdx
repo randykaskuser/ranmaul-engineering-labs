@@ -6,7 +6,7 @@ domain: "qa"
 slug: "lolos-retry-bukan-lolos-playwright"
 canonicalGroup: "qa-playwright-retry-flaky-discipline"
 publishedAt: "2026-10-25"
-updatedAt: "2026-10-25"
+updatedAt: "2026-10-29"
 tags: ["playwright", "flaky-tests", "retries", "ci", "debugging"]
 featured: false
 draft: false
@@ -62,6 +62,8 @@ export default defineConfig({
 Arti terdokumentasi dari nilai itu persis: rekam trace hanya ketika me-retry test untuk pertama kalinya. Run yang bersih tetap cepat dan disk tetap kosong. Setiap kegagalan yang penting meninggalkan rekaman.
 
 Buka dengan `npx playwright show-trace path/to/trace.zip`, atau dari tombol View trace di laporan HTML. Baca dengan urutan ini: Actions dulu, yang menunjukkan locator yang dipakai setiap aksi dan berapa lama masing-masing. Klik aksi yang gagal, lalu bandingkan snapshot Before dan After-nya. Pasangan itu adalah tempat locator yang cocok dengan elemen yang salah berhenti menjadi teori. Network dan Console tersaring ke aksi yang dipilih, jadi respons yang datang terlambat berada di tampilan yang sama dengan aksi yang membutuhkannya.
+
+Bagaimana locator bisa cocok dengan elemen yang salah tanpa error? Cukup list yang diurutkan ulang: `.first()` tetap menemukan tombol "Add to cart", hanya saja untuk produk lain. Di [Locator Lab](https://locator.ranmaul.com) kamu bisa me-refactor contoh toko online dan melihat locator mana yang bertahan, rusak, atau diam-diam pindah ke elemen lain.
 
 Assertion yang gagal dengan trace terlampir memberi tahu seperti apa DOM, network, dan console pada saat ia rusak. Assertion yang gagal hanya dengan tanda X merah di CI menyuruhmu mereproduksinya secara lokal dan berharap ia terjadi lagi.
 
