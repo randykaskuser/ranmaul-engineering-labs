@@ -1,0 +1,199 @@
+---
+title: "Naik ke Playwright 1.65? Cek Dulu Delapan Breaking Change Ini"
+description: "Playwright 1.65, rilis 5 November 2026, membawa delapan breaking change yang gagal dengan cara yang sulit dikaitkan dengan upgrade. Jalankan delapan cek ini sebelum kamu merge."
+locale: "id"
+domain: "qa"
+slug: "playwright-165-breaking-change-checklist-upgrade"
+canonicalGroup: "qa-playwright-165-breaking-changes"
+publishedAt: "2026-11-08"
+updatedAt: "2026-11-08"
+tags: ["playwright", "upgrade", "ci", "breaking-changes"]
+featured: false
+draft: false
+coverImage: "/assets/playwright-165/thumbnail-id.png"
+---
+
+Playwright 1.65, rilis 5 November 2026, mudah di-upgrade dengan cara yang salah. Fitur utamanya berisik: API `page.screencast`, `browser.bind()` untuk berbagi browser dengan CLI dan MCP, dan CLI debugger untuk agent. Breaking change-nya diam. Delapan di antaranya mengubah apa yang dilakukan tes-tesmu yang sudah ada, dan tidak satu pun muncul sebagai API baru yang kamu pilih sendiri.
+
+Artikel ini hanya membahas kedelapan perubahan itu. Fitur barunya ada di release notes. Jalankan delapan cek ini sebelum kamu merge upgrade.
+
+## Cek 1: field page object yang membaca `this.page` kini throw
+
+Ini perubahan yang paling banyak kena suite. Cara umum menulis page object adalah menaruh locator di class field dan menerima `page` sebagai parameter constructor:
+
+```ts
+import { test, expect, type Page } from '@playwright/test';
+
+class LoginPage {
+  readonly submit = this.page.getByRole('button', { name: 'Submit' });
+
+  constructor(private readonly page: Page) {}
+}
+```
+
+Di 1.64.1 tes ini lolos. Di 1.65.0 tes ini gagal sebelum test body sempat menyentuh halaman:
+
+```
+TypeError: Cannot read properties of undefined (reading 'getByRole')
+```
+
+Penyebabnya TypeScript, bukan browser. Playwright kini mengompilasi class field seperti `tsc` dengan setting `useDefineForClassFields`. Setting itu aktif untuk target `ES2022` ke atas, dan juga ketika `tsconfig.json` tidak menentukan `target` sama sekali. Kalau aktif, field initializer jalan sebelum constructor mengisi `this.page`, jadi `this.page` masih `undefined`.
+
+Perbaikan yang bersih: isi locator di dalam constructor. Versi ini lolos di kedua versi:
+
+```ts
+class LoginPage {
+  readonly submit;
+
+  constructor(private readonly page: Page) {
+    this.submit = page.getByRole('button', { name: 'Submit' });
+  }
+}
+```
+
+Cek: cari field initializer di page object-mu yang memakai `this.page`. Kalau jumlahnya ratusan dan kamu butuh upgrade dulu, atur `"useDefineForClassFields": false` di `compilerOptions` untuk mengembalikan perilaku lama, lalu pindahkan field-nya bertahap.
+
+## Cek 2: action kini menunggu elemen yang tidak inert
+
+Atribut `inert` membuat sebuah elemen beserta semua isinya tidak bisa diinteraksi. Aplikasi memakainya untuk mengunci halaman di balik modal, atau form saat sedang menyimpan. Di 1.65, `click()`, `check()`, `tap()`, `fill()`, `clear()`, dan `selectOption()` menunggu sampai elemen tidak inert lagi, dan timeout kalau elemen tetap inert.
+
+Untuk klik, perubahannya kecil. Di 1.64.1, klik di dalam elemen inert sudah timeout. Perbedaan nyatanya ada di `fill()`. Tes ini lolos di 1.64.1:
+
+```ts
+test('fill an email inside an inert form', async ({ page }) => {
+  await page.setContent('<form inert><label>Email <input></label></form>');
+  await page.getByLabel('Email').fill('[email protected]', { timeout: 2000 });
+  console.log(await page.getByLabel('Email').inputValue());
+});
+```
+
+Tesnya lolos, tapi log-nya mencetak string kosong. Fill melaporkan sukses padahal tidak mengetik apa-apa. Di 1.65.0 baris yang sama timeout, dan call log menjelaskan alasannya:
+
+```
+TimeoutError: locator.fill: Timeout 2000ms exceeded.
+  - element is inert
+```
+
+Tes yang mulai gagal di sini kemungkinan besar tidak pernah menguji apa yang kamu kira. Cari tahu kenapa form itu inert pada saat itu. Biasanya tes bertindak terlalu cepat, misalnya saat dialog masih menutup. Form yang segera menjadi interaktif akan langsung jalan. Form yang tetap inert berarti tes perlu menutup dialog atau menunggu proses simpan selesai dulu.
+
+Cek: untuk setiap timeout baru setelah upgrade, periksa apakah elemen itu berada di dalam container `inert`.
+
+## Cek 3: `params` API tidak lagi menggantikan query URL
+
+Kalau kamu mengirim `params` ke API request yang URL-nya sudah punya query string, hasilnya berubah. Request yang sama dikirim ke echo server kecil di kedua versi:
+
+```ts
+await request.get('/products?page=2', { params: 'sort=asc' });
+```
+
+| Tipe `params` | 1.64.1 mengirim | 1.65.0 mengirim |
+| --- | --- | --- |
+| String `'sort=asc'` | `/products?sort=asc` | `/products?page=2&sort=asc` |
+| `URLSearchParams` | `/products?sort=asc` | `/products?page=2&sort=asc` |
+| Object `{ sort: 'asc' }` | `/products?page=2&sort=asc` | `/products?page=2&sort=asc` |
+
+Bentuk object memang sudah append, jadi hanya string dan `URLSearchParams` yang berubah. Perilaku baru ini yang konsisten. Tapi tes yang mengandalkan `params` untuk menghapus query lama, misalnya membuang `page=2`, kini mengirim keduanya. Bangun URL yang kamu maksud secara eksplisit.
+
+Cek: cari tes API yang memakai `params` pada URL yang sudah mengandung `?`.
+
+## Cek 4: pencocokan cookie mengikuti RFC 6265
+
+`browserContext.cookies(url)` dan `apiRequestContext.cookies(url)` kini mencocokkan cookie ke URL seperti cara browser melakukannya. Tiga cookie ditambahkan ke sebuah context, lalu setiap URL ditanya cookie mana yang diterimanya:
+
+| Cookie | URL yang ditanya | 1.64.1 | 1.65.0 |
+| --- | --- | --- | --- |
+| `Path=/api` | `/apiv2` | dikembalikan | tidak dikembalikan |
+| Host-only di `example.test` | `sub.example.test` | dikembalikan | tidak dikembalikan |
+| `Path=/api` | `/api` | dikembalikan | dikembalikan |
+
+Cookie untuk `/api` memang tidak pernah ditujukan untuk `/apiv2`, dan cookie host-only memang tidak pernah ditujukan untuk subdomain. Hasil lama itu salah. Kalau tes membaca cookie untuk path atau subdomain yang berbeda dari yang mengesetnya, minta URL yang benar, atau panggil `cookies()` tanpa URL lalu filter berdasarkan nama.
+
+Release notes juga menyebut cookie tanpa nama di `APIRequestContext`. Cookie itu kini dikirim sebagai `Cookie: x`, bukan `Cookie: =x`.
+
+Cek: cari assertion cookie yang membaca cookie untuk path atau subdomain yang berbeda dari yang mengesetnya.
+
+## Cek 5: teks tersembunyi keluar dari accessible name dan aria snapshot
+
+Teks yang tidak dirender browser tidak lagi dihitung dalam accessible name. Itu termasuk teks langsung di dalam elemen `<details>` yang tertutup, dan teks yang tidak dimasukkan ke slot di web component. Untuk markup ini:
+
+```html
+<details><summary>Shipping</summary>Ships in 2 days</details>
+```
+
+`locator('details').ariaSnapshot()` memberi hasil berbeda:
+
+```yaml
+# 1.64.1
+- group: Shipping Ships in 2 days
+
+# 1.65.0
+- group: Shipping
+```
+
+Inilah yang sebenarnya didapat pengguna screen reader, jadi 1.65 lebih akurat. Siap-siap aria snapshot yang tersimpan dari `toMatchAriaSnapshot()` perlu di-update. Periksa juga `getByRole()` dengan `name` yang menyertakan teks tersembunyi. Nama yang kini tidak cocok dengan apa pun, atau cocok dengan hal lain, adalah masalah locator seperti biasa.
+
+Cek: regenerate aria snapshot dengan `--update-snapshots`, lalu baca diff-nya, jangan diterima mentah-mentah.
+
+## Cek 6: sharded run tanpa tes kini gagal
+
+Sharded run yang tidak menemukan tes di shard mana pun dulu keluar dengan code 0. Kini gagal:
+
+```
+npx playwright test --shard=1/2 --grep nomatch
+# 1.64.1: exit code 0
+# 1.65.0: Error: No tests found, exit code 1
+```
+
+Ini menangkap job CI yang diam-diam tidak menjalankan apa-apa setelah `--grep` atau rename folder. Kalau job yang difilter memang boleh kosong, tambahkan `--pass-with-no-tests`. Satu shard kosong tetap boleh selama shard lain punya tes.
+
+Cek: pastikan job shard CI dan filter `--grep` masih menemukan tes, atau tambahkan `--pass-with-no-tests` di tempat yang memang boleh kosong.
+
+## Cek 7: import CSS di file tes harus ada
+
+File tes yang meng-import stylesheet, biasanya lewat shared component atau helper, dulu import-nya dihapus begitu saja. Kini import `.css`, `.less`, dan `.scss` dimuat sebagai empty module, jadi file-nya harus ada. Import file yang hilang lolos di 1.64.1 dan kini menghentikan run:
+
+```
+Error: Cannot find module './missing.css'
+```
+
+Cek: perbaiki path-nya atau hapus import yang sudah usang.
+
+## Cek 8: kredensial proxy hanya dikirim ke proxy
+
+Username dan password di opsi `proxy` saat launch tidak lagi dikirim ke website. Kredensial itu hanya dikirim untuk menjawab challenge dari proxy itu sendiri. Kalau tes login ke situs dengan Basic Auth lewat kredensial proxy itu, kini tes mendapat `401`. Taruh kredensial situs di `httpCredentials`:
+
+```ts
+// playwright.config.ts
+use: {
+  httpCredentials: { username: '[email protected]', password: 'demo123' },
+},
+```
+
+Cek: pindahkan login situs dari opsi `proxy` ke `httpCredentials`.
+
+## Perubahan kecil yang perlu diketahui
+
+- **Node.js 20 tidak lagi diuji.** Pakai Node.js 22, 24, atau 26. Docker image kini memakai Node.js 26.
+- **Lokasi tes bergeser beberapa kolom** di output CommonJS. Tes yang sama dilaporkan sebagai `inert.spec.ts:3:5` di 1.64.1 dan `inert.spec.ts:3:1` di 1.65.0. Ini hanya berpengaruh kalau ada tool atau script yang mem-parsing lokasi itu.
+- **Blob reporter mengosongkan output folder lagi** sebelum menulis, seperti sebelum 1.64. Kalau kamu mengumpulkan blob report dari beberapa job, beri tiap job `outputDir` sendiri.
+
+## Checklist upgrade
+
+- Cek versi Node.js: 22 atau lebih baru.
+- Cari field initializer di page object yang memakai `this.page`, atau atur `useDefineForClassFields` ke `false` untuk sementara (Cek 1).
+- Jalankan seluruh suite di branch. Untuk setiap timeout baru, periksa apakah elemen itu berada di dalam container `inert` (Cek 2).
+- Cari tes API yang memakai `params` pada URL yang sudah mengandung `?` (Cek 3).
+- Update aria snapshot, dan baca diff-nya (Cek 5).
+- Pastikan job shard CI dan filter `--grep` masih menemukan tes, atau tambahkan `--pass-with-no-tests` di tempat yang memang boleh kosong (Cek 6).
+- Pindahkan login situs dari opsi `proxy` ke `httpCredentials` (Cek 8).
+- Baru setelah itu merge. Run hijau setelah cek-cek ini berarti sesuatu. Run hijau sebelum itu bisa jadi tidak berarti apa-apa.
+
+## Kesimpulan
+
+Delapan breaking change, dan kebanyakan membuat Playwright lebih ketat dan lebih dekat dengan perilaku browser yang sebenarnya. `fill()` yang diam-diam tidak mengetik apa-apa ke form inert, cookie yang dikembalikan untuk path yang salah, dan shard CI yang menjalankan nol tes, semuanya menyembunyikan bug. Perbaiki dulu field page object, karena itu yang paling banyak mematahkan tes sekaligus, lalu kerjakan timeout satu per satu.
+
+## Referensi
+
+- [Playwright release notes, versi 1.65](https://playwright.dev/docs/release-notes)
+- [Playwright 1.65 Breaking Changes: What Fails After You Upgrade](https://demo.testautomationtv.com/blog/playwright-1-65-breaking-changes)
+- [Naik ke Playwright 1.64? Cek Dulu Empat Perubahan Diam-Diam Ini](https://ranmaul.com/id/qa/playwright-164-perubahan-diam-diam-checklist-upgrade)
