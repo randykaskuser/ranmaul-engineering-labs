@@ -92,6 +92,13 @@
       "status": "completed",
       "reason": "At 390px, article pages scrolled sideways and cut text off: the single-column grid had no explicit track (min-content grew with long code/URLs), raw reference URLs did not wrap, and the sidebar Reveal x-offset added 10px. Fixed with grid-cols-[minmax(0,1fr)], overflow-wrap:anywhere on prose links, overflow-x-clip on the article section. Also bumped next 16.3.3->16.4.3 (clears GHSA-2464-fhr4-w9xw, GHSA-p3m5-59mp-jv5r, GHSA-673q-mjm6-r5xr), wrangler, sharp, undici, brace-expansion, source-map-js, zod (npm audit: 0 vulnerabilities). Replaces Dependabot PRs #44-#47, #49.",
       "verification": "./init.sh exit 0 (lint 0 errors, 169 pages, smoke OK, 82/82 id pages lang=id). Playwright: 34 article pages x 390px/1440px, scrollWidth <= viewport on all 68 (before: 30+ overflowed at 390px, up to 736px). Sticky aside still pins at top-24 on 1440px."
+    },
+    {
+      "id": 16,
+      "title": "Link Locator Lab from the Tools page and the Playwright articles",
+      "status": "completed",
+      "reason": "Added a Locator Lab card (locator.ranmaul.com, source randykaskuser/Locator-Lab) to /{locale}/tools, and one contextual link in each EN+ID pair of the three playwright-tagged articles: retry, shuffle, 1.64 upgrade (updatedAt 2026-10-29). Hero no longer says all tools are open source: Locator-Lab has no license yet. The .first() wrong-element claim in the retry article matches Locator Lab's Break tab default under the re-sorted list refactor.",
+      "verification": "./init.sh exit 0 (lint 0 errors, 196 pages, smoke OK: 10278 internal links, 96/96 id pages lang=id). Built HTML: href=https://locator.ranmaul.com present in out/{en,id}/tools.html and all 6 article pages. Playwright: /en/tools and /id/tools at 1440px and 390px, 3 cards, no horizontal overflow, no page errors; Locator Lab card screenshots checked."
     }
   ]
 }
