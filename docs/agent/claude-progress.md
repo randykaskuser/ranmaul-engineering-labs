@@ -4,10 +4,23 @@
 
 Keep this block short and current. Rewrite it at the end of every session.
 
-- **Last verified:** 2026-11-08. `./init.sh` exit 0: build + smoke OK (196 pages, 10278 internal links, 17 key routes, 96/96 `/id` pages `lang="id"`).
-- **Active feature:** none (15 completed).
-- **Next step:** owner cleans the `channa-andrao` (ID) page in Notion: delete the duplicated article pasted at the bottom. Until then the sync PR keeps reopening for that file. Then merge branch `fix/notion-sync-drift`.
-- **Open risks:** converter fixes are unit-checked with mocked Notion blocks only; no live Notion run (no token locally). Production deploy not checked from the agent container.
+- **Last verified:** 2026-11-08 after merging `main` into `claude/admiring-maxwell-lcac2g`. `./init.sh` exit 0.
+- **Active feature:** none (16 completed: Flight Map, merged to `main` on owner's instruction; 15 completed).
+- **Next step:** confirm the map on production (ranmaul.com). Owner: clean the `channa-andrao` (ID) page in Notion (duplicated article at the bottom), then merge branch `fix/notion-sync-drift`. Flight Map content follow-ups: coordinates for anyer-coastal, batang-rest-area, commercial-real-estate (privacy check), FPV items with `flightType: fpv`.
+- **Open risks:** Notion converter fixes are unit-checked with mocked blocks only. ArcGIS key expires 2027-11-07 (rotate, update the Pages variable, redeploy). The `ibasemaps-api` tile endpoint does not enforce the referrer.
+
+## 2026-11-08 — Flight Map implementation (feature 16)
+
+- Esri licence checked on developers.arcgis.com: Location Platform API key (Basemaps privilege), 2M free tiles/month then $0.15/1k, referrer restriction supported, keys expire after max 1 year, attribution mandatory. Owner approved Esri.
+- Scanned the Air 3S SD card (782 JPG, 287 SRT) with a scratch script: GPS from EXIF/SRT, clustered at 2 decimals, dHash match of web images vs originals. Only Ciwidey matched an original exactly (distance 2/256), which also settles the "Merapi" question. Other coordinates come from flight sessions at the named location, approved by the owner.
+- 9 portfolio images: re-encoded with all metadata removed (EXIF, XMP, ICC baked to sRGB) and uploaded to R2 `elabs-images/portfolio-<slug>.jpg` after the owner approved the list; MDX `image`/`thumbnail` point to R2.
+- `lib/portfolio.ts`: `coordinates` (validated, rounded to 2 decimals), `flightType` (default aerial), `location` required with coordinates.
+- `components/portfolio/flight-map.tsx`: vanilla Leaflet, lazy import on viewport, Esri imagery + labels, divIcon pins, popup (DOM built with textContent), list sync, filter chips (hidden with one type), wheel zoom only after click, recenter (moved top-right: bottom-right collided with attribution at 390px).
+- Observation: with a placeholder token, `ibasemaps-api.arcgis.com` still returned imagery tiles locally. Do not rely on that; the licence requires a real key.
+- Verification: see `feature_list.json` id 16.
+- Removed `wrangler.jsonc`: with it present, Pages builds ignored dashboard variables (build log: `Build environment variables: (none found)`; preview 116f42d3 had no map although the key was set). No Functions, nothing referenced the file; dashboard already sets build command and `out`. `wrangler pages dev out` still serves with `_headers` (warns about default compatibility date). Committing the key into `wrangler.jsonc` vars was rejected as a credential-in-repo risk.
+- Follow-up same day: old `public/images/portfolio/*` removed (owner OK). Natarasa Heritage located at -7.11, 107.45 (IG caption tags Ciwidey; Air 3S night flight 2025-01-26 20:07-20:40). Commercial real estate = Permata Mulia Residence, Pengasinan (IG caption), candidate -6.42, 106.76, held for owner because that cluster may be near home. Anyer reel cover matched no video frame.
+- ArcGIS key created in the owner's account (API key credentials, public app, Basemap styles privilege only, referrers ranmaul.com, *.ranmaul.com, *.website-elabs.pages.dev, localhost:4173, expires 2027-11-07); value kept in gitignored `.env.local`. Local build with it: 5 pins, tiles load, 0 tile errors. Basemap Styles API enforces the referrer (498 for other referrers); the `ibasemaps-api` imagery tile endpoint only checks that a token is present, so the referrer limit does not stop tile scraping there.
 
 ## 2026-11-08 — Stop Notion sync PR churn
 
@@ -229,3 +242,10 @@ Owner-requested cleanup (no `feature_list.json` entry; not a product feature).
 - `scripts/smoke.mjs` now checks both feeds (RSS 2.0, language, item count = article pages, links resolve).
 - Docs: spec `docs/planning/2026-10-15-rss-feed.md`; roadmap Phase 8, architecture routes, README status, scope guardrails.
 - Verification: see `feature_list.json` id 13. Note: local screenshot servers must use clean URLs (`/id`, not `/id.html`), or the client locale detection reads the `.html` path as English after hydration. Cloudflare Pages serves clean URLs, so production is unaffected.
+
+## 2026-10-04
+- Flight Map spec: `docs/planning/2026-10-04-drone-flight-map.md`. Decisions: Leaflet 1.9.4 (vanilla, lazy-loaded), Esri World Imagery + labels, data from portfolio frontmatter (`coordinates` rounded to 2 decimals, `flightType` default `aerial`), recenter button = fit all pins (GPS is blocked by our Permissions-Policy). Docs only, no code.
+- Blockers before implementation: (1) Esri tile licensing not verified (official page blocked from this environment); (2) coordinates/locations for each portfolio item must come from the user.
+- Found during review: portfolio file names do not match their slugs (`batang-rest-area.mdx` = Pandawa, `ciwidey-highlands.mdx` = Batang, `pandawa-beach.mdx` = Ciwidey); Ciwidey item uses `merapi-crater-web.jpg`. Not fixed yet (listed as prerequisite in the spec).
+- Renamed the 3 rotated portfolio files (EN + ID) so file name == `slug` for all 18 portfolio files. Loader ignores file names, so no URL/behaviour change. Verified: `npm run build` OK; Pandawa, Batang, Ciwidey all render on `/en/drone-portfolio`.
+- Checked `public/images/portfolio/*-web.jpg`: none has EXIF, so GPS cannot be recovered from the current web photos. Future photo metadata must be read from the original files before compression.
