@@ -55,7 +55,7 @@ Analytics:
 
 Drone portfolio Flight Map (`components/portfolio/flight-map.tsx`):
 - Vanilla Leaflet 1.9.4, imported in the browser only after the section nears the
-  viewport. Esri World Imagery + reference labels, authenticated with the public,
+  viewport. Esri World Imagery (no place-name overlay, see spec), authenticated with the public,
   referrer-restricted `NEXT_PUBLIC_ESRI_API_KEY` (see README). No key: no section.
 - Data: portfolio frontmatter `coordinates` / `flightType` (`lib/portfolio.ts`).
 

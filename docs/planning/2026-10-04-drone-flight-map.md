@@ -64,6 +64,11 @@ Coordinates and `flightType` must be identical in the EN and ID file of a pair
 
 - Imagery: `World_Imagery` tiles. Labels (city/province names, as in the mockup):
   `Reference/World_Boundaries_and_Places` overlay.
+  - 2026-11-08: dropped. That service returns 404 on `ibasemaps-api.arcgis.com`. Esri's
+    replacement is the Static Basemap Tiles style `arcgis/imagery/labels`
+    (`static-map-tiles-api.arcgis.com`, 512 px tiles), which needs the *Static basemap
+    tiles* privilege. Changing key privileges invalidates the current key, so labels wait
+    for the next key rotation. Pin labels (location names) still show from zoom 7.
 - Attribution control stays visible ("Powered by Esri | Source: Esri, Maxar, ...").
 - **Blocking open item (see Risks):** Esri's licensing for direct tile use outside
   Esri SDKs is not verified. Resolve before implementation starts.

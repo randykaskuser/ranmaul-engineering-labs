@@ -94,9 +94,8 @@ export function FlightMap({ items, locale, apiKey }: { items: MapItem[]; locale:
         maxZoom: 18,
         attribution: ATTRIBUTION,
       }).addTo(map);
-      L.tileLayer(`${ESRI}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}?token=${token}`, {
-        maxZoom: 18,
-      }).addTo(map);
+      // No place-name overlay: ibasemaps-api has no reference labels service (404), and the
+      // static-tiles `arcgis/imagery/labels` style needs a key with the Static basemap tiles privilege.
       L.control.zoom({ position: "bottomleft" }).addTo(map);
       L.control.scale({ imperial: false, position: "bottomleft" }).addTo(map);
 
