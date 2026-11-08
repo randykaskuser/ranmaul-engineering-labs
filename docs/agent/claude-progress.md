@@ -4,10 +4,20 @@
 
 Keep this block short and current. Rewrite it at the end of every session.
 
-- **Last verified:** 2026-10-25. `./init.sh` exit 0: lint 0 errors (2 warnings in untouched files), build 169 pages, smoke OK (8812 internal links, 17 key routes, 82/82 `/id` pages `lang="id"`). `npm audit`: 0 vulnerabilities.
-- **Active feature:** none (15 completed).
-- **Next step:** ask the owner. Notion sync PR #37 is broken (wraps `channa-andrao` body in a code fence, rewinds `updatedAt`); the Notion→MDX converter needs a fix before it is merged.
-- **Open risks:** production deploy could not be checked from the agent container (ranmaul.com blocked by proxy); confirm the live article pages after deploy.
+- **Last verified:** 2026-11-08 on `claude/admiring-maxwell-lcac2g`. `./init.sh` exit 0: lint 0 errors, build 285 pages, smoke OK (270 pages, 14251 internal links, 17 key routes, 134/134 `/id` pages `lang="id"`).
+- **Active feature:** 16 (Flight Map), code done, `blocked` on owner input.
+- **Next step:** owner sets `NEXT_PUBLIC_ESRI_API_KEY` (referrer-restricted ArcGIS Location Platform key) in the Cloudflare Pages build env, then verify the live map; owner supplies coordinates for anyer-coastal, batang-rest-area, natarasa-heritage, commercial-real-estate and the FPV SD card data. Branch not merged (owner merges).
+- **Open risks:** see feature 16 entry. Old `public/images/portfolio/*` files are unreferenced but still in the repo (deletion needs owner OK). Notion sync PR #37 still broken.
+
+## 2026-11-08 — Flight Map implementation (feature 16)
+
+- Esri licence checked on developers.arcgis.com: Location Platform API key (Basemaps privilege), 2M free tiles/month then $0.15/1k, referrer restriction supported, keys expire after max 1 year, attribution mandatory. Owner approved Esri.
+- Scanned the Air 3S SD card (782 JPG, 287 SRT) with a scratch script: GPS from EXIF/SRT, clustered at 2 decimals, dHash match of web images vs originals. Only Ciwidey matched an original exactly (distance 2/256), which also settles the "Merapi" question. Other coordinates come from flight sessions at the named location, approved by the owner.
+- 9 portfolio images: re-encoded with all metadata removed (EXIF, XMP, ICC baked to sRGB) and uploaded to R2 `elabs-images/portfolio-<slug>.jpg` after the owner approved the list; MDX `image`/`thumbnail` point to R2.
+- `lib/portfolio.ts`: `coordinates` (validated, rounded to 2 decimals), `flightType` (default aerial), `location` required with coordinates.
+- `components/portfolio/flight-map.tsx`: vanilla Leaflet, lazy import on viewport, Esri imagery + labels, divIcon pins, popup (DOM built with textContent), list sync, filter chips (hidden with one type), wheel zoom only after click, recenter (moved top-right: bottom-right collided with attribution at 390px).
+- Observation: with a placeholder token, `ibasemaps-api.arcgis.com` still returned imagery tiles locally. Do not rely on that; the licence requires a real key.
+- Verification: see `feature_list.json` id 16.
 
 ## 2026-10-25 — PR triage + mobile article overflow (feature 15)
 

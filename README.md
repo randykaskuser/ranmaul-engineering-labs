@@ -46,6 +46,12 @@ npm run preview
 npm run deploy
 ```
 
+Build env: `NEXT_PUBLIC_ESRI_API_KEY` (ArcGIS Location Platform key, Basemaps
+privilege, referrer-restricted to `ranmaul.com`) enables the drone portfolio Flight
+Map (Leaflet + Esri World Imagery). It is inlined into the static build, so set it in
+the Cloudflare Pages build environment. Without it the map section is not rendered.
+API keys expire after at most one year: rotate, then rebuild.
+
 Key paths:
 - `app/` — Next.js App Router routes
 - `content/{locale}/{domain}/{slug}.mdx` — article source files

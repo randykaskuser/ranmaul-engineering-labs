@@ -1,7 +1,7 @@
 # Drone portfolio: interactive Flight Map
 
 Date: 2026-10-04
-Status: spec, not implemented
+Status: implemented 2026-11-08 (branch `claude/admiring-maxwell-lcac2g`); live once `NEXT_PUBLIC_ESRI_API_KEY` is set in the Pages build env
 Scope: replace the "Interactive Map Coming Soon" placeholder in
 `app/[locale]/drone-portfolio/page.tsx` with a satellite map of flown locations,
 plus a synced location list (reference: user mockup, "Flight Map" with pins,
@@ -81,7 +81,7 @@ Coordinates and `flightType` must be identical in the EN and ID file of a pair
 | Filter chips | `All / Aerial / FPV`. Hidden entirely if only one flight type has items. Filtering updates pins and list together and refits the view. |
 | List | Count ("N locations"), newest first. Click: map flies to the pin and opens its popup. Pin click highlights and scrolls the list item into view. |
 | Zoom | Leaflet zoom control, bottom-left. **Scroll-wheel zoom off** until the map is clicked/focused, so scrolling the page never gets trapped. |
-| Recenter button | Bottom-right. Fits the view to all currently visible pins. Not GPS: geolocation is blocked by our own `Permissions-Policy`, and a visitor's position is irrelevant to a portfolio. |
+| Recenter button | Top-right (bottom-right collided with the attribution on mobile). Fits the view to all currently visible pins. Not GPS: geolocation is blocked by our own `Permissions-Policy`, and a visitor's position is irrelevant to a portfolio. |
 | Scale | `L.control.scale({ imperial: false })`, bottom-left. |
 | Empty state | If no item has coordinates, the whole section is not rendered (no empty map). |
 | Accessibility | The list is the accessible equivalent of the map (real buttons, keyboard reachable). Map container gets an `aria-label`. |
@@ -103,8 +103,8 @@ clustering only if it becomes a real problem.
    no URL changes):
    - Done 2026-10-04: file names did not match their content (Pandawa, Batang
      and Ciwidey were rotated). Renamed so every file name equals its `slug`.
-   - Image check needed: the Ciwidey item uses `merapi-crater-web.jpg`. If the
-     photo is really Merapi, the pin would be in the wrong place.
+   - Resolved 2026-11-08: `merapi-crater-web.jpg` matches original
+     `DJI_20250126070316_0026_D.JPG` (GPS -7.15, 107.38), so it is Ciwidey.
    - All four reels have `category: FPV`. Confirm which were really flown FPV
      before copying that into `flightType`; the default is `aerial`.
 
@@ -139,7 +139,12 @@ clustering only if it becomes a real problem.
 
 ## Risks and open items
 
-1. **Esri licensing (blocking).** Esri content is under the Esri Master License
+1. **Esri licensing (resolved 2026-11-08).** Checked developers.arcgis.com: ArcGIS
+   Location Platform, API key with Basemaps privilege, 2M free tiles/month then
+   $0.15 per 1,000; referrer restriction supported; keys valid max 1 year; "Powered by
+   Esri" + data attribution required. Esri's own Leaflet/MapLibre tutorials use the
+   raw `ibasemaps-api.arcgis.com/.../World_Imagery/MapServer/tile` URL with `token`.
+   Owner approved. Original note: Esri content is under the Esri Master License
    Agreement; their developer docs say usage must be licensed with an API key or
    ArcGIS identity, and attribution is mandatory. This site also sells drone
    services, so "non-commercial" assumptions are unsafe. Could not open the

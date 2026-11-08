@@ -8,6 +8,7 @@ import { HeroSlideshow } from "@/components/portfolio/hero-slideshow"
 import { PhotoGallery } from "@/components/portfolio/photo-gallery"
 import { VideoGallery } from "@/components/portfolio/video-gallery"
 import { DRONES, DroneServicesSection } from "@/components/portfolio/drone-services-section"
+import { FlightMap, type MapItem } from "@/components/portfolio/flight-map"
 import { getPortfolioItems } from "@/lib/portfolio"
 import { getRecentArticles, type Locale } from "@/lib/content"
 import Link from "next/link"
@@ -33,6 +34,14 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   })
 }
 
+const MAP_SUBTITLE = {
+  en: "Places I have flown. Pins are approximate (about 1 km).",
+  id: "Tempat yang pernah saya terbangkan. Posisi pin dibulatkan (sekitar 1 km).",
+}
+
+// Public by design (static export); protected by the key's referrer restriction in ArcGIS.
+const ESRI_API_KEY = process.env.NEXT_PUBLIC_ESRI_API_KEY ?? ""
+
 /** "Rp2.500.000" -> 2500000 */
 function rupiah(price: string): number {
   return Number(price.replace(/\D/g, ""))
@@ -52,6 +61,7 @@ export default async function DronePortfolioPage({ params }: { params: Promise<{
   const featured = items.filter(item => item.featured === true && Boolean(item.image))
   const photos = items.filter(item => item.mediaType !== "video")
   const videos = items.filter(item => item.mediaType === "video")
+  const mapItems = items.filter((item): item is MapItem => Boolean(item.coordinates))
 
   return (
     <>
@@ -137,22 +147,22 @@ export default async function DronePortfolioPage({ params }: { params: Promise<{
         </div>
       </Section>
 
-      <Section space="xl" className="py-24 bg-neutral-50 dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-800">
-        <div className="container-wide">
-          <Reveal>
-            <div className="max-w-3xl mb-16">
-              <h2 className="text-sm font-semibold tracking-widest uppercase text-neutral-500 mb-4">Locations</h2>
-              <h3 className="font-serif text-4xl md:text-5xl font-normal text-black dark:text-white tracking-tight">
-                Flight Map
-              </h3>
-            </div>
-            <div className="w-full aspect-[21/9] bg-neutral-200 dark:bg-neutral-800 relative overflow-hidden flex items-center justify-center">
-              {/* Placeholder for actual map */}
-              <p className="text-neutral-500 dark:text-neutral-400 font-medium tracking-widest uppercase">Interactive Map Coming Soon</p>
-            </div>
-          </Reveal>
-        </div>
-      </Section>
+      {mapItems.length > 0 && ESRI_API_KEY && (
+        <Section space="xl" className="py-24 bg-neutral-50 dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-800">
+          <div className="container-wide">
+            <Reveal>
+              <div className="max-w-3xl mb-10">
+                <h2 className="text-sm font-semibold tracking-widest uppercase text-neutral-500 mb-4">Locations</h2>
+                <h3 className="font-serif text-4xl md:text-5xl font-normal text-black dark:text-white tracking-tight">
+                  Flight Map
+                </h3>
+                <p className="mt-4 text-neutral-600 dark:text-neutral-400">{pick(MAP_SUBTITLE, locale)}</p>
+              </div>
+              <FlightMap items={mapItems} locale={locale} apiKey={ESRI_API_KEY} />
+            </Reveal>
+          </div>
+        </Section>
+      )}
 
       <Section space="xl" className="py-24 bg-white dark:bg-black">
         <div className="container-wide">

@@ -6,17 +6,18 @@ not enough to resume. Clear it back to "No active handoff" once the feature is
 
 ## Status
 
-- **Feature:** 16, Drone portfolio interactive Flight Map
-- **Branch:** `claude/admiring-maxwell-lcac2g` (main merged in on 2026-11-08)
-- **Done so far:** spec `docs/planning/2026-10-04-drone-flight-map.md`; rotated
-  portfolio file names fixed (file name == `slug` for all 18 files, build OK).
-- **Not done / unverified:** no map code. Esri tile licensing not verified.
-  No coordinates yet: current `public/images/portfolio/*-web.jpg` have no EXIF.
-- **Exact next step:** (1) user confirms Esri terms / gets a referrer-restricted
-  ArcGIS key, or picks another imagery provider; (2) user provides original
-  photos (EXIF GPS) or DJI `.SRT` files; read coordinates, round to 2 decimals,
-  strip metadata from web versions, upload to R2; (3) implement per spec.
-- **Commands to resume:** `./init.sh`, then read the spec.
+- **Feature:** 16, Drone portfolio interactive Flight Map (`blocked`, code done)
+- **Branch:** `claude/admiring-maxwell-lcac2g` (not merged)
+- **Done so far:** map implemented and verified locally with a placeholder key;
+  4 items located; images moved to R2 without metadata. Details: progress log 2026-11-08.
+- **Not done / unverified:** live map (needs `NEXT_PUBLIC_ESRI_API_KEY` in Pages build
+  env); coordinates for anyer-coastal, batang-rest-area, natarasa-heritage,
+  commercial-real-estate; FPV SD card; removal of old `public/images/portfolio/*`.
+- **Exact next step:** add coordinates from the owner's data (scratch approach: EXIF
+  GPS / first SRT `latitude`/`longitude`, round 2 decimals, same in EN and ID), set
+  `flightType: fpv` for FPV items, rebuild, verify filter chips appear.
+- **Commands to resume:** `./init.sh`; local map check: build with
+  `NEXT_PUBLIC_ESRI_API_KEY=<key>` then preview `static-out` (`.claude/launch.json`).
 
 ## Format (when used)
 

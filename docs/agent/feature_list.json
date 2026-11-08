@@ -96,8 +96,9 @@
     {
       "id": 16,
       "title": "Drone portfolio interactive Flight Map",
-      "status": "planned",
-      "reason": "Spec written: docs/planning/2026-10-04-drone-flight-map.md (Leaflet + Esri imagery, data from portfolio frontmatter coordinates/flightType). Prerequisite done: rotated portfolio file names fixed. Blocked on: Esri tile licensing check, and location coordinates from the user (from original photo EXIF/DJI SRT). No code yet."
+      "status": "blocked",
+      "reason": "Implemented 2026-11-08 per spec: leaflet 1.9.4 lazy-loaded client component components/portfolio/flight-map.tsx, lib/portfolio.ts validates/rounds coordinates + flightType, 4 located items (ciwidey -7.15,107.38 exact photo match; pandawa -8.85,115.18; south-quarter -6.29,106.79; pulau-merah -8.60,114.03, from Air 3S EXIF/SRT). 9 portfolio images stripped of metadata and moved to R2 (portfolio-<slug>.jpg). Blocked on owner: (1) set NEXT_PUBLIC_ESRI_API_KEY (referrer-restricted ArcGIS key) in Cloudflare Pages build env, section is hidden without it; (2) coordinates still missing for anyer-coastal (two candidate sessions), batang-rest-area, natarasa-heritage, commercial-real-estate; FPV SD card data pending. Old public/images/portfolio files still in repo (unreferenced), owner to decide on removal.",
+      "verification": "./init.sh exit 0 (no key: section absent from out/). Build fails on purpose for coordinates without location and for lat -96.2 (test entry removed). Built with placeholder key, served out/ and checked in browser on /en and /id: 4 pins = 4 list items, list click opens matching popup (incl. rapid double click), pin click highlights list, popup > opens Lightbox, wheel does not zoom until map clicked, recenter refits, filter chips hidden (only aerial), no horizontal scroll at 390px, no Leaflet/tiles before scroll, no JS console errors (only pre-existing RSC .txt 404s from `serve`). Screenshots at 1440px and 390px taken in the browser pane. Bundle: docs/benchmarks/2026-11-08-flight-map.md."
     }
   ]
 }
