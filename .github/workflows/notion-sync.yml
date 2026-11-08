@@ -2,8 +2,8 @@ name: Notion → MDX Sync
 
 on:
   schedule:
-    # Every 15 minutes
-    - cron: "*/15 * * * *"
+    # Daily at 21:00 UTC (04:00 WIB). Use "Run workflow" for an immediate sync.
+    - cron: "0 21 * * *"
   workflow_dispatch: {}
 
 permissions:
