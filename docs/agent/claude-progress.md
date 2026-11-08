@@ -4,10 +4,10 @@
 
 Keep this block short and current. Rewrite it at the end of every session.
 
-- **Last verified:** 2026-11-08 on `claude/admiring-maxwell-lcac2g`. `./init.sh` exit 0: lint 0 errors, build 285 pages, smoke OK (270 pages, 14251 internal links, 17 key routes, 134/134 `/id` pages `lang="id"`).
-- **Active feature:** none (16 completed on branch `claude/admiring-maxwell-lcac2g`, live on preview a91cfd03; not merged).
-- **Next step:** owner merges the branch to `main` (production map). Content follow-ups: coordinates for anyer-coastal, batang-rest-area, commercial-real-estate (privacy check), FPV items with `flightType: fpv`.
-- **Open risks:** see feature 16 entry. Old `public/images/portfolio/*` files are unreferenced but still in the repo (deletion needs owner OK). Notion sync PR #37 still broken.
+- **Last verified:** 2026-11-08 after merging `main` into `claude/admiring-maxwell-lcac2g`. `./init.sh` exit 0.
+- **Active feature:** none (16 completed: Flight Map, merged to `main` on owner's instruction; 15 completed).
+- **Next step:** confirm the map on production (ranmaul.com). Owner: clean the `channa-andrao` (ID) page in Notion (duplicated article at the bottom), then merge branch `fix/notion-sync-drift`. Flight Map content follow-ups: coordinates for anyer-coastal, batang-rest-area, commercial-real-estate (privacy check), FPV items with `flightType: fpv`.
+- **Open risks:** Notion converter fixes are unit-checked with mocked blocks only. ArcGIS key expires 2027-11-07 (rotate, update the Pages variable, redeploy). The `ibasemaps-api` tile endpoint does not enforce the referrer.
 
 ## 2026-11-08 — Flight Map implementation (feature 16)
 
@@ -21,6 +21,14 @@ Keep this block short and current. Rewrite it at the end of every session.
 - Removed `wrangler.jsonc`: with it present, Pages builds ignored dashboard variables (build log: `Build environment variables: (none found)`; preview 116f42d3 had no map although the key was set). No Functions, nothing referenced the file; dashboard already sets build command and `out`. `wrangler pages dev out` still serves with `_headers` (warns about default compatibility date). Committing the key into `wrangler.jsonc` vars was rejected as a credential-in-repo risk.
 - Follow-up same day: old `public/images/portfolio/*` removed (owner OK). Natarasa Heritage located at -7.11, 107.45 (IG caption tags Ciwidey; Air 3S night flight 2025-01-26 20:07-20:40). Commercial real estate = Permata Mulia Residence, Pengasinan (IG caption), candidate -6.42, 106.76, held for owner because that cluster may be near home. Anyer reel cover matched no video frame.
 - ArcGIS key created in the owner's account (API key credentials, public app, Basemap styles privilege only, referrers ranmaul.com, *.ranmaul.com, *.website-elabs.pages.dev, localhost:4173, expires 2027-11-07); value kept in gitignored `.env.local`. Local build with it: 5 pins, tiles load, 0 tile errors. Basemap Styles API enforces the referrer (498 for other referrers); the `ibasemaps-api` imagery tile endpoint only checks that a token is present, so the referrer limit does not stop tile scraping there.
+
+## 2026-11-08 — Stop Notion sync PR churn
+
+- PR #62 (`bot/notion-sync`) was re-pushed daily, sending a notification and running Verify + CodeQL each time. Cause: `content/id/fishkeeping/channa-andrao.mdx` on `main` (correct version, per owner) differs from Notion: converter dropped tables, put blank lines between list items, wrote `plain text` as fence language, and the Notion page has the whole article pasted twice at the bottom.
+- `scripts/notion-sync.mjs`: renders `table` blocks, keeps list items tight, maps `plain text` → `text`, ignores blank-line-only differences when comparing with the existing file.
+- `.github/workflows/notion-sync.yml`: schedule every 15 min → daily 21:00 UTC.
+- Closed PR #62. `docs/notion-sync.md` updated (schedule, PR-based publish, tables).
+- Verification: mocked-block render test (table, tight lists, code lang) output correct; `./init.sh` exit 0.
 
 ## 2026-10-25 — PR triage + mobile article overflow (feature 15)
 
