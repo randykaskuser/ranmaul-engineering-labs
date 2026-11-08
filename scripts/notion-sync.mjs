@@ -1352,16 +1352,8 @@ async function pageToArticle(page) {
 
   frontmatterLines.push("---", "");
 
-  const blocks = await listBlocks(page.id);
-  const ctx = { slug };
-
-  // Handle basic list grouping by preserving order; we already emit markdown list items.
-  let body = "";
-  for (const block of blocks) {
-    body += await blockToMdx(block, ctx);
-    if (body && !body.endsWith("\n")) body += "\n";
-    if (!body.endsWith("\n\n")) body += "\n";
-  }
+  // Same block loop as nested children, so top-level lists stay tight too.
+  const body = await renderChildBlocks(page.id, { slug });
 
   const mdx = `${frontmatterLines.join("\n")}${body.trim()}\n`;
 
