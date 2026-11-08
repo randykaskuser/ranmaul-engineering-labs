@@ -1499,7 +1499,9 @@ async function writeArticleFile(article, options) {
   // Ignore blank-line-only differences: hand-edited files in the repo and the
   // converter's output place blank lines slightly differently, which renders the
   // same but used to reopen the sync PR on every run.
-  const collapseBlankLines = (s) => s.replace(/\n[ \t]*(?:\n[ \t]*)+/g, "\n").trim();
+  // Only whitespace-only lines are dropped; the next line's indentation is kept,
+  // otherwise nested list items would compare as different.
+  const collapseBlankLines = (s) => s.replace(/\n(?:[ \t]*\n)+/g, "\n").trim();
   if (existing !== null && collapseBlankLines(existing) === collapseBlankLines(article.mdx)) {
     return { changed: false, outPath };
   }
