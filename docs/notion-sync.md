@@ -151,6 +151,7 @@ Supported blocks (safe subset):
 - quote
 - code blocks
 - divider
+- table (first row becomes the header row)
 - image (will be downloaded into this repo)
 - callout (will map to `<Note>` or `<Warning>` depending on icon/text)
 - toggle (mapped to `<details><summary>...`)
@@ -188,10 +189,15 @@ Workflow:
 
 ### 5) Wait for sync
 
-The GitHub Actions workflow runs on schedule (every 15 minutes) and will:
+The GitHub Actions workflow runs once a day (21:00 UTC / 04:00 WIB) and will:
 
 - sync the page into `content/{locale}/{domain}/{slug}.mdx`
-- commit the MDX + downloaded media into `main`
+- open or update the `bot/notion-sync` PR with the MDX + downloaded media (merge it to publish)
+
+Differences that are only blank lines are ignored, so a hand-edited file in the
+repo is not overwritten just because the converter spaces blocks differently.
+Any other difference between Notion and the repo reopens the PR on every run:
+fix the Notion page (or the repo file) so they match.
 
 If you need instant publish, go to GitHub Actions and run the workflow manually:
 
@@ -317,6 +323,7 @@ The script converts a minimal, safe block set:
 - quote
 - code blocks
 - divider
+- table → Markdown table (first row is the header)
 - image (downloaded to `public/media/notion/...`)
 - callout → mapped to MDX `<Note>...</Note>`
 

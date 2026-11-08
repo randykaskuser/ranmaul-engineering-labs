@@ -4,10 +4,18 @@
 
 Keep this block short and current. Rewrite it at the end of every session.
 
-- **Last verified:** 2026-10-25. `./init.sh` exit 0: lint 0 errors (2 warnings in untouched files), build 169 pages, smoke OK (8812 internal links, 17 key routes, 82/82 `/id` pages `lang="id"`). `npm audit`: 0 vulnerabilities.
+- **Last verified:** 2026-11-08. `./init.sh` exit 0: build + smoke OK (196 pages, 10278 internal links, 17 key routes, 96/96 `/id` pages `lang="id"`).
 - **Active feature:** none (15 completed).
-- **Next step:** ask the owner. Notion sync PR #37 is broken (wraps `channa-andrao` body in a code fence, rewinds `updatedAt`); the Notion→MDX converter needs a fix before it is merged.
-- **Open risks:** production deploy could not be checked from the agent container (ranmaul.com blocked by proxy); confirm the live article pages after deploy.
+- **Next step:** owner cleans the `channa-andrao` (ID) page in Notion: delete the duplicated article pasted at the bottom. Until then the sync PR keeps reopening for that file. Then merge branch `fix/notion-sync-drift`.
+- **Open risks:** converter fixes are unit-checked with mocked Notion blocks only; no live Notion run (no token locally). Production deploy not checked from the agent container.
+
+## 2026-11-08 — Stop Notion sync PR churn
+
+- PR #62 (`bot/notion-sync`) was re-pushed daily, sending a notification and running Verify + CodeQL each time. Cause: `content/id/fishkeeping/channa-andrao.mdx` on `main` (correct version, per owner) differs from Notion: converter dropped tables, put blank lines between list items, wrote `plain text` as fence language, and the Notion page has the whole article pasted twice at the bottom.
+- `scripts/notion-sync.mjs`: renders `table` blocks, keeps list items tight, maps `plain text` → `text`, ignores blank-line-only differences when comparing with the existing file.
+- `.github/workflows/notion-sync.yml`: schedule every 15 min → daily 21:00 UTC.
+- Closed PR #62. `docs/notion-sync.md` updated (schedule, PR-based publish, tables).
+- Verification: mocked-block render test (table, tight lists, code lang) output correct; `./init.sh` exit 0.
 
 ## 2026-10-25 — PR triage + mobile article overflow (feature 15)
 
