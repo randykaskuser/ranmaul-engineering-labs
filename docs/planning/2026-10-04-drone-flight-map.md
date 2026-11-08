@@ -1,7 +1,7 @@
 # Drone portfolio: interactive Flight Map
 
 Date: 2026-10-04
-Status: implemented 2026-11-08 (branch `claude/admiring-maxwell-lcac2g`); live once `NEXT_PUBLIC_ESRI_API_KEY` is set in the Pages build env
+Status: implemented 2026-11-08 (branch `claude/admiring-maxwell-lcac2g`); key set in Pages (Production + Preview); live on branch preview, production after merge
 Scope: replace the "Interactive Map Coming Soon" placeholder in
 `app/[locale]/drone-portfolio/page.tsx` with a satellite map of flown locations,
 plus a synced location list (reference: user mockup, "Flight Map" with pins,

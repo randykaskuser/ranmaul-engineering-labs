@@ -5,8 +5,8 @@
 Keep this block short and current. Rewrite it at the end of every session.
 
 - **Last verified:** 2026-11-08 on `claude/admiring-maxwell-lcac2g`. `./init.sh` exit 0: lint 0 errors, build 285 pages, smoke OK (270 pages, 14251 internal links, 17 key routes, 134/134 `/id` pages `lang="id"`).
-- **Active feature:** 16 (Flight Map), code done, `blocked` on owner input.
-- **Next step:** owner pastes `NEXT_PUBLIC_ESRI_API_KEY` (value in local `.env.local`) into Cloudflare Pages build env (Production + Preview), then verify the live map; owner answers anyer-coastal (which session), commercial-real-estate (privacy: near home cluster?), batang-rest-area, and supplies FPV SD card data. Branch not merged (owner merges).
+- **Active feature:** none (16 completed on branch `claude/admiring-maxwell-lcac2g`, live on preview a91cfd03; not merged).
+- **Next step:** owner merges the branch to `main` (production map). Content follow-ups: coordinates for anyer-coastal, batang-rest-area, commercial-real-estate (privacy check), FPV items with `flightType: fpv`.
 - **Open risks:** see feature 16 entry. Old `public/images/portfolio/*` files are unreferenced but still in the repo (deletion needs owner OK). Notion sync PR #37 still broken.
 
 ## 2026-11-08 — Flight Map implementation (feature 16)

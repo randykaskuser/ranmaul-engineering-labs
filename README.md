@@ -51,7 +51,9 @@ styles privilege, referrer-restricted to `ranmaul.com`, `*.ranmaul.com`,
 `*.website-elabs.pages.dev`, `localhost:4173`; item "ranmaul.com drone portfolio flight map"
 in ranmaul.maps.arcgis.com, expires 2027-11-07) enables the drone portfolio Flight
 Map (Leaflet + Esri World Imagery). It is inlined into the static build, so set it in
-the Cloudflare Pages build environment. Without it the map section is not rendered.
+the Cloudflare Pages dashboard (Production and Preview). Do not add a Wrangler config
+file: with one present, Pages ignores dashboard build variables. Without the key the
+map section is not rendered.
 API keys expire after at most one year: rotate, then rebuild.
 
 Key paths:
