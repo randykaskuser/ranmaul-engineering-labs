@@ -1,0 +1,199 @@
+---
+title: "Upgrading to Playwright 1.65? Check These Eight Breaking Changes First"
+description: "Playwright 1.65, released 5 November 2026, ships eight breaking changes that fail in ways that are hard to connect to the upgrade. Run these eight checks before you merge."
+locale: "en"
+domain: "qa"
+slug: "playwright-165-breaking-changes-upgrade-checklist"
+canonicalGroup: "qa-playwright-165-breaking-changes"
+publishedAt: "2026-11-08"
+updatedAt: "2026-11-08"
+tags: ["playwright", "upgrade", "ci", "breaking-changes"]
+featured: false
+draft: false
+coverImage: "/assets/playwright-165/thumbnail-en.png"
+---
+
+Playwright 1.65, released 5 November 2026, is easy to upgrade badly. The headline features are loud: a `page.screencast` API, `browser.bind()` for sharing a browser with the CLI and MCP, and a CLI debugger for agents. The breaking changes are quiet. Eight of them alter what your existing tests do, and none of them shows up as a new API you chose to use.
+
+This article covers only those eight changes. The new features live in the release notes. Run these eight checks before you merge the upgrade.
+
+## Check 1: page object fields that read `this.page` now throw
+
+This is the change most suites will hit. A common way to write a page object puts the locators in class fields and takes `page` as a constructor parameter:
+
+```ts
+import { test, expect, type Page } from '@playwright/test';
+
+class LoginPage {
+  readonly submit = this.page.getByRole('button', { name: 'Submit' });
+
+  constructor(private readonly page: Page) {}
+}
+```
+
+On 1.64.1 this test passed. On 1.65.0 it fails before the test body even reaches the page:
+
+```
+TypeError: Cannot read properties of undefined (reading 'getByRole')
+```
+
+The reason is TypeScript, not the browser. Playwright now compiles class fields the way `tsc` does with the `useDefineForClassFields` setting. That setting is on for `ES2022` and later targets, and also when your `tsconfig.json` sets no `target` at all. With it on, field initializers run before the constructor assigns `this.page`, so `this.page` is still `undefined`.
+
+The clean fix is to assign the locators in the constructor. This version passed on both versions:
+
+```ts
+class LoginPage {
+  readonly submit;
+
+  constructor(private readonly page: Page) {
+    this.submit = page.getByRole('button', { name: 'Submit' });
+  }
+}
+```
+
+Check: search your page objects for field initializers that use `this.page`. If you have hundreds of them and need the upgrade first, set `"useDefineForClassFields": false` in `compilerOptions` to get the old behaviour back, then move the fields over time.
+
+## Check 2: actions now wait for elements that are not inert
+
+The `inert` attribute makes an element and everything inside it non-interactive. Apps use it to lock the page behind a modal, or a form while it is saving. In 1.65, `click()`, `check()`, `tap()`, `fill()`, `clear()`, and `selectOption()` wait until the element is not inert, and time out if it stays inert.
+
+For clicks this changes little. On 1.64.1 a click inside an inert element already timed out. The real difference is `fill()`. This test passed on 1.64.1:
+
+```ts
+test('fill an email inside an inert form', async ({ page }) => {
+  await page.setContent('<form inert><label>Email <input></label></form>');
+  await page.getByLabel('Email').fill('[email protected]', { timeout: 2000 });
+  console.log(await page.getByLabel('Email').inputValue());
+});
+```
+
+It passed, but it logged an empty string. The fill reported success and typed nothing. On 1.65.0 the same line times out, and the call log says why:
+
+```
+TimeoutError: locator.fill: Timeout 2000ms exceeded.
+  - element is inert
+```
+
+A test that starts failing here was probably never testing what you thought. Find out why the form is inert at that moment. Usually the test acts too early, for example while a dialog is still closing. A form that becomes interactive shortly afterwards just works. A form that stays inert means the test needs to close a dialog or wait for a save to finish first.
+
+Check: for each new timeout after the upgrade, check whether the element sits inside an `inert` container.
+
+## Check 3: API `params` no longer replace the URL's query
+
+If you pass `params` to an API request whose URL already has a query string, the result changed. The same request went to a tiny echo server on both versions:
+
+```ts
+await request.get('/products?page=2', { params: 'sort=asc' });
+```
+
+| `params` type | 1.64.1 sent | 1.65.0 sent |
+| --- | --- | --- |
+| String `'sort=asc'` | `/products?sort=asc` | `/products?page=2&sort=asc` |
+| `URLSearchParams` | `/products?sort=asc` | `/products?page=2&sort=asc` |
+| Object `{ sort: 'asc' }` | `/products?page=2&sort=asc` | `/products?page=2&sort=asc` |
+
+The object form already appended, so only string and `URLSearchParams` values changed. The new behaviour is the consistent one. But a test that relied on `params` wiping the old query, for example to drop `page=2`, now sends both. Build the URL you mean explicitly.
+
+Check: search API tests for `params` on URLs that already contain `?`.
+
+## Check 4: cookie matching follows RFC 6265
+
+`browserContext.cookies(url)` and `apiRequestContext.cookies(url)` now match cookies to the URL the way browsers do. Three cookies were added to a context, and each URL was asked which ones it gets:
+
+| Cookie | URL asked for | 1.64.1 | 1.65.0 |
+| --- | --- | --- | --- |
+| `Path=/api` | `/apiv2` | returned | not returned |
+| Host-only on `example.test` | `sub.example.test` | returned | not returned |
+| `Path=/api` | `/api` | returned | returned |
+
+A cookie for `/api` was never meant for `/apiv2`, and a host-only cookie was never meant for a subdomain. The old results were wrong. If a test reads a cookie for a different path or subdomain than the one that set it, ask for the right URL, or call `cookies()` with no URL and filter by name.
+
+The release notes also mention cookies without a name in `APIRequestContext`. They are now sent as `Cookie: x` instead of `Cookie: =x`.
+
+Check: search cookie assertions that read cookies for a different path or subdomain than the one that set them.
+
+## Check 5: hidden text left accessible names and aria snapshots
+
+Text the browser does not render no longer counts towards accessible names. That includes text directly inside a closed `<details>` element, and text not assigned to a slot in a web component. For this markup:
+
+```html
+<details><summary>Shipping</summary>Ships in 2 days</details>
+```
+
+`locator('details').ariaSnapshot()` gave different results:
+
+```yaml
+# 1.64.1
+- group: Shipping Ships in 2 days
+
+# 1.65.0
+- group: Shipping
+```
+
+This is what a screen reader user actually gets, so 1.65 is more accurate. Expect stored aria snapshots from `toMatchAriaSnapshot()` to need an update. Also check any `getByRole()` with a `name` that included hidden text. A name that now matches nothing, or something else, is a locator problem like any other.
+
+Check: regenerate aria snapshots with `--update-snapshots`, then read the diff instead of accepting it blindly.
+
+## Check 6: a sharded run with no tests now fails
+
+A sharded run where no tests match on any shard used to exit with code 0. Now it fails:
+
+```
+npx playwright test --shard=1/2 --grep nomatch
+# 1.64.1: exit code 0
+# 1.65.0: Error: No tests found, exit code 1
+```
+
+This catches CI jobs that silently ran nothing after a `--grep` or a folder rename. If a filtered job can legitimately be empty, add `--pass-with-no-tests`. A single empty shard is still fine when the other shards have tests.
+
+Check: confirm that CI shard jobs and `--grep` filters still find tests, or add `--pass-with-no-tests` where empty is acceptable.
+
+## Check 7: CSS imports in test files must exist
+
+Test files that import a stylesheet, usually through a shared component or helper, used to have the import removed. Now `.css`, `.less`, and `.scss` imports load as empty modules, so the file has to exist. An import of a missing file passed on 1.64.1 and now stops the run:
+
+```
+Error: Cannot find module './missing.css'
+```
+
+Check: fix the path or delete the stale import.
+
+## Check 8: proxy credentials only go to the proxy
+
+The username and password in the `proxy` launch option are no longer sent to websites. They are only sent in answer to the proxy's own challenge. If a test logged in to a site with Basic Auth through those proxy credentials, it now gets a `401`. Put site credentials in `httpCredentials` instead:
+
+```ts
+// playwright.config.ts
+use: {
+  httpCredentials: { username: '[email protected]', password: 'demo123' },
+},
+```
+
+Check: move site logins from the `proxy` option to `httpCredentials`.
+
+## Smaller changes worth knowing
+
+- **Node.js 20 is no longer tested.** Use Node.js 22, 24, or 26. The Docker images now ship Node.js 26.
+- **Test locations moved by a few columns** in CommonJS output. The same test was reported as `inert.spec.ts:3:5` on 1.64.1 and `inert.spec.ts:3:1` on 1.65.0. It only matters if a tool or script parses those locations.
+- **The blob reporter empties its output folder again** before writing, as it did before 1.64. If you collect blob reports from several jobs, give each job its own `outputDir`.
+
+## The upgrade checklist
+
+- Check your Node.js version: 22 or newer.
+- Search your page objects for field initializers that use `this.page`, or set `useDefineForClassFields` to `false` for now (Check 1).
+- Run the full suite on a branch. For each new timeout, check whether the element is inside an `inert` container (Check 2).
+- Search API tests for `params` on URLs that already contain `?` (Check 3).
+- Update aria snapshots, and review the diff (Check 5).
+- Check that CI shard jobs and `--grep` filters still find tests, or add `--pass-with-no-tests` where empty is OK (Check 6).
+- Move site logins from the `proxy` option to `httpCredentials` (Check 8).
+- Only then merge. A green run after these checks means something. A green run before them might mean nothing at all.
+
+## Conclusion
+
+Eight breaking changes, and most of them make Playwright stricter and closer to how browsers really behave. The `fill()` that silently typed nothing into an inert form, the cookies returned for the wrong path, and the CI shard that ran zero tests were all hiding bugs. Fix the page object fields first, since that one breaks the most tests at once, then work through the timeouts one by one.
+
+## References
+
+- [Playwright release notes, version 1.65](https://playwright.dev/docs/release-notes)
+- [Playwright 1.65 Breaking Changes: What Fails After You Upgrade](https://demo.testautomationtv.com/blog/playwright-1-65-breaking-changes)
+- [Upgrading to Playwright 1.64? Check These Four Silent Behaviour Changes First](https://ranmaul.com/en/qa/playwright-164-silent-behaviour-changes-upgrade-checklist)
