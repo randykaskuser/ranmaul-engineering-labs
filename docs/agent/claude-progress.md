@@ -6,7 +6,7 @@ Keep this block short and current. Rewrite it at the end of every session.
 
 - **Last verified:** 2026-11-08 on `claude/admiring-maxwell-lcac2g`. `./init.sh` exit 0: lint 0 errors, build 285 pages, smoke OK (270 pages, 14251 internal links, 17 key routes, 134/134 `/id` pages `lang="id"`).
 - **Active feature:** 16 (Flight Map), code done, `blocked` on owner input.
-- **Next step:** owner sets `NEXT_PUBLIC_ESRI_API_KEY` (referrer-restricted ArcGIS Location Platform key) in the Cloudflare Pages build env, then verify the live map; owner supplies coordinates for anyer-coastal, batang-rest-area, natarasa-heritage, commercial-real-estate and the FPV SD card data. Branch not merged (owner merges).
+- **Next step:** owner pastes `NEXT_PUBLIC_ESRI_API_KEY` (value in local `.env.local`) into Cloudflare Pages build env (Production + Preview), then verify the live map; owner answers anyer-coastal (which session), commercial-real-estate (privacy: near home cluster?), batang-rest-area, and supplies FPV SD card data. Branch not merged (owner merges).
 - **Open risks:** see feature 16 entry. Old `public/images/portfolio/*` files are unreferenced but still in the repo (deletion needs owner OK). Notion sync PR #37 still broken.
 
 ## 2026-11-08 — Flight Map implementation (feature 16)
@@ -18,6 +18,8 @@ Keep this block short and current. Rewrite it at the end of every session.
 - `components/portfolio/flight-map.tsx`: vanilla Leaflet, lazy import on viewport, Esri imagery + labels, divIcon pins, popup (DOM built with textContent), list sync, filter chips (hidden with one type), wheel zoom only after click, recenter (moved top-right: bottom-right collided with attribution at 390px).
 - Observation: with a placeholder token, `ibasemaps-api.arcgis.com` still returned imagery tiles locally. Do not rely on that; the licence requires a real key.
 - Verification: see `feature_list.json` id 16.
+- Follow-up same day: old `public/images/portfolio/*` removed (owner OK). Natarasa Heritage located at -7.11, 107.45 (IG caption tags Ciwidey; Air 3S night flight 2025-01-26 20:07-20:40). Commercial real estate = Permata Mulia Residence, Pengasinan (IG caption), candidate -6.42, 106.76, held for owner because that cluster may be near home. Anyer reel cover matched no video frame.
+- ArcGIS key created in the owner's account (API key credentials, public app, Basemap styles privilege only, referrers ranmaul.com, *.ranmaul.com, *.website-elabs.pages.dev, localhost:4173, expires 2027-11-07); value kept in gitignored `.env.local`. Local build with it: 5 pins, tiles load, 0 tile errors. Basemap Styles API enforces the referrer (498 for other referrers); the `ibasemaps-api` imagery tile endpoint only checks that a token is present, so the referrer limit does not stop tile scraping there.
 
 ## 2026-10-25 — PR triage + mobile article overflow (feature 15)
 
