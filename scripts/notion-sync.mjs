@@ -993,7 +993,8 @@ async function renderChildBlocks(blockId, ctx) {
 const CODE_LANG_MAP = { "plain text": "text" };
 
 function renderTableCell(cell) {
-  return renderRichText(cell ?? []).replace(/\|/g, "\\|").replace(/\n/g, " ");
+  // Escape backslashes first so an existing "\" can't swallow the "|" escape.
+  return renderRichText(cell ?? []).replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\n/g, " ");
 }
 
 async function renderTable(block, value) {
