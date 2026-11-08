@@ -23,6 +23,14 @@ type PageMetadataOptions = {
   type?: "website" | "article";
 };
 
+/** Feed autodiscovery link for a locale's RSS feed (/en/feed.xml or /id/feed.xml). */
+export function feedAlternate(locale: string) {
+  const feedLocale = locale === "id" ? "id" : "en";
+  return {
+    "application/rss+xml": [{ url: `/${feedLocale}/feed.xml`, title: `${SITE_NAME} (${feedLocale.toUpperCase()})` }],
+  };
+}
+
 /** Resolve a site path or absolute URL to an absolute URL. */
 export function absoluteUrl(pathOrUrl: string): string {
   return new URL(pathOrUrl, SITE_URL).toString();
@@ -57,7 +65,12 @@ export function createPageMetadata(
   return {
     title: absoluteTitle ? { absolute: title } : title,
     description,
-    alternates: path || languages ? { canonical: path, languages } : undefined,
+    alternates: {
+      canonical: path,
+      languages,
+      // Every page advertises its locale's RSS feed.
+      types: feedAlternate(locale),
+    },
     openGraph: {
       title: fullTitle,
       description,

@@ -20,8 +20,8 @@ Run this workflow whenever you:
    - `docs/vision.md` (only if product intent/audience changes)
 
 2. **Update workspace rules/workflows:**
-   - If it’s a permanent constraint/contract → update `.clinerules/*.md`.
-   - If it’s an operational procedure → update `.clinerules/workflows/*.md`.
+   - If it’s a permanent constraint/contract → update `docs/agent/rules/*.md`.
+   - If it’s an operational procedure → update `docs/agent/workflows/*.md`.
 
 3. **Remove duplication:**
    - If you updated a rule/workflow, ensure `/docs` doesn’t also carry the same enforcement text.

@@ -2,6 +2,7 @@ import { LocalizedLink } from "./localized-link";
 import { ArrowUpRight, Plus, Minus } from "lucide-react";
 import { INSTAGRAM_URL, NAV_LINKS, WHATSAPP_URL, type NavGroup, type NavItem } from "@/lib/site";
 import { SiteContainer } from "./site-container";
+import { FeedLink } from "./feed-link";
 import { LinkedinIcon, InstagramIcon, WhatsappIcon } from "@/components/icons/social-icons";
 
 export function SiteFooter() {
@@ -69,6 +70,7 @@ export function SiteFooter() {
               >
                 <WhatsappIcon className="size-5" />
               </a>
+              <FeedLink className="text-muted transition-colors hover:text-ink" iconClassName="size-5" />
             </div>
           </div>
 
@@ -264,6 +266,7 @@ export function SiteFooter() {
             >
               <WhatsappIcon className="size-[22px]" />
             </a>
+            <FeedLink className="text-muted transition-colors hover:text-ink" iconClassName="size-[22px]" />
           </div>
 
           <p className="flex items-center gap-1.5 lg:order-last">

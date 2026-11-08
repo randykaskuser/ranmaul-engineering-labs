@@ -1,0 +1,93 @@
+---
+title: "A Retry That Passes Is Not a Pass"
+description: "A test that fails and then passes on retry is not fixed. It is flagged flaky, and the failure is still unexplained. Playwright's isolated retries, trace on first retry, and failOnFlakyTests turn that signal into a diagnosis instead of a green badge."
+locale: "en"
+domain: "qa"
+slug: "retry-that-passes-is-not-a-pass-playwright"
+canonicalGroup: "qa-playwright-retry-flaky-discipline"
+publishedAt: "2026-10-25"
+updatedAt: "2026-10-25"
+tags: ["playwright", "flaky-tests", "retries", "ci", "debugging"]
+featured: false
+draft: false
+coverImage: "/assets/playwright-retry/thumbnail-en.png"
+---
+
+The build went red. Someone hit rerun. It went green. Everyone moved on.
+
+That sequence is so routine that nobody asks what it actually proved. A test failed, then passed on retry, and the team treated the green badge as the end of the story. It is not. It is a bug report that nobody read.
+
+Playwright itself knows this. A test that fails first and passes on retry is reported as flaky, not as passed. The distinction is the whole point of this article.
+
+## Why a retry hides the problem
+
+The default retry behaviour runs the failed test again as soon as a worker is free. That means the retry often runs in the middle of the same busy, parallel suite that may have caused the failure in the first place.
+
+A pass under those conditions answers nothing. Did the test pass because the underlying problem went away, or because the load, the timing, or the shared state happened to line up differently this time? The retry cannot tell you. It only tells you that the test is capable of passing, which you already knew.
+
+Worse, retries train a team to stop looking. Once a suite has a retry count, every intermittent failure has a ready-made explanation: just rerun it. The flaky list in the report grows quietly, and the one failure that is a real product bug gets the same treatment as the twenty that are not.
+
+This is a different problem from the one in the earlier shuffle article. Shuffling answers whether tests depend on each other's order. Retries answer whether a single test is stable on its own. You need both answers.
+
+## Isolated retries: change what a retry can tell you
+
+Playwright 1.62 added a config option called `retryStrategy`. The default, `'immediate'`, keeps the old behaviour: retries run as soon as a worker is free. The new value, `'isolated'`, runs all retries at the end of the run, one by one, in a single worker.
+
+```ts
+export default defineConfig({
+  retries: 2,
+  retryStrategy: 'isolated',
+});
+```
+
+The release notes state the goal plainly: minimise interference with the rest of the suite. That small change turns a retry into a diagnostic instrument.
+
+If a test still fails in isolation, it is flaky on its own: a timing assumption, a locator that matches the wrong element, a race in the product. If it passes in isolation but fails in the parallel run, the problem is the load or the shared state around it. Those are two different bugs with two different fixes, and only the isolated retry separates them.
+
+Isolated retries cost wall-clock time at the end of the run. That is the price of an answer you can trust.
+
+## Trace on first retry: capture the failure, not the rerun
+
+A retry that passes destroys its own evidence unless you recorded the failure. The cheapest recording that still catches what matters is a trace on the first retry:
+
+```ts
+export default defineConfig({
+  retries: 1,
+  use: {
+    trace: 'on-first-retry',
+  },
+});
+```
+
+The documented meaning of that value is exact: record a trace only when retrying a test for the first time. Clean runs stay fast and disk stays empty. Every failure that matters leaves a recording.
+
+Open it with `npx playwright show-trace path/to/trace.zip`, or from the HTML report's View trace button. Read it in this order: Actions first, which shows the locator used for every action and how long each one took. Click the action that failed, then compare its Before and After snapshots. That pair is where a locator that matched the wrong element stops being a theory. Network and Console filter to the selected action, so a response that arrived late sits in the same view as the action that needed it.
+
+A failing assertion with a trace attached tells you what the DOM, network, and console looked like at the moment it broke. A failing assertion with just a red X in CI tells you to reproduce it locally and hope it happens again.
+
+## failOnFlakyTests: make flaky a gate, not a shrug
+
+Since Playwright 1.52, the config option `failOnFlakyTests` fails the whole run when any test is flaky. The CLI equivalent is `--fail-on-flaky-tests`. It exists for exactly one purpose: to stop a team from merging while flaky tests accumulate.
+
+Use it on pull requests, once the existing flaky list is under control. Turning it on while the suite already has twenty known flakes just trains everyone to ignore red builds, which is the habit you are trying to break.
+
+The rule that makes the gate work is boring and non-negotiable: the flaky list is a bug list. Every entry gets an owner and a diagnosis, the way a failing test would. A test that retries on every third run is a bug in your suite, and raising the retry count only delays the day it fails for real and nobody trusts the result.
+
+## A retry discipline checklist
+
+- Keep one or two retries in CI, never more. Retries are a detector, not a cure.
+- Set `retryStrategy: 'isolated'` so a retry result means something.
+- Record a trace on the first retry, and read it before rerunning anything by hand.
+- Before reporting a bug from a full run, run the failing test alone. If it passes alone, the problem is the run around it.
+- Reproduce stubborn cases with `npx playwright test my.spec.ts --repeat-each=20`. Twenty passes in a row are not proof, but one failure is.
+- Track the flaky list like a bug list, with owners. Turn on `failOnFlakyTests` for pull requests once the list is clean.
+
+## Conclusion
+
+A retry that passes is not a pass. It is a test telling you it failed once and you do not know why. Isolated retries, a trace on the first retry, and a flaky gate turn that shrug into an answer: flaky on its own, or broken by the run around it. Read the answer before you merge.
+
+## References
+
+- Microsoft (2026). Playwright release notes: isolated retries (`retryStrategy`), version 1.62. playwright.dev
+- Microsoft (2026). Playwright Test configuration: `retries`, `failOnFlakyTests` (since 1.52), `trace: 'on-first-retry'`. playwright.dev
+- Microsoft (2026). Playwright v1.64.0 release notes. github.com/microsoft/playwright/releases/tag/v1.64.0

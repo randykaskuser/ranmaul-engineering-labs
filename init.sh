@@ -9,7 +9,8 @@ cd "$ROOT_DIR"
 
 INSTALL_CMD=(npm install)
 LINT_CMD=(npm run lint)
-VERIFY_CMD=(npm run build) # next build + postbuild (sets lang="id" on out/id/**)
+VERIFY_CMD=(npm run build) # next build (incl. TypeScript) + postbuild (sets lang="id" on out/id/**)
+SMOKE_CMD=(node scripts/smoke.mjs) # key routes, internal links, lang="id" on out/
 START_CMD=(npm run dev)
 
 # Next.js 16 needs Node 20.9 or newer.
@@ -29,6 +30,9 @@ echo "==> Lint"
 
 echo "==> Running baseline verification (static export to out/)"
 "${VERIFY_CMD[@]}"
+
+echo "==> Smoke check on out/"
+"${SMOKE_CMD[@]}"
 
 echo "==> Startup command"
 printf '    %q' "${START_CMD[@]}"

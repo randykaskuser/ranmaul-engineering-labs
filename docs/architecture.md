@@ -50,6 +50,8 @@ Analytics:
     /{locale}/{domain}/{slug}
     /{locale}/tags, /{locale}/tags/{tag}
     /{locale}/drone-portfolio, /{locale}/tools, /{locale}/projects, /{locale}/contact
+    /{locale}/feed.xml              (RSS 2.0, published articles of that locale)
+    /sitemap.xml, /robots.txt
 
 Locale handling (static export, no middleware):
 - Links to locale-only sections go through `localizeHref()` in `lib/site.ts`.
@@ -61,6 +63,11 @@ Locale handling (static export, no middleware):
   navigation.
 - Legacy URLs (`/qa-lab`, `/fpv-lab`, `/fishkeeping`, `/drone-portfolio`, `/qa`,
   `/fpv`, `/notes`, `/tools`, `/projects`, `/contact`) are 301s in `public/_redirects` (Cloudflare Pages).
+
+RSS: `app/[locale]/feed.xml/route.ts` is a force-static Route Handler, so the
+build writes `out/{locale}/feed.xml`. Items are summary-only (frontmatter
+`description`). `createPageMetadata` adds the feed autodiscovery `<link>` for the
+page's locale; the footer links to it.
 
 ---
 
@@ -84,7 +91,6 @@ Style:
 Planned later:
 - MDX blog engine
 - tagging system
-- RSS
 - search
 - SEO enhancements
 - utilities/tools

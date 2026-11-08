@@ -1,0 +1,115 @@
+---
+title: "Jangan Hapus Playwright. Audit Dulu Browser yang Dijalankannya."
+description: "Sebuah postingan viral menyuruh tester menghapus Playwright karena browser-nya membawa CVE. Klaim itu salah soal mekanismenya, tapi di baliknya ada pertanyaan yang nyata: browser apa yang sebenarnya dijalankan suite-mu, dan sudah setua apa browser itu?"
+locale: "id"
+domain: "qa"
+slug: "jangan-hapus-playwright-audit-browsernya"
+canonicalGroup: "qa-playwright-browser-security-scare-audit"
+publishedAt: "2026-11-06"
+updatedAt: "2026-11-06"
+tags: ["playwright", "browser-security", "test-automation", "chromium", "ci"]
+featured: false
+draft: false
+coverImage: "/assets/playwright-browser-audit/thumbnail-id.png"
+---
+
+Sebuah postingan viral minggu ini menyuruh tester menghapus Playwright. Argumennya sederhana: Playwright membawa browser, browser mengumpulkan CVE, jadi tool itu risiko keamanan yang duduk di mesinmu. Pada 3 November 2026, akun resmi Playwright menjawab dengan security reminder panjang di X, menyebut klaim itu misconception dan menjelaskan cara kerja browser-nya.
+
+Jawaban resmi itu benar soal faktanya. Tapi "klaimnya salah" bukan berarti "tidak ada yang perlu dilakukan." Postingan viral itu salah sasaran soal mekanisme, dan di bawahnya ada pertanyaan yang layak dijawab dengan serius: browser apa yang sebenarnya dijalankan test suite-mu, dan sudah setua apa browser itu?
+
+## Apa yang sebenarnya di-install Playwright
+
+Saat kamu menjalankan `npm install playwright` atau menambahkan `@playwright/test` ke project, yang kamu dapat adalah automation library dan test runner. Kamu tidak mendapat browser. Package itu tidak berisi binary browser sama sekali.
+
+Browser datang lewat langkah terpisah yang eksplisit:
+
+```bash
+npx playwright install
+```
+
+Perintah itu mengunduh browser build ke folder cache lokal. Di Linux lokasinya `~/.cache/ms-playwright`, di macOS `~/Library/Caches/ms-playwright`, dan di Windows `%USERPROFILE%\AppData\Local\ms-playwright`. Tidak ada yang disembunyikan dari langkah ini. Ini bagian normal dari setup, tercantum sebagai langkah sendiri di getting-started guide.
+
+Build yang diunduh itu di-pin. Setiap release Playwright menyatakan, di `browsers.json`, revision browser persis yang sudah diuji terhadap release itu, dan perintah install mengambil revision itu. Pinning membuat library versi yang sama berperilaku identik di laptopmu dan di CI. Reproducibility adalah fiturnya.
+
+Build Chromium yang diunduh adalah Chrome for Testing. Itu label yang tertulis di `browsers.json` sendiri, di samping revision dan version. Saya memeriksa file itu di tag `v1.64.1`: Chromium revision 1248, Chrome for Testing 156.0.8078.4. Di `main`, angkanya sudah bergerak ke revision 1254, Chrome for Testing 158.0.8127.18. Pin itu publik, ada di repo, bisa dibaca siapa saja.
+
+Jadi ringkasan jujurnya membosankan, dan itu bagus. Playwright mengunduh browser build yang di-pin dan khusus untuk automation, atas permintaan, ke folder cache. Build itu bukan browser harianmu.
+
+## Tiga cara menjalankan Playwright, tiga browser berbeda
+
+Hampir semua kebingungan berasal dari memperlakukan "Playwright" sebagai satu hal. Padahal ada tiga, dan masing-masing memilih browser dan cara update yang berbeda.
+
+| Mode | Browser yang dipakai | Cara update | Sandbox default |
+| --- | --- | --- | --- |
+| Playwright MCP / CLI | Google Chrome (atau Edge) yang sudah ter-install | Auto-update vendor, seperti browsing biasa | On |
+| Test runner (`npx playwright test`) | Chrome for Testing yang di-pin untuk versi Playwright-mu | Hanya saat kamu upgrade Playwright dan menjalankan ulang `playwright install` | Off |
+| Library API (`chromium.launch()`) | Build yang di-pin yang sama, secara default | Hanya saat kamu upgrade Playwright dan menjalankan ulang `playwright install` | Off, tapi kamu bisa beralih ke Chrome ter-install dengan sandbox on |
+
+**MCP dan CLI.** Tool untuk agent ini yang paling dibayangkan orang saat membaca "browser dengan CVE", padahal inilah yang paling sedikit terpapar. Dokumen konfigurasi MCP mencantumkan `chrome` sebagai browser default: Google Chrome yang sudah ter-install di mesinmu, dengan Edge sebagai opsi. Chrome ter-install itu update sendiri lewat channel normal Google. MCP menyediakan flag `--sandbox` dan `--no-sandbox`, dengan sandbox aktif kecuali kamu sengaja mematikannya. Halaman berbahaya yang dikunjungi agent tetap harus menembus Chrome terbaru yang ter-sandbox.
+
+**Test runner.** Saat kamu menjalankan suite, Playwright meluncurkan Chrome for Testing yang di-pin untuk versi yang ter-install. Build itu tidak auto-update, by design. Browser yang diam-diam berubah semalam akan membuat hasil test tidak reproducible. Sandbox-nya off secara default. API reference menyatakan jelas bahwa opsi launch `chromiumSandbox` default-nya `false`. Alasan Playwright: test browser memuat aplikasimu sendiri, target yang trusted, dan sandboxing Chromium gagal total di banyak environment CI dan container.
+
+**Library API.** `chromium.launch()` memakai build yang di-pin yang sama dan default sandbox-off yang sama. Bedanya, di sinilah orang menulis scraper, crawler, dan script agent yang mengunjungi halaman yang tidak mereka kendalikan. Untuk kasus itu, postingan resmi menyarankan mengganti kedua setting dalam satu baris:
+
+```ts
+const browser = await chromium.launch({
+  channel: 'chrome',        // pakai Chrome ter-install yang auto-update
+  chromiumSandbox: true,    // nyalakan lagi sandbox-nya
+});
+```
+
+Itu saran yang bagus, dan bagian dari jawaban resmi yang layak disalin ke setiap project scraping.
+
+## Periksa mesinmu sendiri
+
+Postingan viral itu alasan yang bagus untuk audit enam puluh detik. Kamu tidak perlu percaya ringkasan siapa pun. Buktinya ada di diskmu.
+
+Pertama, lihat apa yang ter-install:
+
+```bash
+npx playwright install --list
+```
+
+Lalu lihat folder cache. Setiap nama folder membawa revision-nya:
+
+```bash
+ls ~/.cache/ms-playwright
+# chromium-1248  chromium_headless_shell-1248  firefox-1555  webkit-2370
+```
+
+Bandingkan revision Chromium dengan yang di-pin versi Playwright-mu. Pin itu ada di `node_modules/playwright-core/browsers.json` di project-mu, atau di file yang sama di repo Playwright untuk tag release-mu. Saat saya memeriksa, `@playwright/test` 1.64.1 me-pin revision 1248. Kalau cache-mu menunjukkan angka yang lebih lama, suite-mu menjalankan browser yang lebih lama dari yang diharapkan library-mu, atau library yang lebih lama dari yang kamu kira.
+
+Playwright juga melakukan garbage collection terhadap browser yang tidak lagi dibutuhkan versi yang ter-install, jadi build lama hilang sendiri saat kamu upgrade. Pengecekan di atas tetap penting, karena garbage collector hanya menghapus build yang tidak diklaim client mana pun. Project yang di-pin ke Playwright lama akan mempertahankan browser lamanya tanpa batas waktu.
+
+## Di mana postingan viral itu ada benarnya
+
+Kalau cerita berhenti di sini, vonisnya adalah "tidak ada apa-apa." Ceritanya tidak berhenti di situ. Postingan resmi ditutup dengan "always keep Chrome / Edge updated" dan tidak berkata apa-apa soal menjaga Playwright tetap update. Di situlah celahnya.
+
+Ikuti logika tabel di atas. Browser test runner di-pin, dan di-pin artinya dibekukan. Browser itu menerima security fix hanya saat release Playwright yang lebih baru me-pin build yang lebih baru dan kamu benar-benar upgrade lalu menjalankan ulang `npx playwright install`. Install Playwright dari beberapa bulan lalu menjalankan Chrome for Testing berumur beberapa bulan, dengan sandbox off, dan CVE Chromium bertambah tiap bulan. Untuk suite yang hanya memuat staging app-mu sendiri, itu paparan teoretis. Untuk yang kurang terkendali, itu paparan nyata.
+
+Dua caveat kecil layak disebut. Pertama, "test hanya memuat target trusted" benar untuk aplikasi yang diuji, tapi halaman modern menarik third-party script, iklan, analytics, dan embedded content. Suite yang menjelajah web terbuka atau menguji integrasi third-party juga tidak mengunjungi target yang sepenuhnya trusted. Kedua, semua ini tidak unik untuk Playwright. Setiap framework automation membuat trade-off antara reproducibility dan freshness di suatu tempat. Versi Playwright dari trade-off itu sangat terlihat karena build yang di-pin duduk di folder cache di diskmu.
+
+## Checklist
+
+- **Upgrade Playwright terjadwal, lalu jalankan ulang install.** Setelah setiap upgrade, `npx playwright install` mengganti browser build yang di-pin dengan yang baru. Melewatinya membuat browser lama tetap di cache sementara library mengharapkan yang baru. Dependency pass bulanan menjaga build yang di-pin tetap dalam satu atau dua release dari yang terbaru.
+- **Audit cache sekali.** Jalankan `npx playwright install --list` dan bandingkan revision Chromium dengan `browsers.json` untuk versi Playwright-mu. Kalau tidak cocok, upgrade dan jalankan ulang install.
+- **Untuk scraper dan script agent, pakai Chrome ter-install dengan sandbox on.** Yaitu snippet `channel: 'chrome'` plus `chromiumSandbox: true` di atas. Halaman yang tidak trusted mendapat perlindungan yang sama seperti browsing harianmu.
+- **Jaga Chrome dan Edge tetap update.** Ini saran penutup Playwright sendiri dan saran itu benar. MCP, CLI, dan launch `channel: 'chrome'` apa pun mewarisi kondisi browser ter-install-mu.
+- **Cocokkan mode dengan target.** Sandbox off adalah default yang wajar untuk test suite yang mengarah ke aplikasimu sendiri di CI. Bukan default yang wajar untuk code yang merayapi situs yang tidak kamu kendalikan. Setting itu satu baris. Pilih dengan sadar, jangan mewarisinya begitu saja.
+- **Jangan pakai test build sebagai browser umum.** Build yang di-pin di cache Playwright adalah tool automation. Build itu tidak di-patch mengikuti jadwal browser dan tidak pernah dimaksudkan sebagai jendela tempat kamu membaca email.
+
+## Kesimpulan
+
+Klaim viral itu salah soal mekanisme. Playwright tidak membundel browser. Tool agent-nya menjalankan Chrome auto-update milikmu sendiri dengan sandbox on. Default sandbox-off di test run adalah pilihan yang terdokumentasi untuk target trusted, bukan cacat tersembunyi.
+
+Tapi pelajaran yang benar-benar berguna dari episode ini adalah install Playwright menyimpan patch cycle browser di dalam update cycle library, dan update cycle library adalah yang paling sering dibiarkan telat oleh tim. Jadi: jangan hapus Playwright. Masukkan ke ritme upgrade dependency reguler, jalankan ulang perintah install setiap kali kamu menaikkan versinya, dan nyalakan sandbox dengan Chrome ter-install untuk apa pun yang menjelajah web terbuka. Itu seluruh perbaikannya, dan cuma butuh sekitar satu menit.
+
+## Referensi
+
+- [Playwright, "Browsers"](https://playwright.dev/docs/browsers) — install, lokasi cache, `install --list`, dan panduan update yang dikutip di atas.
+- [Playwright API, "BrowserType"](https://playwright.dev/docs/api/class-browsertype) — `chromiumSandbox` default-nya `false`; `channel` menerima `chrome`, `msedge`, dan channel branded lainnya.
+- [Playwright MCP, "Configuration options"](https://playwright.dev/mcp/configuration/options) — `chrome` adalah browser default; flag `--sandbox` / `--no-sandbox`.
+- [Playwright source, `browsers.json` (v1.64.1)](https://github.com/microsoft/playwright/blob/v1.64.1/packages/playwright-core/browsers.json) — Chromium revision 1248, Chrome for Testing 156.0.8078.4.
+- [Playwright (@playwrightweb), "Playwright and browser security reminder," X, 3 November 2026](https://x.com/playwrightweb) — jawaban resmi terhadap klaim viral; dikutip dan di-screenshot dalam fact-check Codecaf di bawah.
+- [Codecaf, "Should You Delete Playwright?"](https://codecaf.com/should-you-delete-playwright/) — fact-check yang memverifikasi jawaban resmi terhadap dokumentasi, klaim demi klaim.
+- [Naik ke Playwright 1.64? Cek dulu empat perubahan diam-diam ini](https://ranmaul.com/id/qa/playwright-164-perubahan-diam-diam-checklist-upgrade) — artikel pendamping soal apa lagi yang berubah saat kamu menaikkan versi.

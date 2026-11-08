@@ -1,31 +1,31 @@
 {
   "features": [
     {
-      "id": "1",
+      "id": 1,
       "title": "Migrate to OpenNext",
       "status": "abandoned",
       "reason": "OpenNext bundles exceeded Cloudflare free/paid worker size limits (15MB+). Switched to pure Static HTML Export instead which bypasses limits and works faster."
     },
     {
-      "id": "2",
+      "id": 2,
       "title": "Convert to Static Export",
       "status": "completed",
       "reason": "Site is now 100% static, builds instantly on Cloudflare Pages."
     },
     {
-      "id": "3",
+      "id": 3,
       "title": "Restore Background Videos to R2",
       "status": "completed",
       "reason": "Restored from git history and uploaded to Cloudflare R2 bucket."
     },
     {
-      "id": "4",
+      "id": 4,
       "title": "Add Notes Domain and Layoff Article",
       "status": "completed",
       "reason": "Added notes domain, published bilingual layoff article, fixed article CSS list styles. PR #23 created."
     },
     {
-      "id": "5",
+      "id": 5,
       "title": "Add Dark Mode and Restructure Header",
       "status": "completed",
       "reason": "Installed next-themes, implemented ThemeProvider, updated token CSS, moved EN/ID toggle next to ThemeToggle outside mobile menu. Fixed UI hydration errors during SSG build."
@@ -74,9 +74,30 @@
     },
     {
       "id": 13,
+      "title": "RSS feed per locale (Phase 8)",
+      "status": "completed",
+      "reason": "RSS 2.0 feeds at /en/feed.xml and /id/feed.xml from a force-static Route Handler (app/[locale]/feed.xml/route.ts): published articles of the locale, newest first, summary-only (frontmatter description), tags as categories, lastBuildDate from newest updatedAt (deterministic). Autodiscovery <link rel=alternate type=application/rss+xml> on every page via createPageMetadata (root layout covers EN-only pages). RSS icon in footer (desktop + mobile) links to the current locale's feed. Smoke check now verifies feeds. Spec: docs/planning/2026-10-15-rss-feed.md.",
+      "verification": "./init.sh exit 0 (lint 0 errors, 2 warnings in untouched files; build; smoke OK, 111 pages, 17 key routes incl. both feeds). Feeds: en 10 items, id 10 items, both parse with Python xml.etree. Smoke fails as expected when an item is removed from en/feed.xml (9 vs 10). Autodiscovery checked in out/index.html (en), out/id.html and out/id/fpv.html (id), out/cv-randy-maulana.html (en). Playwright footer screenshots at 1440px (/id, /en/fpv) and 390px (/id) with clean URLs: RSS icon visible, href /id/feed.xml on ID pages and /en/feed.xml on EN pages."
+    },
+    {
+      "id": 14,
+      "title": "Fix O4 gyro swap article filenames to match slugs",
+      "status": "completed",
+      "reason": "Articles were merged with en- and id- filename prefixes, causing getArticleByRoute to fail on fast path and render 404 pages during SSG build. Files renamed to match slugs; merged in PR #56.",
+      "verification": "./init.sh exit 0 (lint 0 errors, build 137 pages, smoke OK 66/66 id pages lang=id)"
+    },
+    {
+      "id": 15,
+      "title": "Fix mobile horizontal overflow on article pages + dependency/security bumps",
+      "status": "completed",
+      "reason": "At 390px, article pages scrolled sideways and cut text off: the single-column grid had no explicit track (min-content grew with long code/URLs), raw reference URLs did not wrap, and the sidebar Reveal x-offset added 10px. Fixed with grid-cols-[minmax(0,1fr)], overflow-wrap:anywhere on prose links, overflow-x-clip on the article section. Also bumped next 16.3.3->16.4.3 (clears GHSA-2464-fhr4-w9xw, GHSA-p3m5-59mp-jv5r, GHSA-673q-mjm6-r5xr), wrangler, sharp, undici, brace-expansion, source-map-js, zod (npm audit: 0 vulnerabilities). Replaces Dependabot PRs #44-#47, #49.",
+      "verification": "./init.sh exit 0 (lint 0 errors, 169 pages, smoke OK, 82/82 id pages lang=id). Playwright: 34 article pages x 390px/1440px, scrollWidth <= viewport on all 68 (before: 30+ overflowed at 390px, up to 736px). Sticky aside still pins at top-24 on 1440px."
+    },
+    {
+      "id": 16,
       "title": "Drone portfolio interactive Flight Map",
       "status": "planned",
-      "reason": "Spec written: docs/planning/2026-10-04-drone-flight-map.md (Leaflet + Esri imagery, data from portfolio frontmatter coordinates/flightType). Blocked on: Esri tile licensing check, and location coordinates from the user. No code yet."
+      "reason": "Spec written: docs/planning/2026-10-04-drone-flight-map.md (Leaflet + Esri imagery, data from portfolio frontmatter coordinates/flightType). Prerequisite done: rotated portfolio file names fixed. Blocked on: Esri tile licensing check, and location coordinates from the user (from original photo EXIF/DJI SRT). No code yet."
     }
   ]
 }

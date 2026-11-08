@@ -1,5 +1,29 @@
 # Session Progress
 
+## Current state
+
+Keep this block short and current. Rewrite it at the end of every session.
+
+- **Last verified:** 2026-10-25. `./init.sh` exit 0: lint 0 errors (2 warnings in untouched files), build 169 pages, smoke OK (8812 internal links, 17 key routes, 82/82 `/id` pages `lang="id"`). `npm audit`: 0 vulnerabilities.
+- **Active feature:** none (15 completed).
+- **Next step:** ask the owner. Notion sync PR #37 is broken (wraps `channa-andrao` body in a code fence, rewinds `updatedAt`); the Notion→MDX converter needs a fix before it is merged.
+- **Open risks:** production deploy could not be checked from the agent container (ranmaul.com blocked by proxy); confirm the live article pages after deploy.
+
+## 2026-10-25 — PR triage + mobile article overflow (feature 15)
+
+- Reviewed 7 open PRs. Merged #57 (smoke guard for silent 404 article pages) after fixing a false positive: titles with an apostrophe are HTML-escaped (`&#x27;`) in `<title>`, so the guard now decodes entities before comparing.
+- Combined Dependabot PRs #44, #45, #46, #47, #49 into one verified bump; also moved `next` to 16.4.3 (3 advisories for 16.0.0-16.4.0) and fixed dev-only `zod` advisory.
+- Not merged: #37 (Notion sync) - corrupts article content.
+- Found article pages overflowing horizontally at 390px (text cut off on the right). Root causes and fixes in feature 15.
+
+## 2026-10-23 — Fix O4 gyro swap article filenames (feature 14)
+
+- Investigated Cloudflare Pages deployment 404 on `/en/fpv/recovering-o4-pro-footage-2026-gyro-swap` and `/id/fpv/selamatkan-footage-o4-pro-pergantian-gyro-2026`.
+- Root cause: `lib/content.ts` fast-path `getArticleByRoute` resolves article MDX files using `${slug}.mdx`. The articles added in PR #54 were named with prefixes (`en-recovering-o4-pro-footage-2026-gyro-swap.mdx` and `id-selamatkan-footage-o4-pro-pergantian-gyro-2026.mdx`), causing `getArticleByRoute` to throw ENOENT, catch, and return `null`, rendering Next.js `notFound()` error pages during static export.
+- Also resolved secondary issue where `scripts/set-html-lang.mjs` skipped the Indonesian page (because the 404 page rendered `<html id="__next_error__">` instead of `<html lang="en">`).
+- Renamed both MDX files to match their frontmatter slugs exactly.
+- Verification: `./init.sh` exit 0 (137 pages, 7142 internal links, 66/66 Indonesian pages `lang="id"`). Built HTML files in `out/` contain full article content and exact titles.
+
 ## 2026-08-19
 - Added `next-themes` and `lucide-react` dependencies.
 - Added `<ThemeProvider>` in `app/layout.tsx`.
@@ -157,6 +181,46 @@
 - Drone portfolio "Recent Reels" redesign (branch `feat/recent-reels-cards`): replaced the 2-column Instagram iframe grid with a 4-column card grid (1 col mobile, 2 tablet): cover image, centered play button, "Instagram Reel" kicker, bold title. Clicking a card opens the reel embed in the existing `Lightbox` (video frame changed from 16:9 to portrait 4:5). Section header gained a "View all reels ->" link to @newbie.drone. Homepage untouched.
 - Reel covers downloaded from Instagram into `public/images/portfolio/reels/` (Instagram CDN URLs expire) and referenced with a new optional portfolio frontmatter field `thumbnail` (`lib/portfolio.ts`). Kept separate from `image` so video items stay out of the hero slideshow.
 - Verification: lint 0 errors (2 pre-existing warnings in untouched files), tsc clean, build OK (116 pages); visual check at 1440px and 390px via Playwright screenshots; lightbox opens and loads the embed.
+
+## 2026-09-29 — Harness adaptation (long-running agent pattern)
+- Adapted the harness template (learn-harness-engineering `CLAUDE.md`) into the existing `AGENTS.md`, not as a second copy. `CLAUDE.md` stays `@AGENTS.md`.
+- `AGENTS.md`: new "Commands" table (real commands), startup step 5 now requires `./init.sh` exit 0, "no unfinished feature -> ask owner, do not invent", two new rules (no weakening checks, no hiding unfinished work in the feature list), documented `feature_list.json` schema, concrete Definition Of Done, deduplicated End Of Session.
+- New `scripts/smoke.mjs` (no deps), run by `init.sh` after the build: key routes exist, every internal `href`/`src` in `out/**/*.html` resolves (or is a `_redirects` source), every `out/id/**` page has `lang="id"`. Re-creates the crawl checks earlier sessions ran ad hoc and never committed.
+- New `.github/workflows/verify.yml`: `npm ci`, lint, build, smoke on every PR and push to main. PRs already get a Cloudflare Pages check and CodeQL (both configured outside `.github/workflows`); this adds lint and the smoke check, and its build step likely overlaps Cloudflare's. Action SHAs match `notion-sync.yml`.
+- `feature_list.json`: ids 1–5 changed from strings to numbers; no entries added, removed, or re-statused.
+- `session-handoff.md`: stale PR #23 content replaced with a "No active handoff" stub + format.
+- `tsconfig.tsbuildinfo` untracked + gitignored (build cache; `tsc --noEmit` dirtied the tree).
+- Docs drift: README and `docs/agent/rules/README.md` pointed to a non-existent `.clinerules/`; fixed, plus the two live workflows that referenced it. README domain list now includes `notes`. Historical specs/plans under `docs/planning` and `docs/superpowers` left unchanged.
+- Verification: smoke check proven to fail on an injected broken link, a missing `sitemap.xml`, and a `/id` page with `lang="en"` (then restored). `npm ci` + `./init.sh` exit 0 (see "Current state").
+- Not verified: `verify.yml` has not run on GitHub yet; it runs on the first PR that carries it.
+- Follow-up: merged as #40. `verify` passed on GitHub (smoke: 111 pages, 5488 links, OK). `github-advanced-security` (Copilot code scanning) fails in GitHub's service before scanning ("400 The requested model is not supported"); not fixable from the repo — owner to disable it or wait for GitHub.
+
+## 2026-09-29 (b) — GitHub Actions to Node 24 runtime
+- GitHub warned that the pinned `actions/checkout` and `actions/setup-node` v4 target the deprecated Node 20 runtime.
+- `verify.yml`: checkout v4 -> v7.0.1 (`3d3c42e`), setup-node v4 -> v7.0.0 (`8207627`). `notion-sync.yml`: setup-node -> v7.0.0. SHAs resolved from upstream tags; both declare `runs.using: node24`.
+- Not bumped: `notion-sync.yml` checkout stays v4. checkout v6+ stores persisted credentials in a separate file, and `peter-evans/create-pull-request` pushes with those credentials; compatibility was not verified. GitHub already forces the v4 action onto Node 24, so it keeps working (warning only).
+- Cloudflare Pages deploys through Cloudflare's Git integration, not a GitHub workflow, so these files do not affect it.
+
+## 2026-10-01 — Prompt audit of agent instruction files
+
+Owner-requested cleanup (no `feature_list.json` entry; not a product feature).
+
+- `AGENTS.md`: roadmap location now points at `docs/roadmap.md` (`docs/roadmaps/` never existed); dropped the stale "(Phase 1)" label on the scope guardrails.
+- `docs/agent/rules/roadmap-scope-guardrails.md`: removed the Phase 1 boundary block (Phase 1 and MDX are done per `docs/roadmap.md`); kept "advanced i18n systems" in the forbidden list.
+- `.claude/skills/technical-blogger/SKILL.md`: trigger-style description; two explicit approval gates with the reason; outline fits article type (no fixed 12-part template / CTA); removed stock transition phrases and the self-scoring rubric; fixed inverted checklist items; frontmatter must follow the repo contract.
+- `qa-automation-skills/playwright-robot/SKILL.md`: trigger-style description; step order stated with reason; fix loop no longer allows changing assertions to force a pass (report as defect).
+- Verification: `./init.sh` exit 0 (lint 0 errors, 2 warnings in untouched files; build 111 pages; smoke OK, 5488 internal links, 52/52 `/id` pages `lang="id"`).
+- Open, owner decision: Framer Motion is forbidden in `AGENTS.md`, `roadmap-scope-guardrails.md`, and `docs/rules.md` but used in 5 components. RSS is forbidden in `AGENTS.md` but listed as open in roadmap Phase 8.
+- Resolved (owner decision, same day): Framer Motion is allowed for subtle UI transitions and RSS is allowed (roadmap Phase 8). Updated `AGENTS.md`, `roadmap-scope-guardrails.md`, `docs/rules.md`. `docs/roadmap.md` already plans RSS; README "avoids heavy animation" still holds.
+
+## 2026-10-15 — RSS feed (feature 13)
+
+- Added RSS 2.0 feeds per locale: `/en/feed.xml`, `/id/feed.xml` (`app/[locale]/feed.xml/route.ts`, force-static). Summary-only items; deterministic `lastBuildDate`.
+- Feed autodiscovery on every page (`feedAlternate()` in `lib/page-metadata.ts`, used by `createPageMetadata` and the root layout).
+- Footer RSS icon (`components/layout/feed-link.tsx`, plain `<a>` with the current locale).
+- `scripts/smoke.mjs` now checks both feeds (RSS 2.0, language, item count = article pages, links resolve).
+- Docs: spec `docs/planning/2026-10-15-rss-feed.md`; roadmap Phase 8, architecture routes, README status, scope guardrails.
+- Verification: see `feature_list.json` id 13. Note: local screenshot servers must use clean URLs (`/id`, not `/id.html`), or the client locale detection reads the `.html` path as English after hydration. Cloudflare Pages serves clean URLs, so production is unaffected.
 
 ## 2026-10-04
 - Flight Map spec: `docs/planning/2026-10-04-drone-flight-map.md`. Decisions: Leaflet 1.9.4 (vanilla, lazy-loaded), Esri World Imagery + labels, data from portfolio frontmatter (`coordinates` rounded to 2 decimals, `flightType` default `aerial`), recenter button = fit all pins (GPS is blocked by our Permissions-Policy). Docs only, no code.

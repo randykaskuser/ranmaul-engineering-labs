@@ -5,6 +5,7 @@ security-hardening-auditor-workspace/
 .next/
 out/
 next-env.d.ts
+tsconfig.tsbuildinfo
 
 # deps
 node_modules/

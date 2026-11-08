@@ -22,7 +22,7 @@
     "lucide-react": "^1.32.0",
     "motion-dom": "^12.42.2",
     "motion-utils": "^12.39.0",
-    "next": "16.3.3",
+    "next": "16.4.3",
     "next-mdx-remote": "^6.0.0",
     "next-themes": "^0.4.6",
     "react": "19.2.4",
@@ -42,7 +42,7 @@
     "eslint-plugin-react": "^7.37.5",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "wrangler": "^4.115.0"
+    "wrangler": "^4.151.0"
   },
   "overrides": {
     "postcss": "^8.5.14",
@@ -52,6 +52,6 @@
     "@tootallnate/once": "^2.0.1",
     "undici": "^6.27.0",
     "minimatch": "^10.2.6",
-    "sharp": "^0.35.4"
+    "sharp": "^0.35.5"
   }
 }

@@ -1,0 +1,86 @@
+---
+title: "Naik ke Playwright 1.64? Cek Dulu Empat Perubahan Diam-Diam Ini"
+description: "Playwright 1.64 membawa empat breaking change yang tidak mengumumkan dirinya. Tiga bisa membuat tes hijau jadi merah, dan satu bisa membuat run merah jadi hijau. Cek keempatnya sebelum menyebut upgrade selesai."
+locale: "id"
+domain: "qa"
+slug: "playwright-164-perubahan-diam-diam-checklist-upgrade"
+canonicalGroup: "qa-playwright-164-behaviour-changes"
+publishedAt: "2026-10-27"
+updatedAt: "2026-10-27"
+tags: ["playwright", "snapshots", "ci", "upgrade"]
+featured: false
+draft: false
+coverImage: "/assets/playwright-164/thumbnail-id.png"
+---
+
+Playwright 1.64, rilis 7 Oktober 2026, mudah di-upgrade dengan cara yang salah. Fitur utamanya berisik: dukungan WebMCP, `locator.within()`, `--shuffle`. Breaking change-nya diam. Empat di antaranya mengubah apa yang dilakukan tes-tesmu yang sudah ada, dan tidak satu pun muncul sebagai API baru yang kamu pilih sendiri.
+
+Artikel ini hanya membahas keempat perubahan itu. Cerita shuffle dan retry ada di artikelnya masing-masing. Jalankan empat cek ini sebelum kamu merge upgrade.
+
+## Cek 1: screen kini berasal dari device descriptor
+
+Di 1.64, properti `screen` diteruskan dari device descriptor. Kalau kamu menyebar descriptor ke dalam `use`, `window.screen` dan media query berbasis layar kini melihat ukuran layar emulasi, bukan ukuran mesin host.
+
+Siapa yang kena: suite apa pun dengan layout responsif yang digerakkan `window.screen`, dan setup apa pun yang membandingkan descriptor desktop dan ponsel. Tes layout mobile bisa mulai berperilaku berbeda tanpa alasan yang terlihat di kodenya sendiri.
+
+Dalam kebanyakan kasus, perilaku baru ini adalah yang benar. Perlakukan opt-out sebagai jembatan, bukan tujuan:
+
+```ts
+export default defineConfig({
+  use: {
+    ...devices['Desktop Chrome'],
+    screen: undefined,
+  },
+});
+```
+
+Cek: cari `window.screen` dan media query lebar layar di suite-mu, dan jalankan tes-tes itu terhadap upgrade lebih dulu.
+
+## Cek 2: JSX di file tes kini mengikuti tsconfig.json
+
+Playwright kini mengompilasi JSX di file tes sesuai opsi `tsconfig.json`: `jsx`, `jsxFactory`, `jsxFragmentFactory`, dan `jsxImportSource`. Bawaannya adalah automatic runtime dari `react/jsx-runtime`.
+
+Kebanyakan setup React tidak akan merasakan. Setup component testing dengan factory kustom akan merasakan. Kalau proyekmu memakai Preact, Solid, atau pragma kustom, atur `jsxImportSource` atau `jsxFactory` secara eksplisit, jangan mengandalkan bawaan lama Playwright.
+
+Cek: buka `tsconfig.json`, pastikan opsi JSX-nya menyatakan apa yang kamu kira, dan jalankan component test apa pun yang memakai factory non-React.
+
+## Cek 3: --update-snapshots=missing kini meloloskan run
+
+Ini yang berbahaya, karena bergerak ke arah hijau. Tes yang hanya membuat snapshot yang hilang kini lolos dalam mode `'missing'` dari `testConfig.updateSnapshots`. Mode yang dipakai ketika kamu tidak menentukan apa pun kini bernama `'default'`, dan berperilaku seperti dulu: snapshot yang hilang ditulis dan tesnya gagal.
+
+| Mode | Snapshot yang hilang | Hasil run |
+| --- | --- | --- |
+| `default` | Ditulis | Gagal pada tes yang menulis file |
+| `missing` | Ditulis | Lolos (baru di 1.64) |
+| `changed` | Ditulis | Lolos |
+| `all` | Ditulis ulang | Lolos |
+| `none` | Tidak ditulis | Gagal pada apa pun yang hilang atau berbeda |
+
+Risikonya adalah job CI yang dikonfigurasi dengan `missing` sebagai jaring pengaman. Sebelum 1.64 ia gagal dengan lantang ketika baseline tidak ada. Sekarang ia lolos dan diam-diam meng-commit baseline baru yang belum pernah diverifikasi manusia.
+
+Cek: audit setiap workflow yang mengatur mode snapshot. Kalau CI seharusnya menangkap baseline yang hilang, ia harus memakai `default` atau `none`, jangan pernah `missing`.
+
+## Cek 4: elemen di dalam iframe tersembunyi kini dianggap hidden
+
+Elemen di dalam iframe yang tidak terlihat, misalnya dengan `visibility: hidden`, kini dianggap hidden oleh aksi, `locator.isVisible()`, dan `expect(locator).toBeVisible()`.
+
+Cek tes apa pun yang mengandalkan perilaku lama di sekitar widget tertanam: embed pihak ketiga, frame pembayaran tersembunyi, panel terlipat yang berisi iframe. Tes yang meng-assert visibility di dalam frame tersembunyi kini akan gagal, dan kali ini tesnya benar dan asumsinya yang salah.
+
+Cek: cari assertion `toBeVisible` di sekitar iframe, dan tes apa pun yang berinteraksi dengan konten di dalam frame yang awalnya tersembunyi.
+
+## Checklist upgrade
+
+- Naikkan ke 1.64 di branch, bukan di main. Jalankan seluruh suite satu kali dan baca kegagalannya sebagai daftar, bukan satu per satu.
+- Audit pemakaian `window.screen` dan media query berbasis layar (Cek 1).
+- Konfirmasi opsi JSX `tsconfig.json` untuk factory non-React apa pun (Cek 2).
+- Audit setiap mode snapshot CI; `missing` tidak boleh menjadi jaring pengamanmu (Cek 3).
+- Cari assertion visibility di sekitar iframe (Cek 4).
+- Baru setelah itu merge. Run hijau setelah cek-cek ini berarti sesuatu. Run hijau sebelum itu bisa jadi tidak berarti apa-apa.
+
+## Kesimpulan
+
+Empat perubahan diam-diam, empat perbaikan satu baris, dan satu kebiasaan: baca bagian breaking change sebelum bagian fitur. Fitur adalah alasanmu upgrade. Breaking change adalah apa yang sebenarnya dilakukan upgrade terhadap suite-mu.
+
+## Referensi
+
+- [Playwright release notes, versi 1.64](https://playwright.dev/docs/release-notes)

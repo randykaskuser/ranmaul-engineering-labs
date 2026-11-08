@@ -1,0 +1,73 @@
+---
+title: "Gyro O4 Pro Belum Mati: Uji Dulu Perbaikan Software Sebelum Ganti Hardware"
+description: "Gyroflow nightly dan FPVFlow 1.0.3 kini memperbaiki rotasi palsu DJI O4 Gyrogate lewat software. Sebelum membayar swap gyro, uji perbaikannya pada footage-mu sendiri — dan kenali batasnya."
+locale: "id"
+domain: "fpv"
+slug: "o4-pro-perbaikan-software-sebelum-ganti-hardware"
+canonicalGroup: "fpv-o4-gyro-software-fix"
+publishedAt: "2026-10-28"
+updatedAt: "2026-10-28"
+tags: ["fpv", "dji-o4", "gyroflow", "stabilization", "fpvflow"]
+featured: false
+draft: false
+coverImage: "/assets/o4-gyro-software-fix/thumbnail-id.png"
+---
+
+Lima hari lalu, situs ini menjelaskan cara menyelamatkan footage dari gyro swap 2026. Saran saat itu adalah hardware: kembalikan gyro lama. Saran itu kini berubah, dan artikel ini menjelaskan kenapa — dan di mana saran baru itu berhenti.
+
+Versi singkatnya: komunitas kini punya perbaikan software untuk masalah DJI O4 Gyrogate. Kalau kamu sudah memiliki unit yang terdampak, uji software dulu sebelum membayar swap.
+
+## Gyrogate itu sebenarnya apa
+
+Kamera O4 Air Unit Pro yang diproduksi sejak sekitar Februari 2026, dan semua O4 Lite, memakai gyro TDK ICM-40609-D. Di bawah getaran motor, gyro itu mencatat rotasi palsu singkat pada satu sumbu: sampai sekitar 2 derajat dalam beberapa milidetik. Kamera lalu menariknya kembali secara perlahan selama sekitar 12 detik.
+
+Footage mentahnya terlihat baik-baik saja. Masalah baru muncul saat stabilisasi berjalan. RockSteady dan Gyroflow dengan setia "mengoreksi" rotasi yang tidak pernah terjadi, sehingga video yang distabilisasi bergetar dan bergoyang pelan.
+
+Kamera O4 Pro 2025 original memakai gyro bertanda MP66. Hanya tandanya yang disepakati; sumber-sumber bertentangan soal keluarga part-nya, jadi artikel ini tidak mengklaim lebih dari itu.
+
+## Yang berubah: dua perbaikan software
+
+Pertama, developer Gyroflow merilis nightly build yang menangani masalah gyro O4 Pro baru. Squadding Quads melaporkannya pada akhir Oktober, dan nightly itu tersedia di halaman development build Gyroflow.
+
+Kedua, FPVFlow 1.0.3, fork Gyroflow yang tidak resmi, membawa perbaikan yang sama ke aplikasi desktop. Perbaikannya adalah port dari proyek komunitas o4fix, dengan ide dari DJIFix dan djgyrofix.
+
+Cara kerja perbaikan FPVFlow:
+
+- Saat klip dimuat, ia mendeteksi gyro apa yang kemungkinan besar dimiliki unitmu, dibaca dari model dan dari tanggal produksi yang dikodekan dalam serial number. Ia juga menghitung berapa banyak rotasi palsu yang dikandung klip itu.
+- Perbaikan menyala otomatis untuk klip yang terdampak. Ia menghapus setiap burst palsu, mengembalikan tarikan perlahan kamera atas burst itu, dan melakukan low-pass pada hasilnya. Slider sensitivitas menukar kemampuan menangkap burst kecil dengan risiko menyentuh gerakan cepat yang asli.
+- Klip tanpa rotasi palsu dibiarkan bit-for-bit tidak tersentuh.
+- Menyimpan salinan yang diperbaiki menulis `<name>_gyrofix.MP4` di samping original, dengan hanya nilai attitude yang ditulis ulang. Video dan audio tidak tersentuh, original tidak pernah dimodifikasi, dan salinannya terbuka di FPVFlow, Gyroflow, atau plugin Gyroflow.
+
+Satu syarat menentukan apakah perbaikan bisa bekerja sama sekali: klip membutuhkan track orientasi 1 kHz dari kamera. Rekam dengan RockSteady dan HorizonSteady off, atau tidak ada yang bisa diperbaiki.
+
+## Uji independen: nightly versus FPVFlow
+
+Uji berdampingan pada akhir Oktober menjalankan footage yang sama lewat kedua perbaikan. Gyroflow nightly jelas membaik, tapi error stabilisasi masih muncul selama manuver agresif. FPVFlow menangani gerakan yang sama jauh lebih baik dalam uji itu.
+
+Tidak ada yang sempurna. Dokumentasi FPVFlow mengatakan hal yang sama dengan kata-katanya sendiri: perbaikan menghapus sebagian besar gerakan palsu, bukan semuanya, dan perbaikan sesungguhnya harus datang dari firmware update DJI.
+
+Perlakukan itu sebagai framing yang jujur. Ini perbaikan, bukan obat.
+
+## Yang masih belum diperbaiki
+
+RockSteady masih belum diperbaiki. Gyroflow nightly dan FPVFlow hanya memperbaiki stabilisasi pasca-terbang. Kalau workflow-mu adalah RockSteady di kamera, kamu masih menunggu DJI, dan tidak ada di artikel ini yang mengubah itu.
+
+Perhatikan juga catatan kepercayaan sebelum menginstal apa pun. FPVFlow adalah build yang tidak ditandatangani, jadi macOS memblokirnya saat pertama dibuka sampai kamu menyetujuinya di Privacy and Security. Ini partial workaround, bukan fix DJI, dan setidaknya satu sumber independen belum mengujinya saat menulis tentangnya. Simpan originalmu, dan uji pada salinan dulu.
+
+Satu cek lagi sebelum swap apa pun: mounting kamera. Setidaknya satu tester menemukan unit gyro baru menghasilkan footage bersih pada frame dengan soft-mount yang baik, yang menunjukkan kualitas mounting mengubah seberapa besar masalah itu muncul. Kalau perbaikan software menyisakan artefak, cek mounting sebelum menyimpulkan hardware harus diganti.
+
+## Keputusannya
+
+- Kamu sudah memiliki unit yang terdampak: coba Gyroflow nightly atau FPVFlow 1.0.3 pada klipmu sendiri dulu. Uji itu memakan waktu satu malam, bukan biaya perbaikan.
+- Kamu baru mau membeli: saran pembelian belum berubah. Unit gyro-swapped tetap menjadi pembelian yang lebih aman, dengan satu catatan: Horizon Lock juga bermasalah pada unit swap.
+- Kamu terbang dengan RockSteady: belum ada yang membantu di sini. Tunggu DJI.
+
+Lima hari lalu, mengganti hardware adalah satu-satunya jawaban yang bisa dipertahankan situs ini. Hari ini, software layak mendapat kesempatan pertama. Itu kemajuan, dan pantas dikatakan dengan jelas — bersama segala hal yang tidak diperbaikinya.
+
+## Referensi
+
+- [FPVFlow: DJI O4 Gyrogate repair](https://rodrigosclosa.github.io/fpvflow/)
+- [FPVFlow di GitHub](https://github.com/rodrigosclosa/fpvflow)
+- [Unmanned Tech: Before you bin that O4 clip](https://blog.unmanned.tech/the-fpv-before-you-bin-that-o4-clip-2026-10-19/)
+- [Squadding Quads: DJI O4 Pro FINALLY FIXED… But DJI Didn't Fix It!](https://www.youtube.com/watch?v=3sQvA3lHm3M)
+- [Jamie Link: DJI Gyrogate FIXED? Gyroflow Nightly vs FPVFlow](https://www.youtube.com/watch?v=EBWaL-SUD-I)

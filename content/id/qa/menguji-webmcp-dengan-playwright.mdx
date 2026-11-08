@@ -1,0 +1,153 @@
+---
+title: "Aplikasimu Kini Punya Dua Pengguna: Manusia dan AI Agent"
+description: "Playwright 1.64 bisa menguji tools yang diekspos halaman web ke AI agent lewat WebMCP. Ini cara menemukan tools-nya, memanggilnya, dan membuktikan jalur agent dan UI manusia selalu sepakat."
+locale: "id"
+domain: "qa"
+slug: "menguji-webmcp-dengan-playwright"
+canonicalGroup: "qa-webmcp-playwright-testing"
+coverImage: "/assets/qa-webmcp/thumbnail-id.png"
+coverAlt: "Pengguna manusia dan AI agent berdampingan di bawah judul, dengan daftar panggilan page.webmcp Playwright 1.64 di bawahnya"
+publishedAt: "2026-10-20"
+updatedAt: "2026-10-20"
+tags: ["QA", "Playwright", "WebMCP", "AI", "Testing"]
+featured: false
+draft: false
+---
+
+# Aplikasimu Kini Punya Dua Pengguna: Manusia dan AI Agent
+
+Pengguna terbarumu tidak pernah mengklik apa pun.
+
+Ia tidak membaca label tombol yang kamu tulis dengan hati-hati. Ia tidak peduli pada hover state, loading spinner, atau flow checkout yang pixel-perfect. Ia datang membawa daftar tools yang ditawarkan halamanmu — `search_products`, `add_to_cart`, `check_delivery_date` — lalu memanggilnya langsung.
+
+Bertahun-tahun QA hanya menjaga satu interface: yang dilihat manusia. Playwright 1.64 adalah rilis yang mengubah itu. Di dalamnya ada dukungan resmi untuk **WebMCP**, API browser eksperimental yang memungkinkan halaman web mendaftarkan tools yang bisa dipanggil AI agent — dan kamu bisa menguji tools itu dengan cara yang sama seperti kamu menguji sisanya.
+
+Ini penting karena tool agent yang rusak gagal secara diam-diam. Tidak ada pixel yang bergeser, tidak ada layout yang hancur, tidak ada error console yang tertangkap visual check. Hanya ada asisten yang dengan percaya diri memberi tahu pelangganmu tanggal pengiriman yang salah.
+
+## Apa Itu WebMCP, dengan Bahasa Sederhana?
+
+WebMCP (Web Model Context Protocol) adalah API browser yang memungkinkan sebuah halaman menyatakan: "ini aksi-aksi yang boleh dilakukan AI agent di sini, ini nama masing-masing aksi, dan ini parameter yang diterimanya."
+
+Setiap tool yang didaftarkan halaman punya nama, deskripsi, skema input, dan fungsi execute. Bayangkan ia sebagai permukaan API yang tinggal di dalam halaman, bukan di server — pintu depan kedua, yang dibangun untuk software, bukan untuk manusia.
+
+Kalau kamu pernah memakai Model Context Protocol lewat Playwright MCP, bentuknya akan terasa familiar. Bedanya ada pada siapa yang mendefinisikan tools. Di Playwright MCP, *tooling test* yang mengekspos aksi browser ke agent. Di WebMCP, *aplikasimu* yang mengekspos aksi bisnis — dan aksi itu adalah kode produksi, artinya ia bisa rusak seperti kode produksi lainnya.
+
+## Kenapa UI Test Kamu Tidak Bisa Melihat Lapisan Ini?
+
+Test Playwright tradisional menempuh jalur manusia:
+
+```text
+Manusia → mengklik UI → state aplikasi berubah → assertion pada UI
+```
+
+Jalur WebMCP melewatkan UI sepenuhnya:
+
+```text
+AI agent → memanggil tool halaman → state aplikasi berubah → hasil dikembalikan ke agent
+```
+
+Suite E2E kamu bisa hijau semua sementara jalur agent rusak total. Tombol `add_to_cart` berfungsi saat diklik — tetapi *tool* `add_to_cart` mengirim quantity sebagai string, dan layanan cart-mu diam-diam menyimpan nol. Pembeli manusia tidak akan pernah menabrak bug itu. Agent menabraknya pada panggilan pertama.
+
+Itulah pelajaran inti rilis ini: **kalau aplikasimu melayani agent, interface agent adalah permukaan produk — dan permukaan produk harus dites.**
+
+## Persiapan: Mengaktifkan WebMCP di Chromium
+
+WebMCP masih eksperimental, jadi Chromium butuh feature flag. Di test runner Playwright, tambahkan ke launch options di config:
+
+```ts
+// playwright.config.ts
+import { defineConfig } from '@playwright/test';
+
+export default defineConfig({
+  use: {
+    launchOptions: {
+      args: ['--enable-features=WebMCP'],
+    },
+  },
+});
+```
+
+Dua catatan persiapan yang perlu kamu tahu sebelum mulai debugging apa pun:
+
+- WebKit belum mengimplementasikan WebMCP, jadi jalankan test ini di project Chromium.
+- Daftar tool yang kosong bukan otomatis kegagalan. Halaman yang memang tidak mendaftarkan tool akan mengembalikan daftar kosong — cocokkan dengan apa yang *seharusnya* diekspos halaman itu.
+
+## Langkah 1: Temukan Apa yang Diekspos Halamanmu
+
+Playwright 1.64 menambahkan `page.webmcp` (dan `frame.webmcp` untuk tool yang didaftarkan di dalam frame). Menampilkan daftar tool adalah contract test kamu: ia membuktikan halaman mendaftarkan tool yang benar, dengan nama yang benar, sebelum ada agent yang mencarinya.
+
+```ts
+import { test, expect } from '@playwright/test';
+
+test('halaman mengekspos tool agent yang diharapkan', async ({ page }) => {
+  await page.goto('https://your-app.example/shop');
+
+  const tools = await page.webmcp.tools();
+
+  expect(tools.map((t) => t.name)).toEqual(
+    expect.arrayContaining(['search_products', 'add_to_cart']),
+  );
+});
+```
+
+Perlakukan ini seperti schema test untuk API. Kalau sebuah refactor mengganti nama tool, semua integrasi agent yang dibangun di atas nama lama akan patah — test inilah yang membuatmu mengetahuinya di CI, bukan dari laporan bug partner.
+
+## Langkah 2: Panggil Tool Seperti Agent Memanggilnya
+
+Menemukan tool saja tidak cukup; tool yang terdaftar tetap bisa menghitung jawaban yang salah. `callTool()` memanggil tool dengan argumen terstruktur dan mengembalikan apa pun yang di-resolve oleh fungsi execute tool itu:
+
+```ts
+test('tool add_to_cart mengembalikan jumlah terbaru', async ({ page }) => {
+  await page.goto('https://your-app.example/shop');
+
+  const result = await page.webmcp.callTool('add_to_cart', {
+    sku: 'MUG-001',
+    quantity: 2,
+  });
+
+  expect(result.isError).toBeFalsy();
+  expect(result.content[0].text).toContain('2');
+});
+```
+
+Pemeriksaan `isError` itu penting. Tool WebMCP bisa melaporkan kegagalan sebagai *hasil* (`isError: true`) alih-alih throw — tool yang throw dan tool yang mengembalikan hasil error butuh assertion yang berbeda, dan test kamu harus tahu perilaku mana yang dijanjikan setiap tool.
+
+## Langkah 3: Tes Konsistensi — Agent Bertindak, Manusia Memverifikasi
+
+Test WebMCP paling berharga melintasi dua dunia dalam satu skenario. Agent melakukan aksi lewat tool; assertion-nya terjadi pada state yang akan dilihat manusia:
+
+```ts
+test('aksi agent dan UI manusia sepakat', async ({ page }) => {
+  await page.goto('https://your-app.example/shop');
+
+  await page.webmcp.callTool('add_to_cart', { sku: 'MUG-001', quantity: 2 });
+
+  await expect(page.getByTestId('cart-badge')).toHaveText('2');
+});
+```
+
+Satu test ini menangkap kelas bug agent yang paling menyebalkan: tool "berhasil" tetapi menulis ke cart yang berbeda, sesi yang berbeda, atau store state yang berbeda dari yang dibaca UI. Dua interface, satu sumber kebenaran — itulah invariant yang sebenarnya kamu jaga.
+
+## Checklist untuk Menguji Tool yang Menghadap Agent
+
+Di luar happy path, inilah pemeriksaan yang terbukti berguna:
+
+1. **Registrasi** — setiap tool yang diharapkan muncul di `tools()`, dan tidak ada tool tak terduga yang ikut terekspos.
+2. **Otorisasi** — tool yang seharusnya tidak ada untuk pengguna ini (misalnya `refund_payment` untuk sesi tamu) tidak terdaftar atau menolak panggilan. Memanggil tool yang tidak terdaftar akan throw, dan pesan error Playwright menyebutkan tool apa saja yang *tersedia* — lakukan assertion pada pesan itu untuk membedakan "tool hilang" dari timeout acak.
+3. **Parameter buruk** — tipe yang salah dan field wajib yang hilang menghasilkan hasil error yang bersih, bukan jawaban salah yang diam-diam.
+4. **Hasil error** — tool yang melaporkan kegagalan lewat `isError: true` benar-benar menyetelnya, dan pesannya bisa ditindaklanjuti oleh agent.
+5. **Konsistensi** — state yang diubah lewat tool identik dengan state yang diubah lewat UI, diperiksa dari sisi manusia.
+
+Kalau kamu juga menjalankan agent lewat Playwright MCP, perlu dicatat: ia mendukung WebMCP secara default — tool yang didefinisikan halaman ditawarkan ke agent sebagai `webmcp_<tool>`, dan kamu bisa mematikannya dengan `--no-webmcp`. Perintah `playwright-cli` `webmcp-list` dan `webmcp-call` juga praktis untuk menjelajahi tool sebuah halaman sebelum menulis satu pun test.
+
+## Batasan yang Perlu Kamu Tahu
+
+- **Eksperimental ya eksperimental.** Flag, bentuk API, dan dukungan browser semuanya bisa bergerak. Kunci versi Playwright kamu dan perlakukan test ini sebagai lapisan suite yang bergerak cepat.
+- **Chromium lebih dulu.** Firefox punya preference pengujian untuk WebMCP; WebKit belum punya apa-apa. Cakupan agent multi-browser belum ada hari ini.
+- **Tidak ada tool, tidak ada test.** Kalau aplikasimu tidak mendaftarkan tool WebMCP apa pun, tidak ada yang bisa dipanggil — lapisan ini baru ada begitu timmu merilis fitur yang menghadap agent.
+
+## Kesimpulan
+
+Satu dekade kita belajar menguji aplikasi sebagaimana manusia memakainya. WebMCP meminta kita mengujinya juga sebagaimana agent memakainya: tool yang terdaftar adalah janji, panggilan tool adalah transaksi, dan hasil yang diterima agent adalah bagian dari kebenaran produkmu.
+
+Playwright 1.64 memberimu primitifnya — `page.webmcp.tools()` untuk melihat janjinya, `page.webmcp.callTool()` untuk menjalankannya, dan assertion biasa untuk memverifikasi kedua dunia sepakat. Tim yang menambahkan lapisan ini sekarang tidak akan menjadi tim yang nanti debugging kenapa sebuah asisten mengarang tanggal pengiriman — yang ternyata diberikan oleh aplikasinya sendiri.

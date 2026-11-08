@@ -1,0 +1,93 @@
+---
+title: "Lolos di Retry Bukan Berarti Lolos"
+description: "Test yang gagal lalu lolos di retry bukan berarti beres. Ia ditandai flaky, dan kegagalannya tetap tidak terjelaskan. Isolated retries, trace pada retry pertama, dan failOnFlakyTests di Playwright mengubah sinyal itu menjadi diagnosis, bukan sekadar badge hijau."
+locale: "id"
+domain: "qa"
+slug: "lolos-retry-bukan-lolos-playwright"
+canonicalGroup: "qa-playwright-retry-flaky-discipline"
+publishedAt: "2026-10-25"
+updatedAt: "2026-10-25"
+tags: ["playwright", "flaky-tests", "retries", "ci", "debugging"]
+featured: false
+draft: false
+coverImage: "/assets/playwright-retry/thumbnail-id.png"
+---
+
+Build berubah merah. Seseorang menekan rerun. Build berubah hijau. Semua orang lanjut.
+
+Rangkaian itu sudah sangat rutin sampai tidak ada yang bertanya apa sebenarnya yang dibuktikan. Sebuah test gagal, lalu lolos di retry, dan tim memperlakukan badge hijau sebagai akhir cerita. Padahal bukan. Itu laporan bug yang tidak dibaca siapa pun.
+
+Playwright sendiri tahu ini. Test yang gagal dulu lalu lolos di retry dilaporkan sebagai flaky, bukan sebagai lolos. Perbedaan itu adalah inti artikel ini.
+
+## Kenapa retry menyembunyikan masalah
+
+Perilaku retry bawaan menjalankan test yang gagal lagi begitu ada worker yang bebas. Artinya retry sering berjalan di tengah suite paralel yang sama dan sibuk, yang mungkin justru menyebabkan kegagalan itu.
+
+Lolos dalam kondisi seperti itu tidak menjawab apa pun. Apakah test lolos karena masalah dasarnya hilang, atau karena beban, timing, atau shared state kebetulan tersusun berbeda kali ini? Retry tidak bisa menjawabnya. Ia hanya memberi tahu bahwa test itu mampu lolos, yang memang sudah kamu ketahui.
+
+Lebih buruk lagi, retry melatih tim untuk berhenti mencari. Begitu suite punya jumlah retry, setiap kegagalan sesekali punya penjelasan siap pakai: jalankan ulang saja. Daftar flaky di laporan tumbuh diam-diam, dan satu kegagalan yang merupakan bug produk sungguhan mendapat perlakuan yang sama dengan dua puluh kegagalan yang bukan.
+
+Ini masalah yang berbeda dari artikel shuffle sebelumnya. Shuffle menjawab apakah test saling bergantung urutannya. Retry menjawab apakah satu test stabil dengan sendirinya. Kamu butuh kedua jawabannya.
+
+## Isolated retries: ubah apa yang bisa diceritakan retry
+
+Playwright 1.62 menambahkan opsi konfigurasi bernama `retryStrategy`. Nilai bawaan, `'immediate'`, mempertahankan perilaku lama: retry berjalan begitu ada worker bebas. Nilai baru, `'isolated'`, menjalankan semua retry di akhir run, satu per satu, dalam satu worker.
+
+```ts
+export default defineConfig({
+  retries: 2,
+  retryStrategy: 'isolated',
+});
+```
+
+Release notes menyatakan tujuannya gamblang: meminimalkan interferensi dengan sisa suite. Perubahan kecil itu mengubah retry menjadi instrumen diagnosis.
+
+Kalau test tetap gagal dalam isolasi, ia flaky dengan sendirinya: asumsi timing, locator yang cocok dengan elemen yang salah, atau race di produk. Kalau ia lolos dalam isolasi tapi gagal di run paralel, masalahnya adalah beban atau shared state di sekitarnya. Itu dua bug berbeda dengan dua perbaikan berbeda, dan hanya retry terisolasi yang memisahkannya.
+
+Retry terisolasi mengorbankan waktu di akhir run. Itu harga dari jawaban yang bisa dipercaya.
+
+## Trace pada retry pertama: rekam kegagalannya, bukan pengulangannya
+
+Retry yang lolos menghancurkan buktinya sendiri kecuali kamu merekam kegagalannya. Rekaman termurah yang tetap menangkap hal yang penting adalah trace pada retry pertama:
+
+```ts
+export default defineConfig({
+  retries: 1,
+  use: {
+    trace: 'on-first-retry',
+  },
+});
+```
+
+Arti terdokumentasi dari nilai itu persis: rekam trace hanya ketika me-retry test untuk pertama kalinya. Run yang bersih tetap cepat dan disk tetap kosong. Setiap kegagalan yang penting meninggalkan rekaman.
+
+Buka dengan `npx playwright show-trace path/to/trace.zip`, atau dari tombol View trace di laporan HTML. Baca dengan urutan ini: Actions dulu, yang menunjukkan locator yang dipakai setiap aksi dan berapa lama masing-masing. Klik aksi yang gagal, lalu bandingkan snapshot Before dan After-nya. Pasangan itu adalah tempat locator yang cocok dengan elemen yang salah berhenti menjadi teori. Network dan Console tersaring ke aksi yang dipilih, jadi respons yang datang terlambat berada di tampilan yang sama dengan aksi yang membutuhkannya.
+
+Assertion yang gagal dengan trace terlampir memberi tahu seperti apa DOM, network, dan console pada saat ia rusak. Assertion yang gagal hanya dengan tanda X merah di CI menyuruhmu mereproduksinya secara lokal dan berharap ia terjadi lagi.
+
+## failOnFlakyTests: jadikan flaky sebagai gerbang, bukan bahan acuh
+
+Sejak Playwright 1.52, opsi konfigurasi `failOnFlakyTests` menggagalkan seluruh run ketika ada test yang flaky. Padanan CLI-nya adalah `--fail-on-flaky-tests`. Ia ada untuk satu tujuan persis: menghentikan tim dari merge sementara test flaky menumpuk.
+
+Pakai di pull request, begitu daftar flaky yang ada sudah terkendali. Menyalakannya selagi suite sudah punya dua puluh flake yang diketahui hanya melatih semua orang mengabaikan build merah, dan itu kebiasaan yang justru ingin kamu hentikan.
+
+Aturan yang membuat gerbang ini bekerja membosankan dan tidak bisa ditawar: daftar flaky adalah daftar bug. Setiap entri mendapat pemilik dan diagnosis, seperti test yang gagal. Test yang me-retry setiap tiga run adalah bug di suite kamu, dan menaikkan jumlah retry hanya menunda hari ketika ia gagal sungguhan dan tidak ada yang memercayai hasilnya.
+
+## Checklist disiplin retry
+
+- Pertahankan satu atau dua retry di CI, tidak lebih. Retry adalah detektor, bukan obat.
+- Atur `retryStrategy: 'isolated'` supaya hasil retry berarti sesuatu.
+- Rekam trace pada retry pertama, dan baca sebelum menjalankan ulang apa pun secara manual.
+- Sebelum melaporkan bug dari full run, jalankan test yang gagal sendirian. Kalau ia lolos sendirian, masalahnya adalah run di sekitarnya.
+- Reproduksi kasus yang membandel dengan `npx playwright test my.spec.ts --repeat-each=20`. Dua puluh lolos berturut-turut bukan bukti, tapi satu kegagalan adalah bukti.
+- Lacak daftar flaky seperti daftar bug, dengan pemilik. Nyalakan `failOnFlakyTests` untuk pull request begitu daftarnya bersih.
+
+## Kesimpulan
+
+Retry yang lolos bukan lolos. Ia adalah test yang memberi tahu bahwa ia pernah gagal dan kamu tidak tahu kenapa. Retry terisolasi, trace pada retry pertama, dan gerbang flaky mengubah acuhan itu menjadi jawaban: flaky dengan sendirinya, atau dirusak oleh run di sekitarnya. Baca jawabannya sebelum kamu merge.
+
+## Referensi
+
+- Microsoft (2026). Playwright release notes: isolated retries (`retryStrategy`), versi 1.62. playwright.dev
+- Microsoft (2026). Playwright Test configuration: `retries`, `failOnFlakyTests` (sejak 1.52), `trace: 'on-first-retry'`. playwright.dev
+- Microsoft (2026). Playwright v1.64.0 release notes. github.com/microsoft/playwright/releases/tag/v1.64.0

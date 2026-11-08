@@ -5,9 +5,9 @@ This workflow is the repeatable procedure for publishing content in this repo.
 ## Preconditions
 
 - You understand and will follow:
-  - `.clinerules/routing-and-taxonomy-contract.md`
-  - `.clinerules/frontmatter-and-slug-contract.md`
-  - `.clinerules/content-governance.md`
+  - `docs/agent/rules/routing-and-taxonomy-contract.md`
+  - `docs/agent/rules/frontmatter-and-slug-contract.md`
+  - `docs/agent/rules/content-governance.md`
 
 ## Steps
 

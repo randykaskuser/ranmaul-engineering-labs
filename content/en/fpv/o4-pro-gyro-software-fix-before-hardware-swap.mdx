@@ -1,0 +1,73 @@
+---
+title: "Your O4 Pro Gyro Is Not Dead Yet: Test the Software Fix Before You Swap Hardware"
+description: "Gyroflow's nightly build and FPVFlow 1.0.3 now repair the DJI O4 Gyrogate false rotations in software. Before you pay for a gyro swap, test the fix on your own footage — and know its limits."
+locale: "en"
+domain: "fpv"
+slug: "o4-pro-gyro-software-fix-before-hardware-swap"
+canonicalGroup: "fpv-o4-gyro-software-fix"
+publishedAt: "2026-10-28"
+updatedAt: "2026-10-28"
+tags: ["fpv", "dji-o4", "gyroflow", "stabilization", "fpvflow"]
+featured: false
+draft: false
+coverImage: "/assets/o4-gyro-software-fix/thumbnail-en.png"
+---
+
+Five days ago, this site told you how to recover footage from the 2026 gyro swap. The advice then was hardware: get the old gyro back. That advice has changed, and this article explains why — and where the new advice stops.
+
+The short version: the community now has a software repair for the DJI O4 Gyrogate problem. If you already own an affected unit, test the software before you pay for a swap.
+
+## What Gyrogate actually is
+
+O4 Air Unit Pro cameras built since about February 2026, and every O4 Lite, use the TDK ICM-40609-D gyro. Under motor vibration, that gyro records short false rotations on a single axis: up to about 2 degrees in a few milliseconds. The camera then slowly pulls each one back over about 12 seconds.
+
+The raw footage looks fine. The problem appears only when stabilization runs. RockSteady and Gyroflow faithfully "correct" rotations that never happened, so the stabilized video jerks and slowly sways.
+
+The original 2025 O4 Pro camera used a gyro marked MP66. Only the marking is agreed; sources conflict on the part family, so this article claims nothing more about it.
+
+## What changed: two software repairs
+
+First, the Gyroflow developers released a nightly build that tackles the newer O4 Pro gyro issue. Squadding Quads reported it in late October, and the nightly is available from Gyroflow's development builds page.
+
+Second, FPVFlow 1.0.3, an unofficial Gyroflow fork, carries the same repair into a desktop app. Its repair is a port of the community o4fix project, with ideas from DJIFix and djgyrofix.
+
+How the FPVFlow repair works:
+
+- On clip load, it detects which gyro your unit most likely has, read from the model and from the production date encoded in the serial number. It also counts how many false rotations the clip contains.
+- The repair turns on automatically for affected clips. It removes each false burst, adds back the camera's slow pull-back of it, and low-passes the result. A sensitivity slider trades catching smaller bursts against touching real fast motion.
+- Clips without false rotations are left bit-for-bit untouched.
+- Saving a corrected copy writes a `<name>_gyrofix.MP4` next to the original, with only the attitude values rewritten. Video and audio are untouched, the original is never modified, and the copy opens in FPVFlow, Gyroflow, or the Gyroflow plugins.
+
+One requirement decides whether the repair can work at all: the clip needs the camera's 1 kHz orientation track. Record with RockSteady and HorizonSteady off, or there is nothing to repair from.
+
+## The independent test: nightly versus FPVFlow
+
+A side-by-side test in late October flew the same footage through both repairs. The Gyroflow nightly is definitely an improvement, but stabilization errors still appear during aggressive maneuvers. FPVFlow handles those same movements significantly better in that test.
+
+Neither is perfect. The FPVFlow documentation says the same thing in its own words: the repair removes most of the false motion, not all of it, and the real fix has to come from a DJI firmware update.
+
+Treat that as the honest framing. This is a repair, not a cure.
+
+## What is still not fixed
+
+RockSteady is still not fixed. The Gyroflow nightly and FPVFlow repair post-flight stabilization only. If your workflow is RockSteady in-camera, you are still waiting on DJI, and nothing in this article changes that.
+
+Also note the trust caveats before you install anything. FPVFlow is an unsigned build, so macOS blocks it on first launch until you approve it in Privacy and Security. It is a partial workaround, not a DJI fix, and at least one independent source had not tested it when writing about it. Keep your originals, and test on a copy first.
+
+One more check before any swap: camera mounting. At least one tester found new-gyro units producing clean footage on well soft-mounted frames, which suggests mounting quality changes how much of the problem shows up. If the software repair leaves artifacts, check the mount before you conclude the hardware must go.
+
+## The decision
+
+- You already own an affected unit: try the Gyroflow nightly or FPVFlow 1.0.3 on your own clips first. The test costs an evening, not a repair bill.
+- You are buying new: the buying advice has not changed. A gyro-swapped unit remains the safer purchase, with one caveat: Horizon Lock has issues on swapped units too.
+- You fly RockSteady: nothing here helps yet. Wait for DJI.
+
+Five days ago, swapping hardware was the only answer this site could defend. Today, software earns the first try. That is progress, and it is worth saying plainly — along with everything it does not fix.
+
+## References
+
+- [FPVFlow: DJI O4 Gyrogate repair](https://rodrigosclosa.github.io/fpvflow/)
+- [FPVFlow on GitHub](https://github.com/rodrigosclosa/fpvflow)
+- [Unmanned Tech: Before you bin that O4 clip](https://blog.unmanned.tech/the-fpv-before-you-bin-that-o4-clip-2026-10-19/)
+- [Squadding Quads: DJI O4 Pro FINALLY FIXED… But DJI Didn't Fix It!](https://www.youtube.com/watch?v=3sQvA3lHm3M)
+- [Jamie Link: DJI Gyrogate FIXED? Gyroflow Nightly vs FPVFlow](https://www.youtube.com/watch?v=EBWaL-SUD-I)

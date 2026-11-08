@@ -1,9 +1,9 @@
-# Workspace guidance entrypoint (Cline)
+# Workspace guidance index
 
 This repo intentionally separates guidance into:
 
-- **Workspace Rules** (`.clinerules/*.md`): stable project constraints/contracts.
-- **Workspace Workflows** (`.clinerules/workflows/*.md`): repeatable procedures.
+- **Workspace Rules** (`docs/agent/rules/*.md`): stable project constraints/contracts.
+- **Workspace Workflows** (`docs/agent/workflows/*.md`): repeatable procedures.
 - **Documentation** (`docs/*.md`): explanatory reference (vision/roadmap/architecture).
 
 If you’re unsure where to put new guidance:
@@ -15,6 +15,7 @@ If you’re unsure where to put new guidance:
 ## Entrypoints
 
 - Repo entrypoint: `README.md`
+- Agent entrypoint: `AGENTS.md`
 - Workspace guidance: this file + the rules/workflows listed below
 
 ## Core workspace rules
@@ -27,7 +28,7 @@ If you’re unsure where to put new guidance:
 
 ## Core workspace workflows
 
-- `workflows/publish-mdx-article.md`
-- `workflows/bilingual-article-pair-workflow.md`
-- `workflows/content-update-maintenance.md`
-- `workflows/docs-sync-and-roadmap-alignment.md`
+- `../workflows/publish-mdx-article.md`
+- `../workflows/bilingual-article-pair-workflow.md`
+- `../workflows/content-update-maintenance.md`
+- `../workflows/docs-sync-and-roadmap-alignment.md`

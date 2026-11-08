@@ -153,8 +153,8 @@ export default async function ArticlePage({ params }: { params: Promise<RoutePar
           publisher: PERSON_SCHEMA,
         }}
       />
-      <section className="section-space">
-      <div className="container-wide grid gap-10 lg:grid-cols-[minmax(0,1fr)_18rem]">
+      <section className="section-space overflow-x-clip">
+      <div className="container-wide grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[minmax(0,1fr)_18rem]">
         <article className="container-reading">
           <header className="section-divider pb-8">
             <Reveal>
