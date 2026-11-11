@@ -4,10 +4,18 @@
 
 Keep this block short and current. Rewrite it at the end of every session.
 
-- **Last verified:** 2026-11-08 after merging `main` into `claude/admiring-maxwell-lcac2g`. `./init.sh` exit 0.
-- **Active feature:** none (16 completed: Flight Map, merged to `main` on owner's instruction; 15 completed).
-- **Next step:** confirm the map on production (ranmaul.com). Owner: clean the `channa-andrao` (ID) page in Notion (duplicated article at the bottom), then merge branch `fix/notion-sync-drift`. Flight Map content follow-ups: coordinates for anyer-coastal, batang-rest-area, commercial-real-estate (privacy check), FPV items with `flightType: fpv`.
-- **Open risks:** Notion converter fixes are unit-checked with mocked blocks only. ArcGIS key expires 2027-11-07 (rotate, update the Pages variable, redeploy). The `ibasemaps-api` tile endpoint does not enforce the referrer.
+- **Last verified:** 2026-11-11 on branch `claude/drone-mapping-service-10d391`. `./init.sh` exit 0.
+- **Active feature:** none (17 Drone Mapping section completed; PR open, not merged, not deployed).
+- **Next step:** owner reviews and merges the Drone Mapping PR. Earlier follow-ups still open: confirm Flight Map on production; clean `channa-andrao` (ID) in Notion and merge `fix/notion-sync-drift`; Flight Map coordinates for anyer-coastal, batang-rest-area, commercial-real-estate, FPV items.
+- **Open risks:** Mapping prices and copy come from the owner's brief; no real client mapping job yet besides the first test job. Notion converter fixes are unit-checked with mocked blocks only. ArcGIS key expires 2027-11-07. The `ibasemaps-api` tile endpoint does not enforce the referrer.
+
+## 2026-11-11 — Drone Mapping section (feature 17)
+
+- Added `components/portfolio/drone-mapping-section.tsx` (same card, badge, price and WhatsApp link pattern as `drone-services-section.tsx`), rendered after `DroneServicesSection` on `/{locale}/drone-portfolio`. Mapping offers appended to the page Service JSON-LD.
+- Example images made from the first test job GeoTIFF with Pillow (metadata not copied): full orthophoto 1277x1600 WebP with alpha, and a 1600x1200 full-resolution crop (playground and rooftops, no labels or house numbers). The GCP summary image was not used: every tile has crosshairs and GCP labels. Large TIF/KMZ/GLB files stay out of the repo.
+- No separate spec in `docs/planning/`: small single-section addition (1 new component, 1 page edit, 2 images).
+- UI polish on owner request: AA contrast, images on top + 3 price cards in a row, main package accent, 44px WhatsApp targets with focus ring, `Reveal` plays once and respects `prefers-reduced-motion` (shared component, affects all sections). Location name removed from public copy.
+- Verification: see `feature_list.json` id 17.
 
 ## 2026-11-08 — Flight Map implementation (feature 16)
 
