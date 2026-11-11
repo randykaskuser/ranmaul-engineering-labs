@@ -4,9 +4,9 @@
 
 Keep this block short and current. Rewrite it at the end of every session.
 
-- **Last verified:** 2026-11-11 on branch `claude/drone-mapping-service-10d391`. `./init.sh` exit 0.
-- **Active feature:** none (17 Drone Mapping section completed; PR open, not merged, not deployed).
-- **Next step:** owner reviews and merges the Drone Mapping PR. Earlier follow-ups still open: confirm Flight Map on production; clean `channa-andrao` (ID) in Notion and merge `fix/notion-sync-drift`; Flight Map coordinates for anyer-coastal, batang-rest-area, commercial-real-estate, FPV items.
+- **Last verified:** 2026-11-11 on production after merging PR #85 (`1e0bd39`). `./init.sh` exit 0.
+- **Active feature:** none (17 Drone Mapping section completed, merged via PR #84 and #85, live on ranmaul.com).
+- **Next step:** owner decides the next feature. Earlier follow-ups still open: confirm Flight Map on production; clean `channa-andrao` (ID) in Notion and merge `fix/notion-sync-drift`; Flight Map coordinates for anyer-coastal, batang-rest-area, commercial-real-estate, FPV items.
 - **Open risks:** Mapping prices and copy come from the owner's brief; no real client mapping job yet besides the first test job. Notion converter fixes are unit-checked with mocked blocks only. ArcGIS key expires 2027-11-07. The `ibasemaps-api` tile endpoint does not enforce the referrer.
 
 ## 2026-11-11 — Drone Mapping section (feature 17)
