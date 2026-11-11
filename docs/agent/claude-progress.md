@@ -16,6 +16,7 @@ Keep this block short and current. Rewrite it at the end of every session.
 - No separate spec in `docs/planning/`: small single-section addition (1 new component, 1 page edit, 2 images).
 - UI polish on owner request: AA contrast, images on top + 3 price cards in a row, main package accent, 44px WhatsApp targets with focus ring, `Reveal` plays once and respects `prefers-reduced-motion` (shared component, affects all sections). Location name removed from public copy.
 - 3D orbit example added as a muted looping MP4 (1.7 MB) through `components/portfolio/loop-video.tsx`; a GIF of the same clip was 36.6 MB.
+- Example tiles open a full-size viewer (`components/portfolio/mapping-examples.tsx`, native `<dialog>`). The shared `components/ui/lightbox.tsx` was not reused: it is typed to portfolio items and only plays embedded (iframe) video.
 - Verification: see `feature_list.json` id 17.
 
 ## 2026-11-08 — Flight Map implementation (feature 16)
