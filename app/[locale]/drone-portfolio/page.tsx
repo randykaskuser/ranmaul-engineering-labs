@@ -8,6 +8,7 @@ import { HeroSlideshow } from "@/components/portfolio/hero-slideshow"
 import { PhotoGallery } from "@/components/portfolio/photo-gallery"
 import { VideoGallery } from "@/components/portfolio/video-gallery"
 import { DRONES, DroneServicesSection } from "@/components/portfolio/drone-services-section"
+import { MAPPING_PACKAGES, DroneMappingSection } from "@/components/portfolio/drone-mapping-section"
 import { FlightMap, type MapItem } from "@/components/portfolio/flight-map"
 import { getPortfolioItems } from "@/lib/portfolio"
 import { getRecentArticles, type Locale } from "@/lib/content"
@@ -20,8 +21,8 @@ const SEO = {
     id: "Jasa Drone Jabodetabek – Foto & Video Udara",
   },
   description: {
-    en: "Aerial photo and video with DJI Air 3S and DJI Neo 2 across Jabodetabek. Clear per-battery pricing, raw files and transport included. Book on WhatsApp.",
-    id: "Jasa foto dan video udara dengan DJI Air 3S dan DJI Neo 2 di Jabodetabek. Harga per baterai yang jelas, file mentah dan transport termasuk. Pesan via WhatsApp.",
+    en: "Aerial photo and video with DJI Air 3S and DJI Neo 2 across Jabodetabek. Clear per-battery pricing, aerial mapping (orthophoto GeoTIFF/KMZ), raw files and transport included. Book on WhatsApp.",
+    id: "Jasa foto dan video udara dengan DJI Air 3S dan DJI Neo 2 di Jabodetabek. Harga per baterai yang jelas, pemetaan udara (orthophoto GeoTIFF/KMZ), file mentah dan transport termasuk. Pesan via WhatsApp.",
   },
 }
 
@@ -82,6 +83,13 @@ export default async function DronePortfolioPage({ params }: { params: Promise<{
               price: rupiah(pkg.price),
               priceCurrency: "IDR",
             })),
+          ).concat(
+            MAPPING_PACKAGES.map((pkg) => ({
+              "@type": "Offer",
+              name: `Drone Mapping – ${pick(pkg.name, locale)}`,
+              price: rupiah(pkg.price),
+              priceCurrency: "IDR",
+            })),
           ),
         }}
       />
@@ -126,6 +134,7 @@ export default async function DronePortfolioPage({ params }: { params: Promise<{
       </Section>
 
       <DroneServicesSection locale={locale} />
+      <DroneMappingSection locale={locale} />
 
       <Section space="xl" className="py-24 bg-white dark:bg-black border-b border-neutral-200 dark:border-neutral-800">
         <div className="container-wide">
