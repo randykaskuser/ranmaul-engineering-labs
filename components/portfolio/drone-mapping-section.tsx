@@ -1,8 +1,8 @@
-import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { Section } from "@/components/layout/section";
 import { Reveal } from "@/components/layout/reveal";
 import { pick, whatsappLink, type Localized } from "@/lib/site";
+import { MappingExamples } from "@/components/portfolio/mapping-examples";
 
 // Aerial mapping with the Air 3S. No GCP/RTK: maps are visual, not survey grade.
 // Example images are small WebP exports; full GeoTIFF/KMZ/GLB files stay out of the repo.
@@ -125,32 +125,34 @@ export function DroneMappingSection({ locale = "en" }: { locale?: string }) {
 
         <Reveal delay={0.05}>
           <figure className="mx-auto max-w-6xl rounded-2xl border border-neutral-200 bg-white p-4 md:p-6 dark:border-neutral-800 dark:bg-black">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-neutral-100 dark:bg-neutral-900">
-                  <Image
-                    src="/images/drone-mapping/contoh-orthophoto.webp"
-                    alt={isId ? "Orthophoto lengkap sebuah perumahan" : "Full orthophoto of a housing area"}
-                    fill
-                    className="object-contain p-2"
-                    sizes="(min-width: 1152px) 560px, (min-width: 640px) 50vw, 100vw"
-                  />
-                </div>
-                <p className={`mt-2 text-sm ${MUTED}`}>{isId ? "Peta lengkap" : "Full map"}</p>
-              </div>
-              <div>
-                <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
-                  <Image
-                    src="/images/drone-mapping/contoh-detail.webp"
-                    alt={isId ? "Detail orthophoto pada resolusi penuh, sekitar 3 cm per pixel" : "Orthophoto detail at full resolution, about 3 cm per pixel"}
-                    fill
-                    className="object-cover"
-                    sizes="(min-width: 1152px) 560px, (min-width: 640px) 50vw, 100vw"
-                  />
-                </div>
-                <p className={`mt-2 text-sm ${MUTED}`}>{isId ? "Zoom penuh, sekitar 3 cm/pixel" : "Full zoom, about 3 cm/pixel"}</p>
-              </div>
-            </div>
+            <MappingExamples
+              caption={pick(EXAMPLE_CAPTION, locale)}
+              openLabel={isId ? "Lihat besar" : "View full size"}
+              closeLabel={isId ? "Tutup" : "Close"}
+              prevLabel={isId ? "Sebelumnya" : "Previous"}
+              nextLabel={isId ? "Berikutnya" : "Next"}
+              items={[
+                {
+                  label: isId ? "Peta lengkap" : "Full map",
+                  alt: isId ? "Orthophoto lengkap sebuah perumahan" : "Full orthophoto of a housing area",
+                  image: "/images/drone-mapping/contoh-orthophoto.webp",
+                  fit: "contain",
+                },
+                {
+                  label: isId ? "Zoom penuh, sekitar 3 cm/pixel" : "Full zoom, about 3 cm/pixel",
+                  alt: isId ? "Detail orthophoto pada resolusi penuh, sekitar 3 cm per pixel" : "Orthophoto detail at full resolution, about 3 cm per pixel",
+                  image: "/images/drone-mapping/contoh-detail.webp",
+                },
+                {
+                  label: isId ? "Model 3D (paket Peta + 3D)" : "3D model (Map + 3D package)",
+                  alt: isId ? "Animasi model 3D perumahan yang berputar" : "Rotating 3D model of the housing area",
+                  video: {
+                    src: "/images/drone-mapping/contoh-3d-orbit.mp4",
+                    poster: "/images/drone-mapping/contoh-3d-orbit-poster.webp",
+                  },
+                },
+              ]}
+            />
             <figcaption className="mt-4 border-t border-neutral-200 pt-4 text-sm font-medium text-black dark:border-neutral-800 dark:text-white">
               {pick(EXAMPLE_CAPTION, locale)}
             </figcaption>
