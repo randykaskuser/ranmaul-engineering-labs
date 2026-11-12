@@ -24,7 +24,7 @@ export type Drone = {
 };
 
 const RAW_FILES: Localized = { en: "All raw files included", id: "Semua file mentah" };
-const TRANSPORT: Localized = { en: "Transport within Jabodetabek included", id: "Transport Jabodetabek termasuk" };
+const TRANSPORT: Localized = { en: "Transport included up to 30 km", id: "Transport termasuk sampai 30 km" };
 
 export const DRONES: Drone[] = [
   {
@@ -218,8 +218,8 @@ export function DroneServicesSection({ locale = "en" }: { locale?: string }) {
               <ul className="mt-3 space-y-2 text-sm text-neutral-600 dark:text-neutral-400">
                 <li>
                   {isId
-                    ? "Di luar Jabodetabek: biaya transport dihitung terpisah."
-                    : "Outside Jabodetabek: transport is quoted separately."}
+                    ? "Lebih dari 30 km: biaya transport dihitung terpisah, sesuai jarak di Google Maps."
+                    : "Beyond 30 km: transport is quoted separately, based on the Google Maps distance."}
                 </li>
                 <li>
                   {isId

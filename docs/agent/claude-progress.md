@@ -4,10 +4,15 @@
 
 Keep this block short and current. Rewrite it at the end of every session.
 
-- **Last verified:** 2026-11-11 on production after merging PR #85 (`1e0bd39`). `./init.sh` exit 0.
-- **Active feature:** none (17 Drone Mapping section completed, merged via PR #84 and #85, live on ranmaul.com).
-- **Next step:** owner decides the next feature. Earlier follow-ups still open: confirm Flight Map on production; clean `channa-andrao` (ID) in Notion and merge `fix/notion-sync-drift`; Flight Map coordinates for anyer-coastal, batang-rest-area, commercial-real-estate, FPV items.
+- **Last verified:** 2026-11-12 on branch `claude/transport-30km` (feature 18). `./init.sh` exit 0.
+- **Active feature:** none (18 transport up to 30 km completed on branch, not merged yet).
+- **Next step:** owner sets surcharge amounts for sites beyond 30 km (not on the site yet), then owner decides the next feature. Earlier follow-ups still open: confirm Flight Map on production; clean `channa-andrao` (ID) in Notion and merge `fix/notion-sync-drift`; Flight Map coordinates for anyer-coastal, batang-rest-area, commercial-real-estate, FPV items.
 - **Open risks:** Mapping prices and copy come from the owner's brief; no real client mapping job yet besides the first test job. Notion converter fixes are unit-checked with mocked blocks only. ArcGIS key expires 2027-11-07. The `ibasemaps-api` tile endpoint does not enforce the referrer.
+
+## 2026-11-12 — Transport up to 30 km (feature 18)
+
+- Replaced "Transport Jabodetabek termasuk" with "Transport termasuk sampai 30 km" on the Air 3S, Neo 2 and mapping cards. Notes now say transport beyond 30 km is quoted separately, based on the Google Maps distance. No surcharge amounts published yet (owner decides later). Service-area wording ("di Jabodetabek") left as is.
+- Verification: see `feature_list.json` id 18.
 
 ## 2026-11-11 — Drone Mapping section (feature 17)
 

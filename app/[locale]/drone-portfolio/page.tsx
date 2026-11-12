@@ -21,8 +21,8 @@ const SEO = {
     id: "Jasa Drone Jabodetabek – Foto & Video Udara",
   },
   description: {
-    en: "Aerial photo and video with DJI Air 3S and DJI Neo 2 across Jabodetabek. Clear per-battery pricing, aerial mapping (orthophoto GeoTIFF/KMZ), raw files and transport included. Book on WhatsApp.",
-    id: "Jasa foto dan video udara dengan DJI Air 3S dan DJI Neo 2 di Jabodetabek. Harga per baterai yang jelas, pemetaan udara (orthophoto GeoTIFF/KMZ), file mentah dan transport termasuk. Pesan via WhatsApp.",
+    en: "Aerial photo and video with DJI Air 3S and DJI Neo 2 across Jabodetabek. Clear per-battery pricing, aerial mapping (orthophoto GeoTIFF/KMZ), raw files, and transport included up to 30 km. Book on WhatsApp.",
+    id: "Jasa foto dan video udara dengan DJI Air 3S dan DJI Neo 2 di Jabodetabek. Harga per baterai yang jelas, pemetaan udara (orthophoto GeoTIFF/KMZ), file mentah, dan transport termasuk sampai 30 km. Pesan via WhatsApp.",
   },
 }
 
