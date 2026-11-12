@@ -30,7 +30,7 @@ export const MAPPING_PACKAGES: MappingPackage[] = [
         id: "Orthophoto GeoTIFF (QGIS/ArcGIS/AutoCAD) + KMZ (Google Earth)",
       },
       { en: "Resolution about 3 cm/pixel", id: "Resolusi sekitar 3 cm/pixel" },
-      { en: "Transport within Jabodetabek included", id: "Transport Jabodetabek termasuk" },
+      { en: "Transport included up to 30 km", id: "Transport termasuk sampai 30 km" },
       { en: "Delivered in 1 to 2 working days", id: "Hasil 1 sampai 2 hari kerja" },
     ],
   },
@@ -224,6 +224,11 @@ export function DroneMappingSection({ locale = "en" }: { locale?: string }) {
             {isId
               ? "Tanpa GCP/RTK. Bentuk dan ukuran dalam peta konsisten, tetapi posisi bisa bergeser beberapa meter. Untuk visual dan perencanaan, bukan untuk batas tanah atau pengukuran legal."
               : "No GCP/RTK. Shapes and sizes in the map are consistent, but the position can shift by a few meters. For visuals and planning, not for land boundaries or legal surveys."}
+          </p>
+          <p className={`mx-auto mt-2 max-w-6xl text-xs leading-relaxed ${MUTED}`}>
+            {isId
+              ? "Transport termasuk sampai 30 km. Lebih dari 30 km: biaya transport dihitung terpisah, sesuai jarak di Google Maps."
+              : "Transport included up to 30 km. Beyond 30 km: transport is quoted separately, based on the Google Maps distance."}
           </p>
         </Reveal>
       </div>
