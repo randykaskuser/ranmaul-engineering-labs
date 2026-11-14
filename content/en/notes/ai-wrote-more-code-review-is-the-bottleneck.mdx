@@ -1,0 +1,91 @@
+---
+title: "AI Wrote 44% More Code. Review Is Now the Bottleneck."
+description: "A Harvard study of 655 firms finds AI coding agents raised lines of code 44% but resolved issues only 13.7%. The extra code piled up in review, where approval now takes 56% longer."
+locale: "en"
+domain: "notes"
+slug: "ai-wrote-more-code-review-is-the-bottleneck"
+canonicalGroup: "notes-ai-coding-agents-review-bottleneck"
+publishedAt: "2026-11-15"
+updatedAt: "2026-11-15"
+tags: ["ai-coding-agents", "code-review", "engineering-productivity", "harvard-study", "engineering-workflow"]
+featured: false
+draft: false
+coverImage: "/assets/ai-review-bottleneck/thumbnail-en.png"
+coverAlt: "A long queue of pull request cards waiting at a review gate while one reviewer works through a checklist"
+relatedCanonicalGroups: ["notes-agent-grade-own-homework"]
+---
+
+Your team's pull requests are up by a third. Your shipped work is barely up. The gap between those two numbers is now the story of AI in software engineering.
+
+A Harvard working paper measured it. Fiona Chen and James Stratton studied 655 firms and 720,542 engineers, using Jellyfish data from January 2021 to August 2026. The paper is "Artificial Intelligence in the Firm: Bottlenecks in Software Production". It is a working paper, not peer reviewed yet. The current version is dated November 14, 2026.
+
+## What the study found
+
+Twelve months after a firm adopted AI coding agents, lines of code rose 44.0%. Commits rose 36.0%. Pull requests opened rose 35.7%. These effects sit on top of AI assistants, which most firms already used.
+
+Finished work rose far less. Jira issues resolved rose 13.7%, an effect the authors call borderline significant. Epics resolved rose 18.0%.
+
+The authors checked whether issues simply got bigger. They used machine learning to predict how long each issue should take to resolve. They found no change in average predicted length. The output gap is real.
+
+Headcount did not move. Active engineers changed by −2.6%, which is not statistically significant. The data rules out a drop larger than 15.6%. Junior hiring did not fall either.
+
+## Where the extra code went
+
+It went into the review queue. The time from a pull request's submission to its approval rose 56.1%. That is 1.99 extra days on a baseline of 3.56 days.
+
+Two things happened at once. Code waited longer before anyone looked at it: time in the backlog rose 59.9%. And once review started, it took longer: time in active review rose 58.5%. Comments per change rose 38.6%.
+
+The authors read this as two problems, not one. Reviewers are scarce, so code waits. And the code arriving at review needs more work, so each review takes longer.
+
+Engineers spend only 30 to 40% of their time writing code. The rest goes to planning, review, testing, and meetings. Agents sped up the smallest slice of the job. The work piled up in the next step.
+
+## The reviewer pool is narrow
+
+Review cannot be spread out easily. In the data, 82.8% of reviews go to engineers who already know the code. Random assignment would give 17.2%.
+
+Senior code is reviewed by seniors. Senior-written code gets a senior reviewer 75.7% of the time. Juniors do only 24.3% of the reviewing on senior-written code.
+
+One engineer interviewed for the paper put it plainly. Only one senior was allowed to approve changes on his project, and that senior could review his code once a week. After AI-generated commits caused outages, the team added a rule requiring senior approval for AI-generated code. The bottleneck got worse.
+
+AI review tools did not close the gap. 79.1% of firms adopted one. Humans still write the overwhelming majority of reviews and comments.
+
+The paper's model puts numbers on the shift. Agents raised coding productivity 73.7% and lowered review productivity 7.0%. Firms moved labour accordingly: time spent writing code fell 22.7%, time spent on review rose 43.4%.
+
+## What to do about it
+
+### If you write code with agents
+
+Keep agent pull requests small and explained. Review is where work now waits. Every change you make easier to review saves a colleague's time.
+
+Review your agent's output before a colleague does. Longer active-review times suggest lower-quality code is arriving at review. Catch it first.
+
+Do not measure yourself by lines or commits. The authors write that such metrics "overstate the gains from AI adoption."
+
+### If you review code
+
+Your queue is now where your team's throughput is decided. Make the load visible in planning instead of absorbing it quietly.
+
+Widen the pool. Bring juniors into reviews, even on senior-written code. That is the only way the 82.8% familiarity figure moves.
+
+### If you lead a team
+
+Count finished work, not commits. GitHub reported more than 1.2 billion commits in one October week, over 400% more than a year earlier. A Faros AI study cited by GitHub found pull requests spent 441% longer in review as teams moved from low to high AI adoption. Commit volume is not throughput.
+
+Treat review capacity as a resource to plan, not a tax on coding time. A Sonar survey from November 2026 found 53% of developers now spend more time reviewing code than creating it.
+
+## What the study does not say
+
+It does not say agents are useless. Finished work rose 13.7%, and epics rose 18.0%. The gain is real. It is just smaller than the code numbers suggest.
+
+It does not say jobs are safe forever. The paper's model projects employment declines by 2031 under some scenarios, from −10.3% to an upper bound of −76.2%. Those are model outputs, not measurements. They assume AI keeps improving and demand behaves in a particular way. Treat them as scenarios, not forecasts.
+
+The honest summary is the paper's own abstract: AI "substantially increases code output but has smaller effects on final software output and no detectable effect on employment. Code review becomes the bottleneck."
+
+Writing code got cheaper. Judging code is now the scarce skill. Plan around that.
+
+## References
+
+- [Chen & Stratton, "Artificial Intelligence in the Firm: Bottlenecks in Software Production" (current version November 14, 2026)](https://fion.ac/jellyfish.pdf)
+- [StackChief, "Harvard AI Coding Agents Study: More Code, Same Headcount" (November 8, 2026)](https://stackchief.com/blog/Harvard%20AI%20Coding%20Agents%20Study%202026:%20More%20Code,%20Same%20Headcount)
+- [Jenuel, "The State of AI in Software Development in 2026" (November 2026)](https://blog.jenuel.dev/blog/state-of-ai-software-development-2026)
+- [VibeLeaderboard, "Beyond code generation: A developer's guide to agentic engineering" (November 6, 2026)](https://www.vibeleaderboard.ai/intel/9ea15773-85f1-42af-868e-fa463a6ea725)
