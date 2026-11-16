@@ -1,0 +1,111 @@
+---
+title: "Biarkan AI Memilih Tes yang Dijalankan — tapi Beri Dia Allowlist"
+description: "Smart Runner dari Raidiam membiarkan AI memilih tes Cypress mana yang jalan di setiap PR. Biayanya sekitar $5 sebulan dan menangkap 12 bug di bulan Oktober saja. Triknya bukan AI-nya, melainkan allowlist yang memeriksa hasil kerjanya."
+locale: "id"
+domain: "qa"
+slug: "biarkan-ai-memilih-tes-allowlist"
+canonicalGroup: "qa-ai-picks-tests-allowlist"
+publishedAt: "2026-11-17"
+updatedAt: "2026-11-17"
+tags: ["ai-testing", "cypress", "playwright", "ci", "test-selection"]
+featured: false
+draft: false
+coverImage: "/assets/ai-picks-tests/thumbnail-id.png"
+---
+
+Setiap pull request menjalankan seluruh suite Cypress. Satu jam kemudian hasilnya mendarat di Slack, dan tidak ada yang membacanya sampai keesokan pagi.
+
+Tim ini mencoba perbaikan setengah jalan. Template PR punya bagian "Cypress Test Tags", dan developer memilih tag-nya sendiri. Ada yang lupa, ada yang salah pilih, ada yang mencentang apa saja yang terasa cocok. Itu bukan masalah orang. Itu proses yang meminta seseorang menghafal peta seluruh test suite di setiap PR.
+
+Akhirnya Raidiam membangun Smart Runner: sebuah GitHub Actions workflow tempat AI membaca perubahan dan memilih tes yang jalan. Empat bulan kemudian, staff engineer Caíque Coelho menulis hasilnya. Angkanya bagus. Bagian yang menarik justru kegagalan yang hampir membuat semuanya diam-diam lebih buruk.
+
+## Kenapa memilih tes itu sulit untuk E2E
+
+Untuk unit test, memilih tes dari sebuah diff adalah masalah yang sudah selesai. Kamu membangun import graph lalu berjalan dari file yang berubah ke setiap test yang mengimpornya.
+
+Spec Cypress tidak mengimpor kode aplikasi. Spec itu menggerakkan aplikasi lewat URL, DOM selector, dan network intercept, jadi import graph berhenti di batas aplikasi. Pertanyaan "spec mana yang mencakup `src/pages/users/EditUser.vue`?" tidak punya jawaban di code graph saja.
+
+Opsi tanpa AI semuanya punya celah. Mapping file dari path sumber ke spec memang murah, tapi file tanpa entry tidak dapat apa-apa. Route inference adalah proyek tersendiri. Pemilihan berbasis coverage adalah opsi paling ketat, tapi butuh full run berkala dan cepat basi setiap kali ada merge. Pemilihan statis juga melewatkan hal yang tidak meninggalkan jejak di kode: i18n key, runtime config, feature flag, perubahan API client.
+
+Tim ini tidak memilih satu sisi. Mereka membangun hybrid: mapping file plus AI yang membacanya, plus sinyal dari kode biasa untuk kasus di mana analisis kode lebih baik daripada tebakan.
+
+## Cara kerja Smart Runner
+
+AI-nya adalah Claude Sonnet 4.6 di AWS Bedrock. Ia membuat tiga call pendek per PR, satu demi satu:
+
+1. **Diff analysis.** AI hanya menerima daftar path file `src/` yang berubah. Ia menulis satu baris tentang bagian aplikasi mana yang berubah, misalnya "IDP Configuration tab in Authorisation Servers, Domain Users listing."
+2. **Tag selection.** AI menerima judul dan deskripsi PR, ringkasan fitur tadi, path yang berubah, mapping sumber-ke-tag, dan referensi tag. Ia mengembalikan tag yang tesnya harus jalan. Aturannya "most specific path wins": perubahan di `AdministratorsPage.vue` mendapat `@OrgAdmins`, bukan `@Organisation` yang lebih luas.
+3. **Spec selection.** Input yang sama, tapi dengan mapping sumber-ke-spec dan inventory semua spec beserta judul tesnya. Ini menangkap spec yang layak jalan walau tag-nya terlalu luas.
+
+AI tidak pernah melihat kode itu sendiri. Awalnya tim mengirim diff juga. Tidak membantu: pilihannya sama, dan setiap call jadi jauh lebih besar dan mahal. Di proyek ini, path file saja sudah menjelaskan hampir semua hal tentang screen mana yang dimaksud.
+
+Tiga sinyal dari kode biasa berjalan berdampingan dengan AI. Spec yang diubah developer selalu jalan. Saat custom command atau shared helper berubah, sebuah script mencari spec mana yang memanggilnya. Saat sebuah component berubah, script lain menelusuri import graph mundur ke page yang me-render-nya, lalu memetakan page itu ke spec. Kandidat dibatasi delapan per sinyal, supaya component yang dipakai di 67 screen tidak menarik separuh suite.
+
+Keempat daftar digabung dan dideduplikasi. Spec hasil gabungan jalan di satu job. Job kedua menjalankan semua tes dengan tag terpilih, dikurangi spec yang sudah ada di job pertama. Job terakhir mengubah kedua hasil itu menjadi satu PR status.
+
+Workflow ini mem-posting komentar di PR yang menunjukkan apa yang dipilih tiap sinyal, berapa biaya AI-nya, dan command untuk menjalankan tes yang sama secara lokal. Developer bisa menyalin command itu dan mengulang run yang sama di mesinnya.
+
+## Hari ketika AI menciptakan sebuah tag
+
+Di awal, sebuah PR mengubah `AuditHistory.vue`. AI melihat nama file itu lalu dengan percaya diri mengembalikan tag bernama `@AuditHistory`. Tag itu tidak ada. Tag asli untuk area tersebut adalah `@Audit`.
+
+Bagian yang menakutkan: tag karangan tidak memicu error apa pun. `cy-grep` tidak menemukan tes dengan `@AuditHistory`, jadi tes yang seharusnya memeriksa audit history tidak pernah jalan. PR itu terlihat lebih teruji daripada kenyataannya.
+
+Tim memperbaikinya dalam tiga lapis:
+
+1. **Prompt.** Sekarang prompt menyatakan dengan jelas bahwa hanya tag di referensi yang ada, tag tidak boleh dikarang dari nama file atau component, dan jawaban kosong itu boleh.
+2. **Allowlist.** Setelah AI menjawab, kode biasa membaca daftar tag asli lalu membuang apa pun yang tidak ada di sana, dengan warning di log. Aturan yang sama berlaku untuk spec: nama spec yang tidak ada di disk dibuang.
+3. **Default yang aman.** `@Smoke` selalu ditambahkan oleh kode, tidak pernah oleh AI. Bahkan jika semua pilihan AI dibuang, PR tetap menjalankan smoke suite, bukan tidak menjalankan apa-apa.
+
+Ini pelajaran yang layak dicuri. AI yang memilih tes butuh penjaga yang bukan AI. Prompt adalah permintaan. Allowlist adalah fakta.
+
+## Biayanya, dan apa yang tertangkap
+
+Satu PR kecil memakai sekitar 5.400 input token dan 50 output token. Biayanya sekitar $0,017. Sebuah cache me-hash input AI, jadi push yang hanya mengubah kode di dalam file yang sudah berubah tidak dikenakan biaya. Workflow ini jalan sekitar 700 kali di bulan Oktober, dan tagihan AI bulanan tetap sekitar $5.
+
+Memilih tag dulu memakan waktu satu sampai dua menit per PR untuk developer, ditambah waktu yang kurang lebih sama untuk reviewer yang memeriksa pilihan itu. Tim me-merge 78 PR di bulan Oktober. Totalnya sekitar tiga sampai lima jam sebulan, yang sekarang dipakai untuk fitur, bukan daftar tag.
+
+Angka bug adalah headline-nya. Setiap bug yang ditemukan Cypress run diberi label `cypressCaught` di Jira:
+
+- Sepanjang 2025: 21 bug tertangkap, sekitar 1,8 per bulan.
+- 2026 sejauh ini, sampai 10 November: 38 bug, sekitar 3,7 per bulan.
+- Oktober 2026 saja: 12 bug.
+
+Coelho jujur soal pembagian kredit. Angka $5 itu tidak mendapat semuanya. Suite tumbuh pesat tahun ini, menjadi 151 spec file, dan label itu menghitung semua Cypress run. Yang berubah adalah tes yang tepat kini jalan di setiap PR yang siap, jadi bug ditemukan di PR, bukan berhari-hari kemudian.
+
+## Bawa pola ini ke Playwright dalam satu sore
+
+Tidak ada yang di sini khusus Cypress kecuali nama tool-nya. Polanya langsung bisa dipindahkan:
+
+- **Tag.** Playwright men-tag tes secara native: `test('shows the audit history', { tag: '@audit' }, ...)`, lalu `npx playwright test --grep @audit`. Gabungkan tag dengan `--grep "@smoke|@audit"`.
+- **Mapping file.** Simpan file JSON di repo dari prefix path sumber ke tag dan spec file. Prefix paling spesifik yang menang. Mulai dengan dua puluh entry dan tambah setiap kali ada pilihan yang salah.
+- **Allowlist.** Setelah model menjawab, script membaca daftar tag asli dan spec file asli dari disk lalu membuang apa pun yang tidak ada. Catat warning untuk setiap pilihan yang dibuang.
+- **Default yang aman.** Selalu tambahkan `@smoke` di kode, jangan di prompt. PR yang hanya menjalankan smoke test tetap PR yang teruji.
+- **Mulai dengan gate.** Jalankan hanya saat sebuah label ditambahkan ke PR, dan posting pilihannya sebagai komentar PR. Amati pilihannya beberapa minggu sebelum membiarkannya jalan di setiap PR yang siap.
+
+Model tidak butuh diff. Kirim path file yang berubah, judul dan deskripsi PR, dan mapping-nya. Pakai model kelas menengah. Memakai model paling mahal untuk membaca daftar nama file itu, kata Coelho, seperti menyewa ahli bedah otak untuk membacakan daftar belanja.
+
+## Yang masih belum jalan
+
+Refactor besar yang menyentuh banyak file yang tidak berhubungan tetap memilih terlalu banyak tes. Ganti nama shared helper yang dipakai di 40 screen, dan AI, mapping, dan component script semuanya sepakat bahwa 40 screen berubah. Secara teknis benar. Tidak terlalu berguna.
+
+Saat file yang berubah tidak punya entry di mapping, AI kadang tidak memilih apa-apa. Setiap kasus itu menjadi entry mapping baru. Pre-commit hook kini mengusulkan entry untuk file baru, dan checker membuang apa pun yang tidak asli sebelum commit mendarat.
+
+Tim juga ingin mencoba time budget sebagai pengganti hitungan: beri peringkat pada pilihan lalu jalankan yang terbaik yang muat dalam lima belas menit. Dan aturan untuk menyerah: saat PR menyentuh lebih dari sejumlah area fitur, jalankan full suite dengan sengaja dan katakan begitu di komentar PR.
+
+## Checklist-nya
+
+- Simpan mapping file dari path sumber ke test tag dan spec file. Tambah entry setiap kali ada pilihan yang salah.
+- Kirim path file yang berubah, judul dan deskripsi PR, dan mapping ke model kelas menengah. Minta tag dan spec file.
+- Buang apa pun yang tidak ada di daftarmu yang asli. Selalu tambahkan default yang aman seperti smoke tag di kode.
+- Tambahkan sinyal dari kode biasa di mana analisis kode lebih baik daripada tebakan: spec yang berubah, dan import graph untuk component.
+- Mulai dengan label dan posting pilihannya sebagai komentar PR. Amati selama beberapa minggu sebelum berhenti memeriksanya.
+
+Pengetahuan tentang tes mana yang penting untuk sebuah perubahan sudah ada di codebase: di path file, di penamaan, di cara file sumber berhubungan dengan spec. Tidak ada yang perlu menghafalnya. Model $5 sebulan bisa membacanya di setiap PR, kode biasa bisa memeriksa hasil kerjanya, dan orang yang dulu mengerjakan tugas itu kini memakai waktunya untuk hal yang lebih baik.
+
+## Referensi
+
+- Caíque Coelho, [We let AI pick our Cypress tests. Four months later, here's what happened](https://caiquecoelho.medium.com/we-let-ai-pick-our-cypress-tests-four-months-later-heres-what-happened-e2f4d79d8c88) — desain Smart Runner, biaya, dan angka bug yang dikutip di atas.
+- Cypress docs, [AI in Cypress](https://docs.cypress.io/app/ai/overview) — test generation, `cy.prompt`, dan agent-ready report.
+- Playwright docs, [Annotations](https://playwright.dev/docs/test-annotations) — men-tag tes dan memfilter dengan `--grep`.
+- [The Healer May Fix the Locator, Not the Assertion](https://ranmaul.com/en/qa/healer-fix-locator-not-assertion-playwright-agents) — di mana perbaikan dari AI agent tetap butuh batas dari manusia.
