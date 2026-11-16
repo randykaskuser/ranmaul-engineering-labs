@@ -1,0 +1,111 @@
+---
+title: "Let the AI Pick Which Tests Run — but Give It an Allowlist"
+description: "Raidiam's Smart Runner lets an AI pick which Cypress tests run on every PR. It costs about $5 a month and caught 12 bugs in October alone. The trick is not the AI. It is the allowlist that checks its work."
+locale: "en"
+domain: "qa"
+slug: "let-ai-pick-which-tests-run-allowlist"
+canonicalGroup: "qa-ai-picks-tests-allowlist"
+publishedAt: "2026-11-17"
+updatedAt: "2026-11-17"
+tags: ["ai-testing", "cypress", "playwright", "ci", "test-selection"]
+featured: false
+draft: false
+coverImage: "/assets/ai-picks-tests/thumbnail-en.png"
+---
+
+Every pull request ran the whole Cypress suite. An hour later a result landed in Slack, and nobody read it until the next morning.
+
+The team tried a halfway fix. The PR template had a "Cypress Test Tags" section, and the developer picked the tags by hand. People forgot, picked the wrong tags, or ticked whatever felt about right. That was not a people problem. It was a process that asked someone to carry a map of the whole test suite in their head on every PR.
+
+So Raidiam built the Smart Runner: a GitHub Actions workflow where an AI reads the change and picks the tests instead. Four months later, staff engineer Caíque Coelho wrote up what happened. The numbers are good. The interesting part is the failure that almost made the whole thing silently worse.
+
+## Why picking tests is hard for E2E
+
+For unit tests, picking tests from a diff is a solved problem. You build the import graph and walk from the changed file to every test that imports it.
+
+Cypress specs do not import app code. They drive the app through URLs, DOM selectors, and network intercepts, so the import graph stops at the app boundary. "Which specs cover `src/pages/users/EditUser.vue`?" has no answer in the code graph alone.
+
+The non-AI options all have a gap. A mapping file from source paths to specs is cheap, but a file with no entry gets nothing. Route inference is a real project. Coverage-based selection is the most rigorous option, but it needs regular full runs and goes stale with every merge. Static selection also misses things that leave no trace in code: i18n keys, runtime config, feature flags, API client changes.
+
+The team did not pick one side. They built a hybrid: a mapping file plus an AI that reads it, plus plain-code signals for the cases where code analysis beats guessing.
+
+## How the Smart Runner works
+
+The AI is Claude Sonnet 4.6 on AWS Bedrock. It makes three short calls per PR, one after the other:
+
+1. **Diff analysis.** The AI gets only the list of changed `src/` file paths. It writes one line about which parts of the app changed, like "IDP Configuration tab in Authorisation Servers, Domain Users listing."
+2. **Tag selection.** The AI gets the PR title and description, that feature summary, the changed paths, the source-to-tags mapping, and the tag reference. It returns the tags whose tests should run. The rule is "most specific path wins": a change to `AdministratorsPage.vue` gets `@OrgAdmins`, not the broader `@Organisation`.
+3. **Spec selection.** The same inputs, but with the source-to-specs mapping and a generated inventory of every spec and its test titles. This catches specs worth running even when their tags are too broad.
+
+The AI never sees the code itself. At first the team sent the diff too. It did not help: the picks were the same, and every call was much bigger and more expensive. In this project a file path already says almost everything about which screen it belongs to.
+
+Three plain-code signals run alongside the AI. Changed specs always run. When a custom command or shared helper changes, a script finds which specs call it. When a component changes, a script walks the import graph backwards to the pages that render it, then maps those pages to specs. Candidates are capped at eight per signal, so a component used on 67 screens does not pull in half the suite.
+
+The four lists are merged and deduplicated. The merged specs run in one job. A second job runs every test with one of the selected tags, minus the specs already in the first job. A final job turns both results into one PR status.
+
+The workflow posts a comment on the PR showing what each signal picked, what the AI cost, and the commands to run the same tests locally. Developers can copy those commands and reproduce the run on their machine.
+
+## The day the AI invented a tag
+
+Early on, a PR changed `AuditHistory.vue`. The AI looked at the file name and confidently returned a tag called `@AuditHistory`. That tag does not exist. The real tag for that area is `@Audit`.
+
+The scary part is that a made-up tag does not fail loudly. `cy-grep` simply finds no tests with `@AuditHistory`, so the tests that should have checked the audit history never ran. The PR looked more tested than it was.
+
+The team fixed it in three layers:
+
+1. **The prompt.** It now says plainly that only tags in the reference exist, that a tag must never be made up from a file or component name, and that an empty answer is fine.
+2. **The allowlist.** After the AI answers, plain code reads the list of real tags and drops anything else, with a warning in the log. The same rule applies to specs: a spec name that does not exist on disk is dropped.
+3. **A safe default.** `@Smoke` is always added by code, never by the AI. Even if every AI pick is dropped, the PR still runs the smoke suite instead of nothing.
+
+This is the lesson worth stealing. An AI that picks tests needs a guard that is not an AI. The prompt is a request. The allowlist is a fact.
+
+## What it costs, and what it caught
+
+A small PR uses about 5,400 input tokens and 50 output tokens. That costs about $0.017. A cache hashes the AI inputs, so a push that only changes code inside already-changed files costs nothing. The workflow fired about 700 times in October, and the monthly AI bill still sits at about $5.
+
+Picking tags used to take a developer one to two minutes per PR, plus about the same again for a reviewer checking the picks. The team merged 78 PRs in October. That adds up to roughly three to five hours a month, now spent on features instead of a tag list.
+
+The bug numbers are the headline. Every bug a Cypress run finds gets a `cypressCaught` label in Jira:
+
+- All of 2025: 21 bugs caught, about 1.8 per month.
+- 2026 so far, to 10 November: 38 bugs, about 3.7 per month.
+- October 2026 alone: 12 bugs.
+
+Coelho is honest about the credit. The $5 does not get all of it. The suite grew a lot this year, to 151 spec files, and the label counts any Cypress run. What changed is that the right tests now run on every ready PR, so bugs are found on the PR and not days later.
+
+## Port it to Playwright in an afternoon
+
+Nothing here is Cypress-specific except the tool names. The pattern ports directly:
+
+- **Tags.** Playwright tags tests natively: `test('shows the audit history', { tag: '@audit' }, ...)`, then `npx playwright test --grep @audit`. Combine tags with `--grep "@smoke|@audit"`.
+- **Mapping file.** Keep a JSON file in the repo from source path prefixes to tags and spec files. Most specific prefix wins. Start with twenty entries and grow it every time a pick is wrong.
+- **Allowlist.** After the model answers, a script reads the real tag list and the real spec files from disk and drops anything else. Log a warning for every dropped pick.
+- **Safe default.** Always add `@smoke` in code, never in the prompt. A PR that runs only smoke tests is still a tested PR.
+- **Start gated.** Run it only when a label is added to the PR, and post the picks as a PR comment. Watch the picks for a few weeks before you let it run on every ready PR.
+
+The model does not need the diff. Send the changed file paths, the PR title and description, and the mapping. Use a mid-size model. A top model reading a list of file names is, in Coelho's words, like hiring a brain surgeon to read out a shopping list.
+
+## What still does not work
+
+Large refactors that touch many unrelated files still pick too many tests. Rename a shared helper used on 40 screens, and the AI, the mapping, and the component script all agree that 40 screens changed. Technically true. Not very useful.
+
+When a changed file has no mapping entry, the AI sometimes picks nothing. Each of those became a new mapping entry. A pre-commit hook now proposes entries for new files, and a checker drops anything that is not real before the commit lands.
+
+The team also wants to try a time budget instead of a count: rank the picks and run the best ones that fit in fifteen minutes. And a rule to give up: when a PR touches more than a set number of feature areas, run the full suite on purpose and say so in the PR comment.
+
+## The checklist
+
+- Keep a mapping file from source paths to test tags and spec files. Grow it every time a pick is wrong.
+- Send the changed file paths, the PR title and description, and the mapping to a mid-size model. Ask for tags and spec files.
+- Throw out anything that is not on your list of real ones. Always add a safe default like a smoke tag in code.
+- Add plain-code signals where code analysis beats guessing: changed specs, and an import graph for components.
+- Start with a label and post the picks as a PR comment. Watch them for a few weeks before you stop checking.
+
+The knowledge of which tests matter for a change was already in the codebase: in file paths, in naming, in how source files relate to specs. Nobody needed to carry it in their head. A $5-a-month model can read it on every PR, plain code can check its work, and the people who used to do that job now spend the time on something better.
+
+## References
+
+- Caíque Coelho, [We let AI pick our Cypress tests. Four months later, here's what happened](https://caiquecoelho.medium.com/we-let-ai-pick-our-cypress-tests-four-months-later-heres-what-happened-e2f4d79d8c88) — the Smart Runner design, costs, and bug numbers quoted above.
+- Cypress docs, [AI in Cypress](https://docs.cypress.io/app/ai/overview) — test generation, `cy.prompt`, and agent-ready reports.
+- Playwright docs, [Annotations](https://playwright.dev/docs/test-annotations) — tagging tests and filtering with `--grep`.
+- [The Healer May Fix the Locator, Not the Assertion](https://ranmaul.com/en/qa/healer-fix-locator-not-assertion-playwright-agents) — where an AI agent's fix still needs a human boundary.
