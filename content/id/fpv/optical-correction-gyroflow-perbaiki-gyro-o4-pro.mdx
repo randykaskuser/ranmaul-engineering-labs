@@ -1,0 +1,101 @@
+---
+title: "Optical Correction Gyroflow: Perbaiki Gyro O4 Pro dari Videonya"
+description: "Nightly Gyroflow kini punya Optical Correction: ia mengukur gerakan asli dari video dan memperbaiki data gyro O4 Pro yang salah. Default cukup untuk flight yang mudah. Flight yang sulit masih butuh fallback ignore-gyro."
+locale: "id"
+domain: "fpv"
+slug: "optical-correction-gyroflow-perbaiki-gyro-o4-pro"
+canonicalGroup: "fpv-gyroflow-optical-correction-o4-pro"
+publishedAt: "2026-11-18"
+updatedAt: "2026-11-18"
+tags: ["fpv", "dji-o4", "gyroflow", "stabilization", "optical-correction"]
+featured: false
+draft: false
+coverImage: "/assets/gyroflow-optical-correction/thumbnail-id.png"
+---
+
+Footage O4 Pro-mu terlihat bersih di goggles. Rekaman mentahnya juga bersih. Lalu Gyroflow menstabilkannya, dan videonya bergetar dan bergoyang dengan cara yang tidak pernah dilakukan quad-mu.
+
+Situs ini sudah mengikuti masalah ini dua kali. Pertama diagnosisnya: kamera O4 Pro produksi 2026 memakai gyro berbeda, ICM-40609-D, yang salah mengira getaran motor sebagai rotasi. Lalu perbaikan software pertama: nightly Gyroflow dan FPVFlow 1.0.3, keduanya memperbaiki data gyro itu sendiri.
+
+Kini nightly punya tool kedua, dan ia mendekati masalah dari sisi sebaliknya. Optical Correction tidak memercayai gyro sama sekali. Ia membaca video, mengukur bagaimana drone benar-benar bergerak, lalu memperbaiki data gyro berdasarkan itu.
+
+## Apa yang dilakukan Optical Correction
+
+Stabilisasi Gyroflow normal memercayai motion data kamera. Gyro bilang kamera berotasi, maka Gyroflow memutar frame ke arah sebaliknya. Cara ini bekerja saat gyro berkata jujur.
+
+Pada O4 Pro yang terdampak, gyro berbohong. Di bawah getaran motor, ia merekam rotasi palsu yang singkat, sampai sekitar 2 derajat dalam beberapa milidetik. Kamera lalu menariknya kembali perlahan selama sekitar 12 detik. Gyroflow mengoreksi rotasi yang tidak pernah terjadi, dan hasilnya bergetar.
+
+Optical Correction membalik pendekatannya. Yang dipercaya kini videonya, bukan gyro. Ia melacak titik-titik di video itu sendiri, frame demi frame, dan mengukur gerakan yang sebenarnya. Lalu ia memperbaiki data gyro agar cocok dengan apa yang benar-benar dilakukan pixel. Rotasi yang salah hilang karena video bilang rotasi itu tidak pernah terjadi.
+
+Fitur ini ada di panel Motion Data pada nightly Gyroflow, dev build-nya. Fitur ini masih under review di GitHub, jadi untuk sekarang hanya ada di nightly. Unduh dari halaman dev builds, bukan dari release stabil.
+
+## Workflow-nya: tiga langkah, berurutan
+
+### 1. Mulai dari default
+
+Load clip-nya, nyalakan Optical Correction, lalu klik Analyze. Untuk flight yang mudah, itu saja sudah cukup.
+
+Flight uji yang membuktikannya adalah GEPRC TriPro 6" dengan soft mount, terbang di tengah hembusan angin tanpa ND filter. Hanya default, satu klik, dan microvibration-nya hilang. Kalau mount-mu bagus dan flight-mu halus, coba ini dulu dan berhenti di sini.
+
+### 2. Naikkan strength, ganti tracking
+
+Flight yang sulit butuh lebih. Flight uji kedua, dari pilot bernama Andrea, masih bergetar setelah default. Tester lalu mencoba Strength di 100, nilai maksimum. Lalu tiga metode tracking: KLT, DIS, dan GMFlow. Lalu mode correction: Per row atau Per frame.
+
+Setiap langkah membantu sedikit. Tidak satu pun menghilangkan getarannya. Itu hasil yang jujur, dan penting: Optical Correction bukan obat untuk semua clip. Ia memperbaiki flight yang mudah sampai tuntas dan melunakkan flight yang sulit.
+
+Metode tracking juga memakan waktu yang sangat berbeda. KLT cepat. GMFlow, tracker berbasis AI, butuh lebih dari 12 menit untuk menganalisis flight yang sama. Mulai dari KLT. Pakai GMFlow hanya saat KLT masih menyisakan sesuatu.
+
+### 3. Abaikan gyro sepenuhnya
+
+Saat gyro yang sudah dikoreksi masih bergetar, masih ada satu switch lagi: "Ignore motion data from the file." Gyroflow lalu menstabilkan hanya dari gambar, tanpa input gyro sama sekali.
+
+Pada flight uji yang sulit, cara ini berhasil. Flight-nya keluar stabil dan layak publish, dengan analisis KLT sekitar belasan detik. Data gyro adalah masalahnya, jadi mengeluarkannya dari persamaan menghilangkan masalahnya.
+
+Ini fallback, bukan langkah pertama. Stabilisasi image-only tidak punya gyro sebagai jangkar, jadi ia sepenuhnya bergantung pada apa yang bisa dilihat tracker. Tapi saat gyro berbohong, memercayai gambar lebih baik daripada memercayai gyro.
+
+## Dua trik kecil yang mengubah hasil
+
+Pertama, trim timeline-nya. Gyroflow hanya menganalisis jarak di antara trimmer, jadi potong clip ke flight-nya dulu sebelum menganalisis. Analisis berjalan lebih cepat, dan waktu parkir di bench tidak mengotori tracking.
+
+Kedua, hapus tracked point yang buruk. Point yang terlacak pada propeller atau mobil yang lewat mengikuti gerakan yang salah. Hapus sebelum menganalisis, atau mereka menarik correction ke arah yang salah.
+
+## Aturan rekamannya tidak berubah
+
+Optical Correction tetap butuh data gyro di dalam file. Artinya aturan yang sama seperti sebelumnya: rekam dengan FOV Wide, RockSteady off di goggles. Kalau RockSteady menyala, kamera sudah menstabilkan gambar di dalam kamera, dan tidak ada motion track yang bisa dikoreksi.
+
+HorizonSteady juga off. Perbaikan ini butuh orientation track 1 kHz dari kamera, dan mode stabilisasi mematikannya.
+
+Ingat juga apa yang tidak diperbaiki cara ini. RockSteady di dalam kamera masih rusak pada unit yang terdampak. Perbaikan ini hanya post-flight. Kalau workflow-mu RockSteady langsung dari kamera, kamu masih menunggu DJI.
+
+## Apa yang DJI sudah dan belum lakukan
+
+Sejak Juni, pilot menunggu firmware fix, press release, atau sinyal apa pun dari DJI soal gyro baru ini. Tidak ada yang datang. Perbaikan sejauh ini semuanya kerja komunitas: investigasi o4fix, port FPVFlow, dan kini Optical Correction Gyroflow.
+
+Itu layak dikatakan dengan jelas. Tool yang kamu unduh adalah nightly build dari proyek open-source, membawa fitur yang masih under review. Ini bukan fix dari DJI, dan DJI belum bilang kapan atau apakah fix itu akan datang.
+
+## Keputusannya
+
+- Kamu punya unit terdampak dan footage lama: coba Optical Correction pada clip-mu dulu, default lalu Strength 100, lalu fallback ignore-gyro. Tes ini memakan satu malam.
+- Kamu terbang dengan soft mount dan gerakan halus: default kemungkinan besar memperbaiki footage-mu sampai tuntas. Itulah flight uji yang mudah.
+- Kamu terbang agresif dengan mount kaku: harapkan perbaikan sebagian, bukan obat. Fallback ignore-gyro adalah tool-mu yang sebenarnya, dan ia bekerja.
+- Kamu terbang dengan RockSteady: belum ada yang membantu di sini. Tunggu DJI, atau pindah ke Gyroflow.
+
+Tiga minggu lalu, sarannya adalah menguji perbaikan gyro sebelum membayar hardware swap. Hari ini ada perbaikan kedua untuk diuji dulu, plus fallback yang membuang gyro sepenuhnya. Hardware swap kini makin jauh di daftar.
+
+## Checklist
+
+- Ambil nightly Gyroflow dari halaman dev builds. Release stabil belum punya Optical Correction.
+- Rekam dengan FOV Wide, RockSteady dan HorizonSteady off, atau tidak ada motion track untuk dikoreksi.
+- Nyalakan Optical Correction di panel Motion Data lalu klik Analyze dengan default.
+- Kalau flight masih bergetar, naikkan Strength ke 100 dan coba KLT, lalu DIS, lalu GMFlow. GMFlow bisa makan waktu lebih dari 12 menit.
+- Kalau masih bergetar, centang "Ignore motion data from the file" dan stabilkan hanya dari gambar.
+- Trim clip ke flight-nya dulu, dan hapus tracked point pada propeller atau mobil yang bergerak.
+- Simpan original-mu. Ini nightly build dengan fitur yang masih under review.
+
+## Referensi
+
+- Davide FPV, [GYROFLOW fixes DJI O4 PRO bugs while DJI SLEEPS! Is it worth buying?!](https://www.youtube.com/watch?v=zrPjxY5wdt4) — Optical Correction diuji pada dua flight nyata, dari default sampai fallback ignore-gyro.
+- Gyroflow, [Development builds](https://gyroflow.xyz/devbuild) — nightly dengan Optical Correction, untuk Windows, Mac, Linux, Android, dan iOS.
+- Gyroflow docs, [DJI](https://docs.gyroflow.xyz/app/getting-started/supported-cameras/dji.md) — kamera DJI yang didukung dan syarat data gyro.
+- [Gyro O4 Pro Belum Mati: Uji Dulu Perbaikan Software Sebelum Ganti Hardware](https://ranmaul.com/id/fpv/o4-pro-perbaikan-software-sebelum-ganti-hardware) — perbaikan software pertama: nightly Gyroflow dan FPVFlow 1.0.3.
+- [Jangan Hapus Dulu Klip O4 Itu: Menyelamatkan Footage dari Pergantian Gyro 2026](https://ranmaul.com/id/fpv/selamatkan-footage-o4-pro-pergantian-gyro-2026) — diagnosisnya: gyro ICM-40609-D dan rotasi palsu.
