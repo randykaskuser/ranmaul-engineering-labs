@@ -12,8 +12,8 @@ next session can continue without guessing.
 Before writing code:
 
 1. Confirm the working directory with `pwd`.
-2. Read `docs/agent/claude-progress.md` for the latest verified state and next step.
-3. Read `docs/agent/feature_list.json` and choose the highest-priority unfinished feature.
+2. Read `feature_list.json (active_context) & ai-memory` for the latest verified state and next step.
+3. Read `feature_list.json` and choose the highest-priority unfinished feature.
 4. Review recent commits with `git log --oneline -5`.
 5. Run `./init.sh` (install, lint, build, smoke check). It must exit 0 before new work starts.
 
@@ -51,10 +51,10 @@ There is no unit or e2e test suite. For UI changes, add a visual check
 
 ## Required Artifacts
 
-- `docs/agent/feature_list.json`: source of truth for feature state
-- `docs/agent/claude-progress.md`: session log; the "Current state" block at the top holds the latest verified status and next step
+- `feature_list.json`: source of truth for feature state
+- `feature_list.json (active_context) & ai-memory`: session log; the "Current state" block at the top holds the latest verified status and next step
 - `init.sh`: standard startup and verification path
-- `docs/agent/session-handoff.md`: optional compact handoff for larger sessions
+- `ai-memory handoffs`: optional compact handoff for larger sessions
 
 `feature_list.json` entry schema:
 
@@ -84,7 +84,7 @@ A feature is done only when all of the following are true:
 - the target behavior is implemented
 - `./init.sh` exits 0 (lint 0 errors, build, smoke check)
 - a feature-specific check actually ran (e.g. Playwright screenshot for UI, checking the built page in `out/` for content/SEO)
-- evidence is recorded in `docs/agent/feature_list.json` (`verification`) or `docs/agent/claude-progress.md`
+- evidence is recorded in `feature_list.json` (`verification`) or `feature_list.json (active_context) & ai-memory`
 - the repository remains restartable from the standard startup path
 
 ## Temporary Files Policy
@@ -136,8 +136,8 @@ At the end of each session, review all newly created root-level files and either
 
 Before ending a session:
 
-1. Update `docs/agent/claude-progress.md` (session entry + "Current state" block).
-2. Update `docs/agent/feature_list.json`.
+1. Update `feature_list.json (active_context) & ai-memory` (session entry + "Current state" block).
+2. Update `feature_list.json`.
 3. Record any unresolved risk or blocker.
 4. Run `./init.sh`; it must exit 0.
 5. Apply "Root Directory Hygiene": move temporary scripts to `temporary/` or delete them.
