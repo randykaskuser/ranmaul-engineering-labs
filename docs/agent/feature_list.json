@@ -1,76 +1,95 @@
 {
+  "active_context": {
+    "current_feature_id": "15",
+    "last_updated": "2026-11-17",
+    "summary": "Migrated Personal/website to Hybrid Harness + ai-memory + graphify. Historical progress logs imported to ai-memory (notes/legacy-progress-history.md).",
+    "blockers": [],
+    "next_step": "Run ./init.sh at session start, review ai-memory context, and pick the next unfinished feature in feature_list.json."
+  },
   "features": [
     {
       "id": 1,
       "title": "Migrate to OpenNext",
       "status": "abandoned",
-      "reason": "OpenNext bundles exceeded Cloudflare free/paid worker size limits (15MB+). Switched to pure Static HTML Export instead which bypasses limits and works faster."
+      "reason": "OpenNext bundles exceeded Cloudflare free/paid worker size limits (15MB+). Switched to pure Static HTML Export instead which bypasses limits and works faster.",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 2,
       "title": "Convert to Static Export",
       "status": "completed",
-      "reason": "Site is now 100% static, builds instantly on Cloudflare Pages."
+      "reason": "Site is now 100% static, builds instantly on Cloudflare Pages.",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 3,
       "title": "Restore Background Videos to R2",
       "status": "completed",
-      "reason": "Restored from git history and uploaded to Cloudflare R2 bucket."
+      "reason": "Restored from git history and uploaded to Cloudflare R2 bucket.",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 4,
       "title": "Add Notes Domain and Layoff Article",
       "status": "completed",
-      "reason": "Added notes domain, published bilingual layoff article, fixed article CSS list styles. PR #23 created."
+      "reason": "Added notes domain, published bilingual layoff article, fixed article CSS list styles. PR #23 created.",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 5,
       "title": "Add Dark Mode and Restructure Header",
       "status": "completed",
-      "reason": "Installed next-themes, implemented ThemeProvider, updated token CSS, moved EN/ID toggle next to ThemeToggle outside mobile menu. Fixed UI hydration errors during SSG build."
+      "reason": "Installed next-themes, implemented ThemeProvider, updated token CSS, moved EN/ID toggle next to ThemeToggle outside mobile menu. Fixed UI hydration errors during SSG build.",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 6,
       "title": "Refactor Header to Mega-Dropdowns",
       "status": "completed",
-      "reason": "Restructured NAV_LINKS into groups, implemented framer-motion dropdowns, and grouped mobile accordion."
+      "reason": "Restructured NAV_LINKS into groups, implemented framer-motion dropdowns, and grouped mobile accordion.",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 7,
       "title": "Refactor Footer Layout",
       "status": "completed",
-      "reason": "Converted the flat link list in the footer to a 4-column structured layout mirroring the header's navigation groups. Added social icons and hover interactions."
+      "reason": "Converted the flat link list in the footer to a 4-column structured layout mirroring the header's navigation groups. Added social icons and hover interactions.",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 8,
       "title": "Drone Services Refactor",
       "status": "completed",
-      "reason": "Refactored homepage FPV section into a teaser CTA and added a new DroneServicesSection component to the Drone Portfolio page."
+      "reason": "Refactored homepage FPV section into a teaser CTA and added a new DroneServicesSection component to the Drone Portfolio page.",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 9,
       "title": "Fix broken links, language toggle, html lang, titles, duplicate h1",
       "status": "completed",
-      "reason": "Crawl of static export: broken internal links 55 -> 0; /id/* lang=id 49/49; articles with 2 h1 13 -> 0; domain/tag pages get own titles. Legacy URLs 301 via public/_redirects (verified with wrangler pages dev). Toggle + lang verified in Chromium. Spec: docs/planning/2026-09-24-site-link-and-seo-fixes.md"
+      "reason": "Crawl of static export: broken internal links 55 -> 0; /id/* lang=id 49/49; articles with 2 h1 13 -> 0; domain/tag pages get own titles. Legacy URLs 301 via public/_redirects (verified with wrangler pages dev). Toggle + lang verified in Chromium. Spec: docs/planning/2026-09-24-site-link-and-seo-fixes.md",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 10,
       "title": "Real content for Tools, Projects, Contact; drone quote flow",
       "status": "completed",
-      "reason": "Tools: DevSpace + qa-agent-skills. Projects: Notion->MDX pipeline + this site (private repos excluded by owner). Contact: Instagram-first. Drone services: fake 'From Rp X' prices removed, CTAs open WhatsApp with pre-filled message. Contact links centralized in lib/site.ts. Verified: lint 0 errors, build, crawl 0 broken links, 390px no horizontal scroll on new pages."
+      "reason": "Tools: DevSpace + qa-agent-skills. Projects: Notion->MDX pipeline + this site (private repos excluded by owner). Contact: Instagram-first. Drone services: fake 'From Rp X' prices removed, CTAs open WhatsApp with pre-filled message. Contact links centralized in lib/site.ts. Verified: lint 0 errors, build, crawl 0 broken links, 390px no horizontal scroll on new pages.",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 11,
       "title": "init.sh, CV fixes, Neo 2 bundle",
       "status": "completed",
-      "reason": "Added init.sh (template from owner's ai-account/ielts-prepai; butler repo on company GitLab not reachable): Node>=20 check, npm install, lint, build; exit 0. CV GitHub link -> github.com/randykaskuser, now rendered (date overlap left as-is per owner). Neo 2 3-battery package Rp850.000. Tools/Projects/Contact now bilingual under /{locale}/."
+      "reason": "Added init.sh (template from owner's ai-account/ielts-prepai; butler repo on company GitLab not reachable): Node>=20 check, npm install, lint, build; exit 0. CV GitHub link -> github.com/randykaskuser, now rendered (date overlap left as-is per owner). Neo 2 3-battery package Rp850.000. Tools/Projects/Contact now bilingual under /{locale}/.",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 12,
       "title": "SEO pass and sitemap (Phase 8)",
       "status": "completed",
-      "reason": "createPageMetadata builds canonical, hreflang(+x-default), full OG (site name, locale, default image), Twitter card for every page. Real 1200x630 og-default.jpg (was 0 bytes). JSON-LD: WebSite+Person (home), Service with Offers from DRONES data (drone portfolio), Article with fixed image URLs and Person author. Tag pages noindex,follow. Sitemap: 38 indexable URLs with hreflang alternates and content-based lastmod. Verified with scripted check over all 109 pages: 0 problems; 0 broken links."
+      "reason": "createPageMetadata builds canonical, hreflang(+x-default), full OG (site name, locale, default image), Twitter card for every page. Real 1200x630 og-default.jpg (was 0 bytes). JSON-LD: WebSite+Person (home), Service with Offers from DRONES data (drone portfolio), Article with fixed image URLs and Person author. Tag pages noindex,follow. Sitemap: 38 indexable URLs with hreflang alternates and content-based lastmod. Verified with scripted check over all 109 pages: 0 problems; 0 broken links.",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 13,
