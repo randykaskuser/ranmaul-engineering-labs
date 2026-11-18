@@ -1,0 +1,87 @@
+---
+title: "Biarkan AI Agent Menulis Tes Playwright-mu — tapi Baca Dulu Assertion-nya"
+description: "Amikoo, AI testing agent baru dari MuukLabs, menulis dan memperbaiki tes Playwright di setiap pull request. Tesnya mendarat di repo-mu sebagai TypeScript biasa. Bagian yang tetap butuh manusia adalah assertion-nya."
+locale: "id"
+domain: "qa"
+slug: "biarkan-ai-agent-menulis-tes-playwright-cek-assertion"
+canonicalGroup: "qa-ai-agent-writes-playwright-tests-assertion-check"
+publishedAt: "2026-11-19"
+updatedAt: "2026-11-19"
+tags: ["ai-testing", "playwright", "test-generation", "test-repair", "ci"]
+featured: false
+draft: false
+coverImage: "/assets/ai-agent-writes-tests/thumbnail-id.png"
+---
+
+Tim-mu merilis kode lebih cepat daripada ia bisa mengujinya. AI coding agent membuka pull request dalam hitungan menit. Tes untuk perubahan itu tetap butuh manusia seharian. Jadi jurang coverage membesar di setiap merge.
+
+Pada 11 November 2026, MuukLabs mengumumkan Amikoo, AI agent yang menutup jurang itu dari sisi lain. Ia menulis sendiri tes Playwright-nya, menjalankannya di aplikasi yang sedang berjalan, dan memperbaikinya saat tes itu rusak. Tesnya mendarat di repo-mu sendiri sebagai Playwright TypeScript biasa.
+
+Detail terakhir itu yang paling penting. Kalau tes tinggal di repo-mu, tes itu tetap jalan walau kamu berhenti memakai Amikoo. Agent itu tamu di suite-mu, bukan pemiliknya. Tapi tamu yang menulis tes tetap butuh tuan rumah yang membacanya. Pertanyaannya bukan apakah agent bisa menulis tes. Pertanyaannya apakah tes itu membuktikan sesuatu.
+
+## Apa yang sebenarnya dilakukan Amikoo
+
+Kamu menyiapkan Worker dengan menjelaskan tugasnya dalam bahasa biasa, misalnya "tulis tes yang hilang setiap kali pull request dibuka". Kamu menyetujui rencana langkah demi langkah sebelum Worker itu aktif. Worker jalan saat ada pull request atau sesuai jadwal, dan salah satunya mengirim laporan coverage mingguan.
+
+Hasilnya adalah Playwright TypeScript dengan page object model, di-commit ke repo GitHub atau Azure DevOps-mu. Ia melewati workflow review yang sama seperti perubahan lain. Tes bisa jalan secara lokal, di CI-mu sendiri, atau di cloud Amikoo.
+
+Tes berjalan di aplikasi yang sedang berjalan, bukan sekadar di diff. Ia menguji flow nyata: sign in, checkout, onboarding. Saat tes gagal, Amikoo memilah kegagalan itu menjadi kemungkinan product defect, test issue, atau environment problem, lengkap dengan confidence score.
+
+Coverage map menandai celah terhadap user flow produk yang sebenarnya, di laporan mingguan dan di dalam VS Code extension. Harganya masih preview: free trial tujuh hari, paket Solo yang hanya jalan lokal, dan tier Team, Growth, dan Scale yang ditagih per credit dan Worker bulanan.
+
+Studi kasus yang dipublikasikan adalah Ariso, platform AI management. Timnya naik dari hampir tanpa E2E coverage aktif menjadi lebih dari 500 tes dalam beberapa minggu, menambah sekitar 20 tes per hari. Tes jalan setelah deploy ke staging, dan tim meninjau kegagalan sebelum rilis ke production. Tim itu bilang workflow ini menangkap dua atau tiga defect sebelum sampai ke customer, termasuk tombol delete yang gagal di dashboard tim. Studi kasus ini diterbitkan vendor, jadi perlakukan angkanya sebagai angka vendor, bukan hasil independen.
+
+## Angka 70%, dibaca dengan hati-hati
+
+Pengumuman itu mengutip benchmark internal: agent Amikoo memperbaiki 70% tes yang rusak, berbanding 34% untuk Healer Agent bawaan Playwright. Setiap siklus repair butuh sekitar lima menit, bukan 25 menit. Rilis itu sendiri bilang benchmark tersebut belum diverifikasi secara independen.
+
+Perlakukan itu sebagai klaim yang harus diuji, bukan hasil. Repair rate tidak bilang apa yang dilakukan repair itu. Tes yang "diperbaiki" dengan menghapus assertion-nya adalah tes yang lolos tapi tidak membuktikan apa-apa. Sebelum memercayai repair rate apa pun, tanyakan berapa porsi repair yang menyentuh assertion, dan berapa banyak yang melemahkannya.
+
+## Failure mode yang paling penting
+
+Situs ini pernah menarik garis di artikel Healer: agent boleh memperbaiki locator, bukan assertion. Garis yang sama berlaku di sini, dalam skala lebih besar. Saat agent menulis seluruh tes, assertion adalah satu-satunya bagian yang menyatakan apa arti "benar". Sisanya hanya plumbing.
+
+Assertion yang dilemahkan mudah lolos dari review:
+
+```ts
+// Agent menulis ini dulu:
+await expect(page.getByText('Order confirmed')).toBeVisible();
+
+// Setelah flow berubah, "repair"-nya jadi ini:
+await expect(page.locator('body')).toContainText('Order');
+```
+
+Versi kedua lolos di hampir semua halaman yang menyebut kata order. Ia tidak lagi memeriksa konfirmasi yang benar-benar dilihat user. Tesnya hijau. Coverage-nya fiksi.
+
+Failure mode kedua lebih senyap: agent menulis tes yang lolos sejak pertama jalan karena ia tidak pernah menguji jalur berisiko. Tes checkout yang berhenti di halaman cart bukan tes checkout. Hitung assertion-nya, bukan jumlah tesnya.
+
+## Checklist-nya
+
+- Baca assertion dulu. Di setiap tes tulisan agent, assertion adalah review-nya. Setup boleh di-skim. Assertion dibaca baris demi baris.
+- Simpan tes di repo-mu. Amikoo sudah melakukan ini. Tool apa pun yang menyandera tesmu gagal di cek ini sejak hari pertama.
+- Batasi repair loop. Biarkan agent mencoba dua kali, lalu eskalasi ke manusia. Agent yang retry tanpa henti pada akhirnya akan lolos dengan melemahkan tes.
+- Jangan biarkan repair menyentuh assertion tanpa manusia menyetujui baris itu secara spesifik. Pisahkan perubahan assertion ke commit terpisah, atau langkah review terpisah.
+- Rusak suite itu dengan sengaja. Tanam bug, matikan tombol delete atau kembalikan total yang salah, lalu pastikan tes tulisan agent gagal. Suite yang tidak bisa gagal tidak bisa melindungimu.
+- Simpan smoke set yang tidak boleh diedit agent. Suite kecil tulisan tangan adalah control group-mu. Kalau tes agent lolos tapi smoke set gagal, tes agent yang salah.
+- Perlakukan confidence score sebagai tebakan. "93% kemungkinan ini real defect" adalah opini model tentang kerjanya sendiri. Verifikasi terhadap aplikasinya, bukan terhadap skornya.
+- Mulai dengan gate. Biarkan agent menulis tes untuk satu area, dengan label, selama beberapa minggu. Perhatikan apa yang ia tulis sebelum ia menulis di mana-mana.
+
+## Yang masih belum jalan
+
+Dukungan Bitbucket masih direncanakan, belum rilis. Klaim token, sekitar 4.800 token per task berbanding sekitar 30.000 untuk general model, berasal dari wawancara founder, bukan tes independen. Dan tidak ada agent yang memperbaiki masalah yang lebih dalam: kalau tidak ada orang di tim yang tahu seperti apa seharusnya flow checkout, agent akan menulis tes yang percaya diri untuk behaviour yang salah.
+
+Model hanya sebagus context yang ia dapat. Amikoo mengambil repo, ticket, docs, dan run history. Tim tanpa docs dan tanpa disiplin ticket akan mendapat tes yang mencerminkan kekacauan itu.
+
+## Intinya
+
+Agent yang menulis tesmu bukan jalan pintas untuk memahami produkmu. Ia memindahkan kerja manusia dari menulis boilerplate ke membaca assertion. Itu pertukaran yang bagus, kalau kamu benar-benar membacanya.
+
+Tes itu milikmu. Ia tinggal di repo-mu, dalam TypeScript biasa, dan ia hidup lebih lama dari tool-nya. Bacalah seperti milikmu. Karena memang milikmu.
+
+## Referensi
+
+- MuukLabs, [Best AI Testing Agent, Amikoo, Takes E2E Testing Beyond AI Code Review So Teams Can Verify Every Pull Request](https://www.abnewswire.com/pressreleases/best-ai-testing-agent-amikoo-takes-e2e-testing-beyond-ai-code-review-so-teams-can-verify-every-pull-request_847615.html) — pengumuman, klaim repair 70%, dan studi kasus Ariso.
+- TestGuild, [What Changes for Your Team with Amikoo](https://app.testguild.com/amikoo-ai-test-agents/) — wawancara founder; confidence score repair dan klaim token per task. Konten bersponsor.
+- Playwright docs, [Annotations](https://playwright.dev/docs/test-annotations) — memberi tag pada tes dan memfilter dengan `--grep`.
+- [Healer Boleh Perbaiki Locator, Bukan Assertion](https://ranmaul.com/id/qa/healer-perbaiki-locator-bukan-assertion-playwright) — batas yang diperluas artikel ini ke tes tulisan agent.
+- [Sengaja Rusak Tesmu Sebelum Memercayainya](https://ranmaul.com/id/qa/sengaja-rusak-tes-sebelum-percaya) — mutation check untuk suite apa pun, tulisan agent atau bukan.
