@@ -1,0 +1,81 @@
+---
+title: "Next.js Shipped Seven Security Fixes. Your Patch Needs a Test Plan"
+description: "Next.js 16.4.5 and 15.5.29 fix seven security issues, four of them in the cache. A version bump passes CI and can still serve one tenant's data to another. Here is the checklist that proves the patch worked."
+locale: "en"
+domain: "qa"
+slug: "nextjs-security-patch-november-2026-test-plan"
+canonicalGroup: "qa-nextjs-november-2026-security-patch-test-plan"
+publishedAt: "2026-11-21"
+updatedAt: "2026-11-21"
+tags: ["nextjs", "security", "cache", "patch-testing", "qa"]
+featured: false
+draft: false
+coverImage: "/assets/nextjs-security-patch/thumbnail-en.png"
+---
+
+Dependabot opened a pull request on this site four days ago. One line: bump `next` from 16.4.3 to 16.4.5. The diff is trivial. The release behind it is not.
+
+On 3 November 2026, Vercel shipped Next.js 16.4.5 and 15.5.29, a security release fixing seven vulnerabilities. One is High severity. Six are Medium. Four of the seven live in the caching layer, and every one of them is about the same failure: the cache serving the wrong user's data to the wrong user.
+
+That is the kind of bug your test suite cannot see. A green CI run after a version bump proves the app still builds and your tests still pass. It proves nothing about tenant isolation. A patch that touches caching needs its own verification, run against the patched build, before you call it done.
+
+## What the release actually fixes
+
+Four fixes concern Cache Components, the caching system built around the `use cache` directive in Next.js 16:
+
+- **Cross-tenant cache disclosure (High, GHSA-mfr8-8qww-v76h, CVE-2026-119790).** A public `use cache` function that reads a root parameter, such as a tenant ID, and is called both directly and from inside `unstable_cache` can return another request's result during a cold cache fill. Where root parameters separate tenants, the result can contain another tenant's data. It affects 16.3 and later with Cache Components enabled.
+- **Cross-root-parameter disclosure in nested `use cache` functions (Medium, GHSA-vc7v-qv4w-wrv8, CVE-2026-119351).** An outer cache entry can be stored before an inner function's root-parameter dependencies are recorded. Content generated for one tenant, site, or locale can then be reused for another. It affects 16.2 and later.
+- **Cross-user cache disclosure through binary `use cache` arguments (Medium, GHSA-rhh4-g77r-r9qj, CVE-2026-119349).** Distinct binary arguments can produce the same cache identity. If those arguments distinguish users, one user can receive another user's cached result. It affects 16.x apps that pass security-significant binary arguments through `use cache`.
+- **Shared shell cache poisoning on self-hosted apps (Medium, GHSA-vvgp-ww4w-46vf, CVE-2026-119350).** A self-hosted app running `next start` with Cache Components enabled and Partial Prefetching disabled or unset can have a shared page shell poisoned by an unauthenticated request. The result is wrong server-rendered content or persistent 404 responses. It affects 16.4 and later.
+
+The other three fixes affect both the 16.x and 15.x lines:
+
+- **Cross-client response injection (Medium, GHSA-pc58-hwjq-p385, CVE-2026-119348).** Self-hosted apps that return a fetched `Response` unchanged can forward decompressed body bytes with the original compressed framing. Behind an HTTP/1.1 reverse proxy that queues pipelined requests on a shared connection, responses can be assigned to the wrong clients.
+- **Cookie exposure through an internal header on Edge routes (Medium, GHSA-f3mh-rxg3-f5g2, CVE-2026-119346).** Edge Route Handlers and Edge API routes that set cookies with `NextResponse.cookies.set()` can expose the serialized cookie in the internal `x-middleware-set-cookie` header. Unlike `Set-Cookie`, that header is readable by same-origin JavaScript, even for `HttpOnly` cookies. Node.js handlers are not affected.
+- **SVG rejection bypass in Image Optimization (Medium, GHSA-7qx7-33qx-rqx2, CVE-2026-119347).** An attacker-controlled image from a permitted source can be misclassified as AVIF and bypass `images.dangerouslyAllowSVG: false`. The finding does not itself demonstrate cross-site scripting or remote code execution.
+
+One more fact makes the upgrade more urgent. Patch releases are cumulative. Upgrading to 16.4.5 also picks up the out-of-band fixes from 14 October, when 16.4.1 and 15.5.28 patched two critical unauthenticated remote code execution flaws. If you are still on Next.js 14 or older, there is no patched release for these advisories at all. The only fix is to move up to a patched line.
+
+## Why a version bump is not verification
+
+Every one of these bugs has the same shape. The app works. The pages render. The tests pass. The cache quietly returns content computed for someone else.
+
+Your suite almost certainly never tests that. A normal E2E suite logs in as one user, loads a page, and asserts the page shows that user's data. It never asks whether the same page, requested a second later by a different tenant, shows the first tenant's data. Cache isolation is a property of the system under concurrent load, not of a single request. You have to test it on purpose.
+
+The same applies to the three non-cache fixes. No unit test checks that an Edge route's response headers do not leak a cookie value. No test uploads an SVG disguised as an AVIF. These are checks you write for this patch, run once, and keep if they are cheap.
+
+## The checklist
+
+Work through it in order. Skip the items that do not apply to your app, and say so in the pull request. "Not affected" is a finding, not a guess, when you can name the condition that excludes you.
+
+**1. Confirm you are affected, and by what.** Check three things: your Next.js version, whether Cache Components is enabled, and whether you are self-hosted or on a platform. The four cache fixes need Cache Components. The shell poisoning and response injection fixes need a self-hosted `next start` deployment. The cookie fix needs Edge routes that set cookies. The SVG fix needs the image optimizer with `images.dangerouslyAllowSVG: false`.
+
+**2. Test tenant isolation with two tenants.** Pick a route that serves tenant-specific content through a cached function. Request it as tenant A, then as tenant B, on a cold cache. Assert B never sees A's content. Repeat with a warm cache, and repeat with concurrent requests. The High-severity bug triggers during a cold cache fill, so a single sequential check is not enough. If your app has no tenants, test the same property across locales or sites, whichever your root parameters separate.
+
+**3. Test locale and site separation the same way.** The nested `use cache` bug crosses any root-parameter boundary, not just tenants. Request the same route under two locales. Assert each locale gets its own content, and that a page rendered for one locale is never served to the other.
+
+**4. Test binary cache arguments, if you pass any.** If a `use cache` function receives a `Blob` or a `File`, call it with two different files and assert the results differ. Two inputs that produce the same cache identity are the bug. If you pass no binary arguments, write that down and move on.
+
+**5. Test the shell on self-hosted deploys.** Request a dynamic route with a parameter value that was never generated at build time. Then request the same route shape with a different value. Assert neither request poisons the shell for the other, and that no request turns into a persistent 404. Enable Partial Prefetching if you can; the release notes say configurations with it enabled were not affected in the reported tests.
+
+**6. Check Edge response headers for cookie leaks.** Hit every Edge route that sets a cookie. Inspect the raw response headers for `x-middleware-set-cookie`. If the header carries a serialized cookie value, the route is still leaking. Confirm the check from the browser as well: same-origin JavaScript must not be able to read an `HttpOnly` cookie value from any response header.
+
+**7. Test the image optimizer with a disguised SVG.** Upload an SVG file with an AVIF extension, or an AVIF file whose bytes are SVG, from a permitted source. Assert the optimizer rejects it. If your app takes no user-supplied images, note that and skip the test.
+
+**8. Verify the running version, not the manifest.** After deploy, confirm the production build actually runs 16.4.5 or 15.5.29. Check the deployed lockfile, the build log, or a response header your platform exposes. A merged Dependabot PR is not proof the deploy picked it up. If you deploy on Netlify, also update the adapter: the middleware case needs `@netlify/plugin-nextjs` 5.16.6, and upgrading Next.js alone does not fix it there.
+
+**9. Run your full suite, then re-run the isolation checks under load.** The patch changes caching behaviour. A suite that passed before the patch and passes after it tells you the patch did not break your tests. It does not tell you the patch fixed the leak. The isolation checks are the evidence for that. Run them against the deployed build, not only against localhost.
+
+## The bottom line
+
+A security patch is a claim: this version no longer has the bug. Your job is to turn that claim into evidence for your app, your routes, and your tenants.
+
+Most teams will merge the Dependabot PR, watch CI go green, and move on. That is exactly the workflow these bugs survive in. The cache bugs in this release do not crash anything. They serve the wrong data, quietly, to the wrong user. The only way to know your app is clear is to ask it, with two tenants and a cold cache, and read the answer.
+
+Patch today. Test the patch. Then merge.
+## References
+
+- Next.js, [November 2026 Security Release](https://nextjs.org/blog/november-2026-security-release) — the release notes: versions 16.4.5 and 15.5.29, all seven advisories, and who each one affects.
+- Netlify, [Next.js security release (Nov 2026): what to know](https://www.netlify.com/changelog/2026-11-03-nextjs-security-vulnerabilities/) — CVE numbers, the adapter update to `@netlify/plugin-nextjs` 5.16.6, and the per-version scope.
+- Central CSP, [Next.js vulnerabilities in 2026](https://centralcsp.com/en/blog/nextjs-vulnerabilities-2026) — the October out-of-band RCE fixes and why patch releases are cumulative.
+- [Break Your Tests Before You Trust Them](https://ranmaul.com/en/qa/break-your-tests-before-you-trust-them) — the mutation check behind the isolation tests in this article: a suite that cannot fail cannot protect you.
