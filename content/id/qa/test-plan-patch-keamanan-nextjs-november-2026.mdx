@@ -1,0 +1,82 @@
+---
+title: "Next.js Rilis Tujuh Perbaikan Keamanan. Patch-mu Butuh Test Plan"
+description: "Next.js 16.4.5 dan 15.5.29 memperbaiki tujuh celah keamanan, empat di antaranya di cache. Naik versi lolos CI tapi tetap bisa menyajikan data tenant lain. Ini checklist yang membuktikan patch-mu bekerja."
+locale: "id"
+domain: "qa"
+slug: "test-plan-patch-keamanan-nextjs-november-2026"
+canonicalGroup: "qa-nextjs-november-2026-security-patch-test-plan"
+publishedAt: "2026-11-21"
+updatedAt: "2026-11-21"
+tags: ["nextjs", "security", "cache", "patch-testing", "qa"]
+featured: false
+draft: false
+coverImage: "/assets/nextjs-security-patch/thumbnail-id.png"
+---
+
+Dependabot membuka pull request di situs ini empat hari lalu. Satu baris: naikkan `next` dari 16.4.3 ke 16.4.5. Diff-nya sepele. Rilis di baliknya tidak.
+
+Pada 3 November 2026, Vercel merilis Next.js 16.4.5 dan 15.5.29, sebuah security release yang memperbaiki tujuh kerentanan. Satu berkategori High. Enam berkategori Medium. Empat dari tujuh itu ada di caching layer, dan semuanya punya pola kegagalan yang sama: cache menyajikan data satu user ke user yang salah.
+
+Itulah jenis bug yang tidak bisa dilihat test suite-mu. CI yang hijau setelah naik versi membuktikan aplikasi masih bisa di-build dan tesmu masih lolos. Itu tidak membuktikan isolasi antar tenant. Patch yang menyentuh caching butuh verifikasi sendiri, dijalankan pada build yang sudah di-patch, sebelum kamu menyebutnya selesai.
+
+## Yang sebenarnya diperbaiki rilis ini
+
+Empat perbaikan menyangkut Cache Components, sistem caching di Next.js 16 yang dibangun di sekitar directive `use cache`:
+
+- **Kebocoran cache antar tenant (High, GHSA-mfr8-8qww-v76h, CVE-2026-119790).** Fungsi `use cache` publik yang membaca root parameter, misalnya tenant ID, dan dipanggil langsung sekaligus dari dalam `unstable_cache`, bisa mengembalikan hasil request lain saat cold cache fill. Kalau root parameter memisahkan tenant, hasilnya bisa berisi data tenant lain. Ini memengaruhi 16.3 ke atas dengan Cache Components aktif.
+- **Kebocoran antar root parameter di `use cache` bersarang (Medium, GHSA-vc7v-qv4w-wrv8, CVE-2026-119351).** Cache entry di luar bisa tersimpan sebelum dependency root parameter dari fungsi di dalam tercatat. Konten yang dibuat untuk satu tenant, situs, atau locale lalu bisa dipakai ulang untuk yang lain. Ini memengaruhi 16.2 ke atas.
+- **Kebocoran cache antar user lewat argumen biner `use cache` (Medium, GHSA-rhh4-g77r-r9qj, CVE-2026-119349).** Argumen biner yang berbeda bisa menghasilkan cache identity yang sama. Kalau argumen itu membedakan user, satu user bisa menerima cached result milik user lain. Ini memengaruhi aplikasi 16.x yang meneruskan argumen biner yang sensitif secara keamanan lewat `use cache`.
+- **Keracunan shared shell di aplikasi self-hosted (Medium, GHSA-vvgp-ww4w-46vf, CVE-2026-119350).** Aplikasi self-hosted yang menjalankan `next start` dengan Cache Components aktif dan Partial Prefetching mati atau tidak diatur bisa mengalami keracunan shared page shell oleh request tanpa autentikasi. Hasilnya konten server-rendered yang salah atau respons 404 yang menetap. Ini memengaruhi 16.4 ke atas.
+
+Tiga perbaikan lain memengaruhi lini 16.x dan 15.x:
+
+- **Response injection antar client (Medium, GHSA-pc58-hwjq-p385, CVE-2026-119348).** Aplikasi self-hosted yang mengembalikan fetched `Response` apa adanya bisa meneruskan body yang sudah di-decompress dengan framing header dari respons terkompresi aslinya. Di balik reverse proxy HTTP/1.1 yang mengantre pipelined request pada satu koneksi backend, respons bisa jatuh ke client yang salah.
+- **Nilai cookie bocor lewat internal header di Edge route (Medium, GHSA-f3mh-rxg3-f5g2, CVE-2026-119346).** Edge Route Handler dan Edge API route yang mengatur cookie dengan `NextResponse.cookies.set()` bisa mengekspos cookie yang sudah di-serialize di internal header `x-middleware-set-cookie`. Berbeda dengan `Set-Cookie`, header itu bisa dibaca JavaScript same-origin, bahkan untuk cookie `HttpOnly`. Node.js handler tidak terdampak.
+- **Bypass penolakan SVG di Image Optimization (Medium, GHSA-7qx7-33qx-rqx2, CVE-2026-119347).** Gambar dari sumber yang diizinkan dan dikendalikan attacker bisa salah diklasifikasi sebagai AVIF dan lolos dari `images.dangerouslyAllowSVG: false`. Temuan ini sendiri tidak membuktikan cross-site scripting atau remote code execution.
+
+Satu fakta lagi membuat upgrade ini makin mendesak. Patch release bersifat kumulatif. Naik ke 16.4.5 juga membawa perbaikan out-of-band dari 14 Oktober, ketika 16.4.1 dan 15.5.28 menambal dua celah remote code execution kritis tanpa autentikasi. Kalau kamu masih di Next.js 14 atau lebih lama, tidak ada patched release untuk advisory ini sama sekali. Satu-satunya perbaikan adalah naik ke lini yang sudah di-patch.
+
+## Kenapa naik versi bukan verifikasi
+
+Setiap bug ini punya bentuk yang sama. Aplikasi jalan. Halaman ter-render. Tes lolos. Cache diam-diam mengembalikan konten yang dihitung untuk orang lain.
+
+Suite-mu hampir pasti tidak pernah menguji itu. Suite E2E biasa login sebagai satu user, membuka satu halaman, lalu memastikan halaman itu menampilkan data user tersebut. Suite itu tidak pernah bertanya apakah halaman yang sama, diminta sedetik kemudian oleh tenant lain, menampilkan data tenant pertama. Isolasi cache adalah properti sistem di bawah load konkuren, bukan properti satu request. Kamu harus mengujinya dengan sengaja.
+
+Hal yang sama berlaku untuk tiga perbaikan non-cache. Tidak ada unit test yang memeriksa apakah respons Edge route membocorkan nilai cookie lewat header. Tidak ada tes yang mengunggah SVG yang menyamar sebagai AVIF. Itu adalah check yang kamu tulis untuk patch ini, jalankan sekali, dan simpan kalau biayanya murah.
+
+## Checklist-nya
+
+Kerjakan berurutan. Lewati item yang tidak berlaku untuk aplikasimu, dan tulis alasannya di pull request. "Tidak terdampak" adalah temuan, bukan tebakan, kalau kamu bisa menyebut kondisi yang mengecualikanmu.
+
+**1. Konfirmasi kamu terdampak, dan oleh apa.** Periksa tiga hal: versi Next.js-mu, apakah Cache Components aktif, dan apakah kamu self-hosted atau memakai platform. Empat perbaikan cache butuh Cache Components. Keracunan shell dan response injection butuh deployment `next start` self-hosted. Perbaikan cookie butuh Edge route yang mengatur cookie. Perbaikan SVG butuh image optimizer dengan `images.dangerouslyAllowSVG: false`.
+
+**2. Uji isolasi tenant dengan dua tenant.** Pilih route yang menyajikan konten spesifik tenant lewat cached function. Minta route itu sebagai tenant A, lalu sebagai tenant B, dengan cold cache. Pastikan B tidak pernah melihat konten A. Ulangi dengan warm cache, lalu ulangi dengan request konkuren. Bug High severity itu terpicu saat cold cache fill, jadi satu check sekuensial saja tidak cukup. Kalau aplikasimu tidak punya tenant, uji properti yang sama antar locale atau situs, mana pun yang dipisahkan root parameter-mu.
+
+**3. Uji pemisahan locale dan situs dengan cara yang sama.** Bug `use cache` bersarang melintasi batas root parameter apa pun, bukan cuma tenant. Minta route yang sama di bawah dua locale. Pastikan tiap locale mendapat kontennya sendiri, dan halaman yang di-render untuk satu locale tidak pernah disajikan ke locale lain.
+
+**4. Uji argumen cache biner, kalau kamu meneruskannya.** Kalau fungsi `use cache` menerima `Blob` atau `File`, panggil dengan dua file berbeda dan pastikan hasilnya berbeda. Dua input yang menghasilkan cache identity yang sama adalah bug-nya. Kalau kamu tidak meneruskan argumen biner, tulis itu dan lanjut.
+
+**5. Uji shell pada deploy self-hosted.** Minta dynamic route dengan nilai parameter yang tidak pernah di-generate saat build. Lalu minta bentuk route yang sama dengan nilai berbeda. Pastikan tidak ada request yang meracuni shell untuk request lain, dan tidak ada request yang berubah menjadi 404 yang menetap. Aktifkan Partial Prefetching kalau bisa; release notes menyebut konfigurasi dengan fitur itu aktif tidak terdampak dalam tes yang dilaporkan.
+
+**6. Periksa header respons Edge untuk kebocoran cookie.** Kunjungi setiap Edge route yang mengatur cookie. Periksa raw response header untuk `x-middleware-set-cookie`. Kalau header itu membawa nilai cookie yang sudah di-serialize, route tersebut masih bocor. Konfirmasi juga dari browser: JavaScript same-origin tidak boleh bisa membaca nilai cookie `HttpOnly` dari header respons mana pun.
+
+**7. Uji image optimizer dengan SVG yang menyamar.** Unggah file SVG dengan ekstensi AVIF, atau file AVIF yang isinya SVG, dari sumber yang diizinkan. Pastikan optimizer menolaknya. Kalau aplikasimu tidak menerima gambar dari user, catat itu dan lewati tes ini.
+
+**8. Verifikasi versi yang berjalan, bukan manifest.** Setelah deploy, konfirmasi build produksi benar-benar menjalankan 16.4.5 atau 15.5.29. Periksa lockfile hasil deploy, build log, atau response header yang diekspos platform-mu. Pull request Dependabot yang sudah di-merge bukan bukti deploy sudah mengambilnya. Kalau kamu deploy di Netlify, update juga adapter-nya: kasus middleware butuh `@netlify/plugin-nextjs` 5.16.6, dan menaikkan Next.js saja tidak memperbaikinya di sana.
+
+**9. Jalankan seluruh suite, lalu ulangi check isolasi di bawah load.** Patch ini mengubah perilaku caching. Suite yang lolos sebelum patch dan lolos sesudahnya memberitahumu patch itu tidak merusak tesmu. Itu tidak memberitahumu patch itu memperbaiki kebocoran. Check isolasi adalah bukti untuk itu. Jalankan semuanya pada build yang sudah di-deploy, bukan cuma di localhost.
+
+## Intinya
+
+Security patch adalah klaim: versi ini tidak lagi punya bug itu. Tugasmu adalah mengubah klaim itu menjadi bukti untuk aplikasimu, route-mu, dan tenant-mu.
+
+Kebanyakan tim akan me-merge pull request Dependabot, melihat CI hijau, lalu lanjut. Itu persis workflow yang membuat bug seperti ini lolos. Bug cache di rilis ini tidak membuat apa pun crash. Bug itu menyajikan data yang salah, diam-diam, ke user yang salah. Satu-satunya cara tahu aplikasimu bersih adalah bertanya langsung, dengan dua tenant dan cold cache, lalu membaca jawabannya.
+
+Patch hari ini. Uji patch-nya. Baru merge.
+## References
+
+- Next.js, [November 2026 Security Release](https://nextjs.org/blog/november-2026-security-release) — release notes: versi 16.4.5 dan 15.5.29, ketujuh advisory, dan siapa yang terdampak masing-masing.
+- Netlify, [Next.js security release (Nov 2026): what to know](https://www.netlify.com/changelog/2026-11-03-nextjs-security-vulnerabilities/) — nomor CVE, update adapter ke `@netlify/plugin-nextjs` 5.16.6, dan cakupan per versi.
+- Central CSP, [Next.js vulnerabilities in 2026](https://centralcsp.com/en/blog/nextjs-vulnerabilities-2026) — perbaikan RCE out-of-band bulan Oktober dan kenapa patch release bersifat kumulatif.
+- [Biarkan AI Agent Menulis Tes Playwright-mu — tapi Baca Dulu Assertion-nya](https://ranmaul.com/id/qa/biarkan-ai-agent-menulis-tes-playwright-cek-assertion) — soal membaca assertion, yang juga berlaku untuk tes isolasi di artikel ini.
+- [Sengaja Rusak Tesmu Sebelum Memercayainya](https://ranmaul.com/id/qa/sengaja-rusak-tes-sebelum-percaya) — mutation check di balik tes isolasi dalam artikel ini: suite yang tidak bisa gagal tidak bisa melindungimu.
