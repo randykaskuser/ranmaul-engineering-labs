@@ -1,0 +1,104 @@
+---
+title: "Li-ion vs LiPo for Long-Range FPV: Pick by Cruise Current, Not Habit"
+description: "A Li-ion pack flies three times longer than LiPo on the same quad, until you punch the throttle and the voltage collapses. The choice is not about chemistry. Measure your cruise current per cell, and the answer picks itself."
+locale: "en"
+domain: "fpv"
+slug: "li-ion-vs-lipo-long-range-fpv-cruise-current"
+canonicalGroup: "fpv-li-ion-vs-lipo-cruise-current"
+publishedAt: "2026-11-22"
+updatedAt: "2026-11-22"
+tags: ["fpv", "li-ion", "lipo", "long-range", "batteries"]
+featured: false
+draft: false
+coverImage: "/assets/li-ion-vs-lipo/thumbnail-en.png"
+---
+
+A 5-inch freestyle quad flies 4 to 6 minutes on a 6S 1300mAh LiPo. Swap in a 6S 4000mAh Li-ion pack and the same quad cruises for 12 to 15 minutes. Then you punch the throttle, the voltage sags more than 1.5V per cell, and the OSD warnings fire instantly.
+
+Both numbers are real. The battery question is not which chemistry is better. It is what your flying actually draws, measured in amps per cell.
+
+## The trade, in numbers
+
+LiPo and Li-ion solve opposite problems. LiPo delivers enormous current. A 6S 1300mAh pack at 100C can dump 130 amps on demand, which is what freestyle and racing need. The cost is energy density: LiPo tops out around 150 to 200 Wh/kg.
+
+Li-ion cylindrical cells, the 18650 and 21700 formats, flip the trade. Energy density climbs to 250 to 280 Wh/kg, but continuous discharge is limited to roughly 8 to 15A per cell for most formats. For long-range cruising at a sustained 5 to 15A draw, that energy density turns directly into flight time.
+
+|  | LiPo 6S 1300mAh | Li-ion 6S 4000mAh |
+|---|---|---|
+| Pack weight | ~230g | ~390g |
+| Energy | 28.9 Wh | 86.4 Wh |
+| 5-inch flight time | 4-6 min, aggressive | 12-15 min, cruising |
+| Cycle life | 150-300 cycles | 300-500 cycles |
+| Punch-out | No sag | Sags 1.5V+ per cell |
+
+A 6S 4000mAh Li-ion pack stores about three times the energy of the LiPo at less than twice the weight. That is the whole long-range argument, and it is also the whole trap: the extra energy is only usable if your motors never ask for more current than the cells can give.
+
+## The crossover rule: measure your cruise current per cell
+
+The 2026 data-driven guide from UAVModel puts the crossover around 5 to 6A per cell. Below that, Li-ion wins on grams per watt-hour. Above it, LiPo's lower internal resistance keeps voltage higher and delivers more usable power per gram.
+
+Measure it instead of guessing it. Fly a normal cruise, then divide the mAh your OSD reports by the flight time in hours. A flight that consumes 1,200mAh in 5 minutes averages 14.4A. Then divide by the number of parallel strings in your pack. A 6S2P pack at 12A total draws 6A per cell.
+
+- Under about 5 to 6A per cell: Li-ion is the efficient choice. This is why 4-inch micro long-range builds on 4S1P 18650 packs feel so good. Their cruise draw stays under the line.
+- Well above it: you can still fly Li-ion, but you are trading voltage stability for capacity. Expect sag on every punch-out, and ask whether the extra minutes are worth the voltage behaviour.
+
+Treat the 5 to 6A figure as a rule of thumb, not a law. It comes from one guide's testing, and your motors, props, and flying style move it. The measurement is what matters: two flights with the OSD mAh counter tell you more than any forum thread.
+
+## The cells that actually deliver in 2026
+
+Not every cylindrical cell belongs in the air. The 2026 market has four names that keep showing up in long-range builds:
+
+- **Samsung 50S (21700, 5000mAh, 25A).** The all-around pick. Expect 35+ minutes on a 6S1P 7-inch build at a 50 km/h cruise, with enough headroom for a climb-out.
+- **Molicel P45B (21700, 4500mAh, 45A).** The hot rod. Less capacity than the 50S, but far less sag under load. Pick it for windy conditions or mountain terrain where you need sustained power.
+- **Sony/Murata VTC6 (18650, 3000mAh, 30A).** The workhorse for 4-inch and light 5-inch builds. A 4S1P pack at 200g gives a sub-250g quad 15+ minutes of gentle cruising, at about $5 per cell.
+- **Samsung 40T (21700, 4000mAh, 35A).** The value pick. Neither the most capacity nor the most punch, but the price has dropped enough in 2026 to make it the cell for experimenting pilots.
+
+For a 7-inch long-range build, the math tilts hard toward Li-ion. A 6S2P pack of P45B cells gives 9000mAh at roughly 830g. At a 7-inch cruise current of 8 to 12A, that is 30 to 40 minutes of flight. A LiPo of the same capacity would weigh over 1.2kg, which is basically unflyable.
+
+Avoid anything with "fire" or "ultra" in the name from unknown brands. The 18650 and 21700 market is full of rewrapped cells claiming 9900mAh. The physics does not work. Buy Samsung, Molicel, Sony/Murata, or LG from authorized distributors.
+
+## The voltage trap: fly by mAh, not by volts
+
+Li-ion has a second trap, and it catches pilots who switch from LiPo. A LiPo's voltage falls in a fairly straight line: 25.2V full, 22.2V at half capacity, 21.0V near empty. You can read remaining flight time off the OSD voltage.
+
+A Li-ion pack does not behave that way. Voltage sits around 22.5 to 23.0V through the middle 60% of capacity, then drops sharply in the final 20%. You will see 22.5V for fifteen minutes, then 20.0V with very little warning.
+
+Fly by the current sensor and the mAh counter instead. Land at 80% of rated capacity: 3200mAh consumed from a 4000mAh pack. If you fly by voltage, land when the pack recovers to 3.0V per cell at rest. Under load the pack may show 2.7 to 2.9V per cell, which is normal. Push to 2.5V resting and the cells are permanently damaged.
+
+## The small print
+
+Three details that decide whether a Li-ion pack lasts or dies early:
+
+**HVLi is a trade, not a free lunch.** High-voltage LiPo cells charged to 4.35V instead of 4.2V hold about 8% more energy at the same weight. Most modern chargers support HVLi profiles. The cost is cycle life: expect 15 to 20% fewer cycles before internal resistance climbs. Use it for race day, not for daily practice packs.
+
+**Never parallel-charge packs more than 0.1V per cell apart.** Connect a fully charged 6S pack at 25.2V to a discharged pack at 21.0V on the same parallel board and current spikes into the hundreds of amps before any fuse can react. Check individual cell voltages first, every time.
+
+**Li-ion forgives storage better than LiPo.** Storing a LiPo at 4.2V per cell for a week measurably raises its internal resistance. Li-ion cells show negligible degradation over the same period. Storage at 3.6 to 3.7V per cell is still ideal, but forgetting to discharge after a long-range session will not ruin the pack.
+
+## The decision
+
+- You fly freestyle or race, with 100A bursts and 30A cruise: LiPo is non-negotiable. Li-ion cannot feed that.
+- You cruise long-range and your per-cell current stays under about 6A: Li-ion wins on flight time per gram. Start with the Samsung 50S.
+- You cruise in wind or mountains and need voltage to hold: Molicel P45B, for the sag headroom.
+- You build a sub-250g micro long-range quad: VTC6 in 4S1P, and fly it gently.
+- You switch to Li-ion: fly by mAh, land at 80%, and stop trusting the OSD voltage.
+
+The battery is the single most consequential component choice in a build. Get it wrong and the quad is either a pig that flies for three minutes or a paperweight that sags into the dirt on the first punch-out. Measure your cruise current, divide by your parallel strings, and the chemistry picks itself.
+
+## The checklist
+
+- Fly a normal cruise and record mAh consumed and flight time. Average current is mAh divided by hours.
+- Divide by parallel strings to get current per cell. Compare with the 5 to 6A crossover.
+- Pick cells from the 2026 shortlist: 50S for range, P45B for sag headroom, VTC6 for micros, 40T for value.
+- Buy named cells from authorized distributors. Skip rewraps claiming impossible capacities.
+- Set the OSD to show mAh consumed. Land at 80% of rated capacity, or 3.0V per cell at rest.
+- Check cell voltages before parallel charging. Never parallel packs more than 0.1V per cell apart.
+- Store at 3.6 to 3.7V per cell. HVLi at 4.35V is for race day, not daily packs.
+
+## References
+
+- UAVModel, [Li-Ion vs LiPo for FPV Drones: The Data-Driven Battery Guide for 2026](https://blog.uavmodel.com/6188-2/) — the crossover rule, the 2026 cell picks, HVLi, and the parallel-charging warning. Updated 6 November 2026.
+- UAVModel, [FPV Battery Technology: LiPo vs Li-Ion, Smart BMS, and Battery Care Guide](https://blog.uavmodel.com/fpv-battery-technology-lipo-vs-li-ion-smart-bms-and-battery-care-guide/) — the flat Li-ion discharge curve, the mAh-based landing rule, and cycle life figures.
+- UAVModel, [FPV Long Range Li-Ion Battery Guide: 18650 vs 21700 Pack Building](https://blog.uavmodel.com/fpv-long-range-li-ion-battery-guide-18650-vs-21700-pack-building/) — the flight-time table by frame size and the 3.0V landing floor.
+- UAVModel, [FPV Long-Range Drone Build: Li-Ion Battery, GPS Endurance, and Efficiency Optimization — 2026 Guide](https://blog.uavmodel.com/fpv-long-range-drone-build-li-ion-battery-gps-endurance-and-efficiency-optimization-2026-guide/) — the weight and efficiency math behind the 7-inch numbers.
+- [Don't Fly the Old Tune: Upgrading to Betaflight 2026.6 Without a Surprise](https://ranmaul.com/en/fpv/dont-fly-old-tune-betaflight-2026-6-upgrade) — the other half of a long-range build decision: the tune that flies the pack you just picked.
