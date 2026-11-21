@@ -1,0 +1,104 @@
+---
+title: "Li-ion atau LiPo untuk FPV Long-Range? Pilih dari Arus Cruise, Bukan Kebiasaan"
+description: "Pack Li-ion terbang tiga kali lebih lama dari LiPo di quad yang sama, sampai kamu punch throttle dan voltasenya jatuh. Pilihannya bukan soal chemistry. Ukur arus cruise per cell, dan jawabannya memilih sendiri."
+locale: "id"
+domain: "fpv"
+slug: "li-ion-atau-lipo-fpv-long-range-arus-cruise"
+canonicalGroup: "fpv-li-ion-vs-lipo-cruise-current"
+publishedAt: "2026-11-22"
+updatedAt: "2026-11-22"
+tags: ["fpv", "li-ion", "lipo", "long-range", "batteries"]
+featured: false
+draft: false
+coverImage: "/assets/li-ion-vs-lipo/thumbnail-id.png"
+---
+
+Quad freestyle 5 inci terbang 4 sampai 6 menit dengan LiPo 6S 1300mAh. Ganti ke pack Li-ion 6S 4000mAh dan quad yang sama cruising 12 sampai 15 menit. Lalu kamu punch throttle, voltage sag lebih dari 1,5V per cell, dan warning OSD langsung menyala.
+
+Dua angka itu sama-sama nyata. Pertanyaan baterai bukan chemistry mana yang lebih baik. Tapi berapa arus yang benar-benar ditarik terbangmu, diukur dalam ampere per cell.
+
+## Trade-off-nya, dalam angka
+
+LiPo dan Li-ion menyelesaikan masalah yang berlawanan. LiPo mengeluarkan arus yang sangat besar. Pack 6S 1300mAh di 100C bisa mengeluarkan 130 ampere sekaligus, dan itulah yang dibutuhkan freestyle dan racing. Harganya adalah energy density: LiPo mentok di sekitar 150 sampai 200 Wh/kg.
+
+Cell silinder Li-ion, format 18650 dan 21700, membalik trade-off itu. Energy density naik ke 250 sampai 280 Wh/kg, tapi continuous discharge terbatas di kisaran 8 sampai 15A per cell untuk kebanyakan format. Untuk cruising long-range dengan draw stabil 5 sampai 15A, energy density itu langsung berubah jadi flight time.
+
+|  | LiPo 6S 1300mAh | Li-ion 6S 4000mAh |
+|---|---|---|
+| Berat pack | ~230g | ~390g |
+| Energi | 28,9 Wh | 86,4 Wh |
+| Flight time 5 inci | 4-6 menit, agresif | 12-15 menit, cruising |
+| Cycle life | 150-300 cycle | 300-500 cycle |
+| Punch-out | Tanpa sag | Sag 1,5V+ per cell |
+
+Pack Li-ion 6S 4000mAh menyimpan energi sekitar tiga kali lipat dari LiPo dengan berat kurang dari dua kali lipat. Itulah seluruh argumen long-range, dan juga seluruh jebakannya: energi ekstra itu hanya bisa dipakai kalau motormu tidak pernah meminta arus melebihi kemampuan cell.
+
+## Aturan crossover: ukur arus cruise per cell
+
+Panduan data-driven 2026 dari UAVModel menaruh crossover di sekitar 5 sampai 6A per cell. Di bawah itu, Li-ion menang dalam gram per watt-hour. Di atas itu, internal resistance LiPo yang lebih rendah menjaga voltage tetap tinggi dan memberikan usable power lebih besar per gram.
+
+Ukur, jangan tebak. Terbang cruising seperti biasa, lalu bagi mAh yang dilaporkan OSD dengan flight time dalam jam. Flight yang menghabiskan 1.200mAh dalam 5 menit rata-rata menarik 14,4A. Lalu bagi dengan jumlah parallel string di pack-mu. Pack 6S2P di total 12A menarik 6A per cell.
+
+- Di bawah sekitar 5 sampai 6A per cell: Li-ion adalah pilihan yang efisien. Inilah alasan build micro long-range 4 inci dengan pack 18650 4S1P terasa begitu enak. Arus cruise mereka tetap di bawah garis.
+- Jauh di atas itu: kamu tetap bisa terbang dengan Li-ion, tapi kamu menukar stabilitas voltage dengan kapasitas. Bersiaplah menghadapi sag di setiap punch-out, dan tanyakan apakah menit ekstra itu sepadan dengan perilaku voltasenya.
+
+Perlakukan angka 5 sampai 6A sebagai rule of thumb, bukan hukum. Angka itu berasal dari pengujian satu panduan, dan motor, prop, dan gaya terbangmu menggesernya. Pengukuranlah yang penting: dua flight dengan mAh counter di OSD memberi tahu lebih banyak daripada thread forum mana pun.
+
+## Cell yang benar-benar bekerja di 2026
+
+Tidak semua cell silinder layak terbang. Pasar 2026 punya empat nama yang terus muncul di build long-range:
+
+- **Samsung 50S (21700, 5000mAh, 25A).** Pilihan serba bisa. Harapkan 35+ menit pada build 7 inci 6S1P di cruise 50 km/jam, dengan headroom cukup untuk climb-out.
+- **Molicel P45B (21700, 4500mAh, 45A).** Si paling bertenaga. Kapasitas lebih kecil dari 50S, tapi sag jauh lebih kecil di bawah beban. Pilih ini untuk kondisi berangin atau medan pegunungan yang butuh power berkelanjutan.
+- **Sony/Murata VTC6 (18650, 3000mAh, 30A).** Pekerja keras untuk build 4 inci dan 5 inci ringan. Pack 4S1P seberat 200g memberi quad sub-250g 15+ menit cruising pelan, dengan harga sekitar $5 per cell.
+- **Samsung 40T (21700, 4000mAh, 35A).** Pilihan value. Bukan yang paling besar kapasitasnya, bukan pula yang paling bertenaga, tapi harganya sudah turun cukup jauh di 2026 untuk jadi cell eksperimen.
+
+Untuk build long-range 7 inci, hitungannya sangat condong ke Li-ion. Pack 6S2P dari cell P45B memberi 9000mAh dengan berat sekitar 830g. Dengan arus cruise 7 inci sebesar 8 sampai 12A, itu 30 sampai 40 menit terbang. LiPo dengan kapasitas yang sama beratnya lebih dari 1,2kg, praktis tidak bisa terbang.
+
+Hindari apa pun dengan kata "fire" atau "ultra" dari merek yang tidak dikenal. Pasar 18650 dan 21700 penuh dengan cell rewrap yang mengklaim 9900mAh. Fisikanya tidak masuk akal. Beli Samsung, Molicel, Sony/Murata, atau LG dari distributor resmi.
+
+## Jebakan voltage: terbang dengan mAh, bukan volt
+
+Li-ion punya jebakan kedua, dan jebakan ini menangkap pilot yang pindah dari LiPo. Voltage LiPo turun cukup lurus: 25,2V penuh, 22,2V di setengah kapasitas, 21,0V saat hampir habis. Kamu bisa membaca sisa flight time dari voltage OSD.
+
+Pack Li-ion tidak berperilaku begitu. Voltage bertahan di sekitar 22,5 sampai 23,0V selama 60% kapasitas di tengah, lalu jatuh tajam di 20% terakhir. Kamu akan melihat 22,5V selama lima belas menit, lalu tiba-tiba 20,0V tanpa peringatan berarti.
+
+Terbanglah dengan current sensor dan mAh counter. Landing di 80% kapasitas rated: 3200mAh terpakai dari pack 4000mAh. Kalau kamu terbang dengan voltage, landing saat pack kembali ke 3,0V per cell saat rest. Di bawah beban, pack bisa menunjukkan 2,7 sampai 2,9V per cell, dan itu normal. Dorong sampai 2,5V saat rest dan cell rusak permanen.
+
+## Detail kecilnya
+
+Tiga detail yang menentukan apakah pack Li-ion awet atau cepat mati:
+
+**HVLi adalah trade, bukan makan siang gratis.** Cell LiPo high-voltage yang di-charge sampai 4,35V, bukan 4,2V, menyimpan energi sekitar 8% lebih banyak dengan berat yang sama. Kebanyakan charger modern mendukung profil HVLi. Harganya adalah cycle life: harapkan 15 sampai 20% lebih sedikit cycle sebelum internal resistance naik. Pakai untuk race day, bukan untuk pack latihan harian.
+
+**Jangan pernah parallel-charge pack yang selisihnya lebih dari 0,1V per cell.** Sambungkan pack 6S penuh di 25,2V dengan pack kosong di 21,0V pada parallel board yang sama, dan arus melonjak sampai ratusan ampere sebelum fuse sempat bereaksi. Cek voltage tiap cell dulu, setiap kali.
+
+**Li-ion lebih pemaaf soal storage dibanding LiPo.** Menyimpan LiPo di 4,2V per cell selama seminggu sudah menaikkan internal resistance-nya secara terukur. Cell Li-ion hampir tidak menunjukkan degradasi dalam periode yang sama. Storage di 3,6 sampai 3,7V per cell tetap ideal, tapi lupa discharge setelah sesi long-range tidak akan merusak pack.
+
+## Keputusannya
+
+- Kamu terbang freestyle atau race, dengan burst 100A dan cruise 30A: LiPo tidak bisa ditawar. Li-ion tidak bisa memberi makan itu.
+- Kamu cruising long-range dan arus per cell-mu di bawah sekitar 6A: Li-ion menang dalam flight time per gram. Mulai dari Samsung 50S.
+- Kamu cruising di angin atau pegunungan dan butuh voltage bertahan: Molicel P45B, demi headroom sag.
+- Kamu membangun micro long-range sub-250g: VTC6 dalam 4S1P, dan terbangkan dengan pelan.
+- Kamu pindah ke Li-ion: terbang dengan mAh, landing di 80%, dan berhenti memercayai voltage OSD.
+
+Baterai adalah pilihan komponen paling menentukan dalam sebuah build. Salah pilih dan quad-mu jadi babi yang terbang tiga menit, atau pemberat kertas yang sag ke tanah di punch-out pertama. Ukur arus cruise-mu, bagi dengan parallel string-mu, dan chemistry memilih sendiri.
+
+## Checklist
+
+- Terbang cruising normal dan catat mAh terpakai serta flight time. Arus rata-rata adalah mAh dibagi jam.
+- Bagi dengan parallel string untuk mendapat arus per cell. Bandingkan dengan crossover 5 sampai 6A.
+- Pilih cell dari shortlist 2026: 50S untuk range, P45B untuk headroom sag, VTC6 untuk micro, 40T untuk value.
+- Beli cell bermerek dari distributor resmi. Lewati rewrap yang mengklaim kapasitas mustahil.
+- Atur OSD untuk menampilkan mAh terpakai. Landing di 80% kapasitas rated, atau 3,0V per cell saat rest.
+- Cek voltage cell sebelum parallel charging. Jangan pernah parallel pack yang selisihnya lebih dari 0,1V per cell.
+- Storage di 3,6 sampai 3,7V per cell. HVLi di 4,35V untuk race day, bukan pack harian.
+
+## Referensi
+
+- UAVModel, [Li-Ion vs LiPo for FPV Drones: The Data-Driven Battery Guide for 2026](https://blog.uavmodel.com/6188-2/) — aturan crossover, pilihan cell 2026, HVLi, dan peringatan parallel-charging. Diperbarui 6 November 2026.
+- UAVModel, [FPV Battery Technology: LiPo vs Li-Ion, Smart BMS, and Battery Care Guide](https://blog.uavmodel.com/fpv-battery-technology-lipo-vs-li-ion-smart-bms-and-battery-care-guide/) — kurva discharge Li-ion yang datar, aturan landing berbasis mAh, dan angka cycle life.
+- UAVModel, [FPV Long Range Li-Ion Battery Guide: 18650 vs 21700 Pack Building](https://blog.uavmodel.com/fpv-long-range-li-ion-battery-guide-18650-vs-21700-pack-building/) — tabel flight time per ukuran frame dan batas landing 3,0V.
+- UAVModel, [FPV Long-Range Drone Build: Li-Ion Battery, GPS Endurance, and Efficiency Optimization — 2026 Guide](https://blog.uavmodel.com/fpv-long-range-drone-build-li-ion-battery-gps-endurance-and-efficiency-optimization-2026-guide/) — hitungan berat dan efisiensi di balik angka 7 inci.
+- [Jangan Terbang dengan Tune Lama: Upgrade ke Betaflight 2026.6 Tanpa Kejutan](https://ranmaul.com/id/fpv/jangan-terbang-tune-lama-upgrade-betaflight-2026-6) — separuh lain dari keputusan build long-range: tune yang menerbangkan pack yang baru kamu pilih.
