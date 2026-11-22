@@ -1,0 +1,70 @@
+---
+title: "Pull Request Agent Menunggu 5,3x Lebih Lama. Tak Ada yang Memilikinya."
+description: "Benchmark LinearB 2026: pull request buatan agent menunggu reviewer 17,6 jam, berbanding 3,4 jam untuk kerja manusia, dan hanya 32,7% yang diterima. Perbaikannya adalah ownership, bukan menambah kapasitas review."
+locale: "id"
+domain: "notes"
+slug: "pr-agent-menunggu-lebih-lama-tak-ada-pemilik"
+canonicalGroup: "notes-agent-pr-waits-longer-no-owner"
+publishedAt: "2026-11-23"
+updatedAt: "2026-11-23"
+tags: ["ai-coding-agents", "code-review", "pull-requests", "engineering-workflow", "engineering-productivity"]
+featured: false
+draft: false
+coverImage: "/assets/agent-pr-review/thumbnail-id.png"
+coverAlt: "Antrean panjang kartu pull request menunggu di gerbang review sementara satu reviewer memeriksa checklist"
+relatedCanonicalGroups: ["notes-ai-coding-agents-review-bottleneck", "notes-agent-grade-own-homework"]
+---
+
+Agent-mu membuka pull request hari Selasa. Jumat masih menunggu. Bukan karena sengaja diabaikan. Tidak ada yang pernah diminta untuk melihatnya.
+
+Itulah bentuk bottleneck review di 2026. Studi Harvard menunjukkan code buatan AI menumpuk di review. Data benchmark baru dari LinearB menunjukkan kenapa ia menumpuk di sana: kerja agent menunggu lebih lama, lebih jarang diterima, dan datang lebih besar dari kerja manusia di sebelahnya.
+
+## Seberapa lama pull request agent menunggu
+
+[2026 Software Engineering Benchmarks Report](https://linearb.io/resources/ai-code-review-bottleneck) dari LinearB memberi angkanya. Pada persentil ke-75, pull request agentic menunggu 17,6 jam sampai reviewer mengambilnya. Pull request tanpa bantuan AI menunggu 3,4 jam. Itu 5,3 kali lebih lama.
+
+Jaraknya tidak menutup saat merge. Hanya 32,7% pull request buatan AI yang diterima, berbanding 84,4% untuk pull request tulisan manusia. Diterima di sini berarti di-merge dalam 30 hari sejak dibuka.
+
+Ukurannya juga lebih besar. Pull request berbantuan AI berukuran 2,6 kali pull request tanpa bantuan AI dalam dataset yang sama. Reviewer membuka change yang lebih besar, ditulis oleh orang yang tidak bisa ditanya, tanpa ada yang menunggu di sisi lain. Ragu adalah respons yang masuk akal.
+
+## Kenapa tidak ada yang mengambilnya
+
+LinearB menelusuri penantian itu ke tiga penyebab. Pertama adalah ownership. Agent bisa membuka pull request, tapi tidak bisa membelanya di review atau mengejarnya sampai merge. Kalau tidak ada manusia yang namanya tercantum, tidak ada yang merasakan penantiannya. Pull request itu diam karena tidak ada nama di atasnya.
+
+Penyebab kedua adalah prioritas. Alur agentic sering diarahkan ke backlog berprioritas rendah. Reviewer memilah berdasarkan dampak, jadi kerja agent tenggelam sendiri ke dasar antrean.
+
+Penyebab ketiga adalah ukuran dan keraguan. Reviewer ragu pada change AI yang lebih besar dan lebih kompleks. Keraguan itu beralasan. Hasil [Stack Overflow 2025 Developer Survey](https://survey.stackoverflow.co/2025/) menyebut 66% developer menjadikan output AI yang hampir benar sebagai frustrasi terbesar mereka. Sebanyak 45% lain bilang debugging kode AI lebih lama daripada debugging kode sendiri.
+
+Beban itu jatuh ke sedikit orang yang bisa menilai kerja tersebut. Survei developer Fastly, yang dilaporkan TechCrunch, menemukan lebih dari 95% developer menghabiskan waktu ekstra memperbaiki kode buatan AI. Peneliti Annie Vella melaporkan 77% engineer kini lebih sedikit menulis kode dibanding dulu. Orang yang dulu menulis kode kini menghabiskan hari membaca kode yang ditulis model duluan.
+
+## Perbaikan dimulai saat tugas diberikan, bukan saat review
+
+Perubahan pertama adalah yang paling murah. Tentukan human owner saat tugas agent diberikan, bukan saat pull request-nya dibuka. Owner itu membela change di review, menjawab pertanyaan tentangnya, dan mengejarnya sampai merge. Resep LinearB tegas: tidak ada pull request buatan agent yang dibuka tanpa named human owner.
+
+Satu aturan itu menyerang penyebab terbesar secara langsung. Pull request yang punya owner memiliki seseorang yang menyadari 17 jam keheningan. Yang tidak punya owner tidak punya siapa-siapa.
+
+Perubahan kedua: berhenti me-review semuanya dengan tangan. Arahkan change agent berisiko rendah lewat automated approval. LinearB menunjuk automasi gitStream seperti Approve safe changes dan Approve tiny changes. File sensitif tetap butuh human review, dan change besar tetap butuh review tambahan. Jam manusia pergi ke change yang butuh judgment.
+
+Perubahan ketiga melindungi reviewer itu sendiri. Engineer yang terus menulis kode tetap fasih untuk menangkap kesalahan model. Pindahkan engineer terkuatmu ke review penuh waktu, dan kamu menukar throughput jangka pendek dengan reviewer yang perlahan kehilangan konteks yang membuat mereka layak dirutekan ke sana. Lindungi blok waktu hands-on coding untuk orang yang paling kamu andalkan di review. Perlakukan fluensi review sebagai capability yang dirawat, sama seperti kamu merawat on-call rotation.
+
+Warp menunjukkan bentuknya dalam praktik. CEO Zach Lloyd membiarkan agent memiliki satu pull request rutin di bawah satu human review, sementara bagian sensitif dari codebase butuh human ownership dan dual review. Aturannya ditulis sebelum agent mulai, bukan dikarang saat pull request macet.
+
+## Cara tahu perbaikan itu berhasil
+
+Ukur dua angka yang mendefinisikan masalah ini, per tim. Pickup time untuk pull request agentic berbanding angka yang sama untuk kerja manual. Acceptance rate untuk kerja agentic berbanding manual rate. Jarak yang menyempit berarti bottleneck mengecil. Lebih banyak pull request agent yang ter-merge dalam 30 hari adalah sinyal yang sama.
+
+Survei menangkap yang tidak bisa ditangkap data git. Tanyakan ke engineer-mu, terjadwal, apakah proses review masih cocok dengan pekerjaannya. Jalankan pertanyaan yang sama sebelum dan sesudah perubahan. Skor yang membaik dari kuartal ke kuartal berarti perbaikan itu mendarat. Skor yang datar berarti prosesnya masih salah, walau antrean terlihat lebih pendek.
+
+## Bottleneck ini adalah keputusan staffing
+
+Studi Harvard di balik seri ini menemukan review kini jadi bottleneck, dengan time to merge naik 56% setelah adopsi agent. Data LinearB menambahkan mekanismenya: kerja agent menunggu karena tidak ada yang memilikinya, dan lebih jarang ter-merge karena datang lebih besar dan lebih sulit dinilai.
+
+Semua ini tidak diperbaiki dengan membeli lebih banyak agent. Lebih banyak agent membuka lebih banyak pull request yang menunggu lebih lama untuk reviewer yang sama. Resource yang langka adalah manusia bernama yang mau berdiri di belakang sebuah change, dan proses review yang menghabiskan perhatian manusia hanya di tempat judgment dibutuhkan.
+
+Tulis aturan ownership itu ke template tugas agent minggu ini. Lalu pantau pickup time, bukan volume kode.
+
+## Referensi
+
+- [LinearB, "AI Code Review Bottleneck: Why AI Code Waits 5x Longer" (November 2026)](https://linearb.io/resources/ai-code-review-bottleneck)
+- [Chen & Stratton, "Artificial Intelligence in the Firm: Bottlenecks in Software Production" (versi terbaru 14 November 2026)](https://fion.ac/jellyfish.pdf)
+- [Stack Overflow 2025 Developer Survey](https://survey.stackoverflow.co/2025/)
