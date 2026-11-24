@@ -26,3 +26,4 @@ node_modules/
 
 # local agent settings (machine-specific permission grants; never commit)
 .claude/settings.local.json
+graphify-out/

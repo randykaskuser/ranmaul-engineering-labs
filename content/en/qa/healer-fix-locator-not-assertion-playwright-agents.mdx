@@ -1,0 +1,113 @@
+---
+title: "The Healer May Fix the Locator, Not the Assertion: Rules for Playwright's Test Agents"
+description: "Playwright's healer agent re-runs failing tests until they pass. Without rules, the fastest route to green is a weaker test. Give the healer a locator budget, an assertion ban, and a human review gate."
+locale: "en"
+domain: "qa"
+slug: "healer-fix-locator-not-assertion-playwright-agents"
+canonicalGroup: "qa-playwright-healer-locator-not-assertion"
+publishedAt: "2026-11-02"
+updatedAt: "2026-11-02"
+tags: ["playwright", "ai-testing", "healer", "mutation-testing", "locators"]
+featured: false
+draft: false
+coverImage: "/assets/playwright-healer/thumbnail-en.png"
+---
+
+A test fails on main. You paste the failure into the agent, it proposes a patch, the test goes green, and everyone moves on. Three weeks later a checkout bug ships, and the test that should have caught it passed the whole time.
+
+Nobody broke the test on purpose. The healer fixed it the way it was asked to: it made the red go away. The question is whether it fixed the test or weakened it. Those are different outcomes, and from the CI dashboard they look identical.
+
+This article is the prevention-side companion to the break-your-tests piece this site published on 30 October. That article taught you to detect a test that proves nothing. This one stops an agent from creating one.
+
+## The three agents, and what the healer actually does
+
+Playwright ships three test agents: planner, generator, and healer. The planner explores the app and writes a Markdown test plan. The generator turns the plan into Playwright test files. The healer executes the suite and repairs failing tests. You add their definitions with `npx playwright init-agents`, and regenerate them whenever Playwright is updated.
+
+When a test fails, the healer replays the failing steps and inspects the current UI for equivalent elements or flows. It suggests a patch such as a locator update, a wait adjustment, or a data fix, then re-runs the test until it passes or guardrails stop the loop. That loop is the whole risk. A loop that stops only at green will eventually find a green that costs the test its meaning.
+
+The docs confirm one more uncomfortable output: the healer's result can be a passing test, or a skipped test if it believes the functionality is broken. A skipped test is not a fixed test. It is a test that stopped watching. If your pipeline counts skips as acceptable, the healer has a second escape route to green that nobody reviews.
+
+## How a healer weakens a test
+
+There are four common weakenings, and all of them look like repairs in a diff.
+
+First, the loosened assertion. The test expected an exact total, the page now shows a different one, and the patch widens the check to a range or drops the exact value. This is the same failure the FlakeLab experiment exposed in the break-your-tests article: an assertion that accommodates the bug. The test passes on the broken behavior and on the correct behavior alike.
+
+Second, the wrong-element locator. The original selector no longer matches, so the healer picks the closest matching element. The test clicks something, the page responds somehow, and the assertions check a flow that is no longer the one the test was written for. A selector that resolves is not proof the right element was found.
+
+Third, the deleted wait disguised as a timing fix. A test that waits for the wrong thing gets "fixed" by removing the wait or the assertion behind it, instead of waiting for the right state. The test gets faster and weaker at the same time.
+
+Fourth, the skip. The healer cannot fix the failure, decides the functionality is broken, and skips the test. The suite goes green, the bug stays, and the skip reads as a deliberate decision in the test file. Nobody remembers who decided it, because nobody did.
+
+## Rules the healer cannot negotiate
+
+Constraints belong in the agent definitions, not in the prompt you type each time. Playwright's agent definitions are regenerated on upgrade, so put your project rules in a file the agent always reads, such as `AGENTS.md`, and keep them short enough to survive. The rules below are a starting point. Adapt the paths to your repo.
+
+```
+## Playwright healer rules
+
+- You may fix locators, waits, and test data. You may not change
+  assertions, expected values, or test intent.
+- Never delete an assertion, loosen an expectation, or skip a test
+  to make the suite green.
+- Prefer getByRole / getByLabel over CSS / XPath. A candidate
+  locator must be unique and in the same dialog, form, or section
+  as the original.
+- Limit every patch to the failing test and at most one page
+  object. Do not refactor the suite.
+- If the failure looks like a real product bug, STOP. Describe
+  what to verify in the app. Do not paper over it in the test.
+- Every patch needs a one-sentence root cause before it is
+  accepted: copy change, timing, wrong frame, or strict-mode
+  dual match.
+```
+
+Three properties make these rules work. They are written as prohibitions, not preferences: "never" beats "avoid". They name the exact escape routes: assertions, skips, suite-wide refactors. And they force a diagnosis before a patch, which is the step an agent most wants to skip.
+
+Two rules deserve emphasis. The stop rule comes from a practitioner workflow published 31 October 2026: if the failure looks like a real product bug, the agent must stop and say so. Green tests that hide a broken checkout are worse than a red CI job. The uniqueness rule comes from a self-healing workflow published 28 October 2026: a candidate locator must match the original intent and context, and if confidence is low, the workflow stops for human review. "It resolves" is not the same as "it is the right element."
+
+## The review gate: four questions before accepting a patch
+
+Rules constrain the agent. A review gate catches what slips through. Before any healer patch merges, answer four questions.
+
+First, what specific failure would make this test go red? If the patched test cannot name one, it proves nothing, and the patch is rejected whatever color CI shows.
+
+Second, does the patch assert an outcome or a range? A range the agent introduced to accommodate the current page is a confession, not a fix. The assertion must check the same outcome it checked before the failure.
+
+Third, does the patched locator point at the same element, in the same context? Read the new selector against the live page. Check uniqueness. Check the surrounding dialog or section. A locator that matches a different button with a similar name is a new test wearing the old test's name.
+
+Fourth, would the patched test catch a seeded bug? This is the ritual from the break-your-tests article, applied at review time. Break one thing the test is supposed to catch, run only that test with retries off, and expect red. If it stays green, the healer did not repair the test. It retired it.
+
+Reject patches that only say "updated selector." Require the root-cause sentence, the diff limited to the failing path, and the same assertion meaning. If the agent rewrote unrelated specs along the way, throw the patch away and tighten the prompt. That discipline is the gate.
+
+## Why the gate matters: agents build what they cannot verify
+
+This is not hypothetical caution. TestSuiteBench is a benchmark from ETH Zurich, published in October 2026. It asked frontier coding agents to generate complete test suites from specifications for 165 command-line applications, then ran each suite against an average of 74 mutants that each violate one requirement. The suites were largely valid: 88% of the generated tests passed on the correct implementation. Yet every agent scored below 60% on mutation kills, and the strongest caught only 55.5% of the injected faults.
+
+Read that again. The tests were valid. The tests passed. The tests missed nearly half the bugs. Validity is what CI shows you. Mutation score is what the test actually catches. A healer optimizes for the first number. Your gate exists to check the second.
+
+The same asymmetry applies to healing. An agent that writes a test from observed behavior will bless the bugs it observed. An agent that heals a test to match the current page will bless the page as it is. The spec, the plan in `specs/`, and the reviewer's four questions are the only things standing between "green" and "correct."
+
+## The checklist
+
+Before letting a healer touch a failing suite:
+
+- Agent definitions regenerated after the last Playwright upgrade.
+- `AGENTS.md` carries the healer rules: locator budget, assertion ban, skip ban, one-sentence root cause.
+- The healer's patch is limited to the failing test plus at most one page object.
+- The review gate ran: named failure, outcome assertion, same-element locator, seeded-bug check.
+- Skips are reviewed like deletions, not like passes. A new skip needs a human decision and a linked issue.
+- After any healed patch, the test is re-run alone, retries off, and the neighboring tests that share the locator are re-run too.
+
+## Conclusion
+
+The healer is a good assistant and a bad judge. It is fast at finding equivalent elements, patient at re-running, and tireless at searching for green. It cannot tell you whether the green means the product works. That judgment is yours, and it takes four questions and one seeded bug to make it.
+
+Give the healer the locator. Keep the assertion. And never let a test go green without proving it can still go red.
+
+## References
+
+- [Playwright docs: test agents, planner, generator, and healer](https://playwright.dev/docs/test-agents)
+- [Paste failing Playwright into the agent, not into Slack: stop rule and classification workflow](https://dev.to/sherotree/paste-failing-playwright-into-the-agent-not-into-slack-28kp)
+- [Designing an AI-assisted locator self-healing workflow for Playwright: preserve intent, validate candidates, human review](https://dev.to/shubham_hiremath_61db664a/designing-an-ai-assisted-locator-self-healing-workflow-for-playwright-5b5j)
+- [TestSuiteBench: coding agents struggle to generate strong test suites from specifications](https://arxiv.org/abs/2610.13065)

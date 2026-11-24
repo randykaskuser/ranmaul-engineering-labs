@@ -46,6 +46,16 @@ npm run preview
 npm run deploy
 ```
 
+Build env: `NEXT_PUBLIC_ESRI_API_KEY` (ArcGIS Location Platform key, Basemap
+styles privilege, referrer-restricted to `ranmaul.com`, `*.ranmaul.com`,
+`*.website-elabs.pages.dev`, `localhost:4173`; item "ranmaul.com drone portfolio flight map"
+in ranmaul.maps.arcgis.com, expires 2027-11-07) enables the drone portfolio Flight
+Map (Leaflet + Esri World Imagery). It is inlined into the static build, so set it in
+the Cloudflare Pages dashboard (Production and Preview). Do not add a Wrangler config
+file: with one present, Pages ignores dashboard build variables. Without the key the
+map section is not rendered.
+API keys expire after at most one year: rotate, then rebuild.
+
 Key paths:
 - `app/` — Next.js App Router routes
 - `content/{locale}/{domain}/{slug}.mdx` — article source files

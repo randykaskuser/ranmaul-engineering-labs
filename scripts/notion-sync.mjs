@@ -974,13 +974,40 @@ function isWarningCallout(icon, titleText) {
 
 async function renderChildBlocks(blockId, ctx) {
   const children = await listBlocks(blockId);
+  const LIST_TYPES = new Set(["bulleted_list_item", "numbered_list_item"]);
   let out = "";
-  for (const child of children) {
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i];
     out += await blockToMdx(child, ctx);
     if (out && !out.endsWith("\n")) out += "\n";
+    // Keep consecutive items of the same list tight (no blank line), so the
+    // list renders as one list instead of a "loose" list of paragraphs.
+    const next = children[i + 1];
+    if (next && LIST_TYPES.has(child.type) && next.type === child.type) continue;
     if (!out.endsWith("\n\n")) out += "\n";
   }
   return out.trim();
+}
+
+// Notion code-block language names that differ from Markdown fence names.
+const CODE_LANG_MAP = { "plain text": "text" };
+
+function renderTableCell(cell) {
+  // Escape backslashes first so an existing "\" can't swallow the "|" escape.
+  return renderRichText(cell ?? []).replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\n/g, " ");
+}
+
+async function renderTable(block, value) {
+  const rows = (await listBlocks(block.id)).filter((r) => r.type === "table_row");
+  if (rows.length === 0) return "";
+  const width = value.table_width ?? rows[0].table_row.cells.length;
+  const lines = rows.map((r) => {
+    const cells = Array.from({ length: width }, (_, i) => renderTableCell(r.table_row.cells[i]));
+    return `| ${cells.join(" | ")} |`;
+  });
+  // Markdown tables need a header row; Notion tables without one still use row 1.
+  lines.splice(1, 0, `|${"---|".repeat(width)}`);
+  return `\n${lines.join("\n")}\n`;
 }
 
 async function blockToMdx(block, ctx) {
@@ -1056,7 +1083,8 @@ async function blockToMdx(block, ctx) {
 
     case "code": {
       const code = renderRichText(value.rich_text ?? []);
-      const lang = value.language ? String(value.language) : "";
+      const rawLang = value.language ? String(value.language) : "";
+      const lang = CODE_LANG_MAP[rawLang] ?? rawLang;
       return `\n\`\`\`${lang}\n${code}\n\`\`\`\n`;
     }
 
@@ -1087,6 +1115,10 @@ async function blockToMdx(block, ctx) {
 
       const tone = isWarningCallout(value.icon, txt) ? "Warning" : "Note";
       return `\n<${tone}>\n\n${txt}\n\n</${tone}>\n`;
+    }
+
+    case "table": {
+      return renderTable(block, value);
     }
 
     default: {
@@ -1320,16 +1352,8 @@ async function pageToArticle(page) {
 
   frontmatterLines.push("---", "");
 
-  const blocks = await listBlocks(page.id);
-  const ctx = { slug };
-
-  // Handle basic list grouping by preserving order; we already emit markdown list items.
-  let body = "";
-  for (const block of blocks) {
-    body += await blockToMdx(block, ctx);
-    if (body && !body.endsWith("\n")) body += "\n";
-    if (!body.endsWith("\n\n")) body += "\n";
-  }
+  // Same block loop as nested children, so top-level lists stay tight too.
+  const body = await renderChildBlocks(page.id, { slug });
 
   const mdx = `${frontmatterLines.join("\n")}${body.trim()}\n`;
 
@@ -1472,7 +1496,13 @@ async function writeArticleFile(article, options) {
 
   const existing = (await fileExists(outPath)) ? await fs.readFile(outPath, "utf8") : null;
 
-  if (existing === article.mdx) {
+  // Ignore blank-line-only differences: hand-edited files in the repo and the
+  // converter's output place blank lines slightly differently, which renders the
+  // same but used to reopen the sync PR on every run.
+  // Only whitespace-only lines are dropped; the next line's indentation is kept,
+  // otherwise nested list items would compare as different.
+  const collapseBlankLines = (s) => s.replace(/\n(?:[ \t]*\n)+/g, "\n").trim();
+  if (existing !== null && collapseBlankLines(existing) === collapseBlankLines(article.mdx)) {
     return { changed: false, outPath };
   }
 

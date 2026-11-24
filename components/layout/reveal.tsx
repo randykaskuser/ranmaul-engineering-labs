@@ -32,6 +32,8 @@ export function Reveal({
   useLayoutEffect(() => {
     const el = elemRef.current;
     if (!el) return;
+    // Reduced motion: leave content visible, no fade or slide.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     let x = 0;
     let y = 0;
@@ -51,7 +53,7 @@ export function Reveal({
         break;
     }
 
-    gsap.fromTo(
+    const tween = gsap.fromTo(
       el,
       {
         autoAlpha: 0,
@@ -68,10 +70,18 @@ export function Reveal({
         scrollTrigger: {
           trigger: el,
           start: "top 85%",
-          toggleActions: "play none none reverse",
+          // Play once: content never fades out again when scrolling back up,
+          // and a fast scroll or anchor jump past the element still plays it.
+          once: true,
         },
       }
     );
+
+    return () => {
+      tween.scrollTrigger?.kill();
+      tween.kill();
+      gsap.set(el, { clearProps: "opacity,visibility,transform" });
+    };
   }, [direction, delay, duration, distance]);
 
   return (

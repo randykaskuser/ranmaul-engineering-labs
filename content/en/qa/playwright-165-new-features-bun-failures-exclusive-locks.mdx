@@ -1,0 +1,108 @@
+---
+title: "Playwright 1.65's New Features, in Practice: Bun, the Failures Reporter, and Exclusive Locks"
+description: "Playwright 1.65, released 5 November 2026, ships three new features worth trying: a Bun test runner, a failures-only reporter, and an exclusive test lock. Here is what each one does, where it breaks, and which to adopt now."
+locale: "en"
+domain: "qa"
+slug: "playwright-165-new-features-bun-failures-exclusive-locks"
+canonicalGroup: "qa-playwright-165-new-features"
+publishedAt: "2026-11-13"
+updatedAt: "2026-11-13"
+tags: ["playwright", "bun", "ci", "test-reporting"]
+featured: false
+draft: false
+coverImage: "/assets/playwright-165-features/thumbnail-en.png"
+---
+
+Playwright 1.65, released 5 November 2026, is easy to upgrade badly. The breaking changes got their own article: eight of them alter what your existing tests do. This article covers the other half of the release: the three new features.
+
+Each one gets a verdict. Bun is a branch experiment, not a switch. The failures reporter is safe to adopt today. The exclusive lock fixes one specific problem and should stay specific.
+
+## Feature 1: run tests with Bun
+
+The test runner now runs under Bun. Bun transpiles your TypeScript test files itself, so Playwright does not use Babel or its compilation cache. The command needs a flag, because without it `bunx playwright test` still runs on Node.js:
+
+```bash
+bunx --bun playwright test
+```
+
+Playwright's own CI runs the test runner tests under Bun 1.4.3 on Linux. That tells you the feature is real, not a demo. It does not tell you it is faster for your suite. Bun removes the transpile step. The browser work still dominates most suites, so measure before you claim speed.
+
+The caveats decide whether Bun fits your suite at all:
+
+- There is no watch mode. UI mode does not run tests again when files change, and `--only-changed` does not follow imports.
+- Bun loads modules itself, so `--tsconfig` and the JSX options in `tsconfig.json` have no effect. Custom ESM loaders are not supported.
+- Stack traces do not include async frames. API names drop the class name: `click` instead of `locator.click`. This changes step locations, step titles, and error messages.
+- Console output of a test does not get into the trace and UI mode. If you debug through `console.log`, that output is gone from the trace.
+
+Verdict: try it on a branch if your suite is TypeScript-heavy and your CI runs on Linux. Skip it if you live in watch mode, rely on `--only-changed`, use a custom loader, or read console output from traces. Keep Node.js as the default until the branch run proves otherwise.
+
+## Feature 2: reports with only failures
+
+The new `failures` reporter prints failures and successful retries as they occur, followed by a summary, without progress output. The HTML, JSON, and JUnit reporters gain an `onlyFailures` option. It keeps only tests with unexpected outcomes, flaky tests, and interrupted tests:
+
+```ts
+// playwright.config.ts
+import { defineConfig } from '@playwright/test';
+
+export default defineConfig({
+  reporter: [
+    ['failures'],
+    ['html', { onlyFailures: true }],
+  ],
+});
+```
+
+This is the feature with the best return for the least risk. A green run prints almost nothing. A red run shows the failures first, then the summary, with no progress noise in between. CI logs get shorter exactly when you need to read them.
+
+One limit to know: the reporter shows failures, not the reason a suite is slow. If your problem is runtime, not noise, this does not help. That is a different job, and the failures reporter will not do it.
+
+Verdict: adopt now, in CI first. Keep the `list` reporter for local runs if you like watching progress. A retry that passes is still not a pass, so pair this with the discipline from the retry article: a green retry hides a flaky test.
+
+## Feature 3: the exclusive test lock
+
+Playwright 1.63 added named test locks for tests that share a resource. Version 1.65 adds a built-in lock, `-exclusive-`. A test with this lock runs only when no other tests are running. All other tests continue to run in parallel with each other:
+
+```ts
+test('restart the server', { lock: '-exclusive-' }, async () => {
+  // No other test runs while this one is running.
+});
+```
+
+Use it for the one test that mutates shared state: restarting a server, flipping a global account setting, or hitting an external service that cannot take parallel calls. That is the whole use case. A lock is not a fix for order-dependent tests. If two tests pass only in one order, the tests are broken, and the lock hides it. The shuffle article shows how to find those.
+
+Verdict: adopt for the single test that needs it. Do not spread the lock across the suite. Each exclusive test serializes a slice of the run, and a suite full of them is a sequential suite with extra steps.
+
+## Small changes worth knowing
+
+- `test.skip()`, `test.fixme()`, `test.fail()`, and `test.slow()` now accept only a description. It is recorded in the test annotation:
+
+```ts
+test('upload a file', async ({ page }) => {
+  test.skip('Not implemented yet');
+});
+```
+
+- A new `PLAYWRIGHT_TRANSFORM_CACHE_DIR` environment variable sets the directory for transpiled test files. It matters on a Linux machine shared with other users.
+- `cdpSession.send()` gains `timeout` and `signal` options.
+- `testRun.mode()` returns the execution mode of a suite during `reporter.preprocess()`.
+- Playwright no longer tests on Node.js 20. Use Node.js 22, 24, or 26. The Docker images now ship Node.js 26.
+- Bundled browsers: Chromium 158, Firefox 159, WebKit 27.2.
+
+## Adoption checklist
+
+- Upgrade on a branch, and run the eight breaking-change checks first. A new feature on top of a broken upgrade tells you nothing.
+- Add the `failures` reporter to CI config. Keep local output as it is.
+- Find the one test that mutates shared state. Give it the `-exclusive-` lock, and no other test.
+- Try `bunx --bun playwright test` on the branch. Compare the run time and the trace output against Node.js before you decide.
+- Check your Node.js version: 22 or newer. Node.js 20 is no longer tested.
+
+## Conclusion
+
+Three features, three verdicts. The failures reporter is free signal, so take it. The exclusive lock is a scalpel for one test, so keep it narrow. Bun is a real option with real trade-offs, so test it on a branch and let the numbers decide. The release is worth upgrading to. The features are worth adopting one at a time.
+
+## References
+
+- [Playwright release notes, version 1.65](https://playwright.dev/docs/release-notes)
+- [Upgrading to Playwright 1.65? Check These Eight Breaking Changes First](https://ranmaul.com/en/qa/playwright-165-breaking-changes-upgrade-checklist)
+- [Passes in Order. Fails Shuffled.](https://ranmaul.com/en/qa/passing-order-failing-shuffled-playwright)
+- [A Retry That Passes Is Not a Pass](https://ranmaul.com/en/qa/retry-that-passes-is-not-a-pass-playwright)

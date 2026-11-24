@@ -1,76 +1,95 @@
 {
+  "active_context": {
+    "current_feature_id": "19",
+    "last_updated": "2026-11-24",
+    "summary": "Feature 19: Locator Lab linked from /{locale}/tools and the retry, shuffle and 1.64 upgrade articles (EN+ID). Branch feat/locator-lab-links merged with main; PR #67 open.",
+    "blockers": [],
+    "next_step": "Run ./init.sh at session start, review ai-memory context, and pick the next unfinished feature in feature_list.json."
+  },
   "features": [
     {
       "id": 1,
       "title": "Migrate to OpenNext",
       "status": "abandoned",
-      "reason": "OpenNext bundles exceeded Cloudflare free/paid worker size limits (15MB+). Switched to pure Static HTML Export instead which bypasses limits and works faster."
+      "reason": "OpenNext bundles exceeded Cloudflare free/paid worker size limits (15MB+). Switched to pure Static HTML Export instead which bypasses limits and works faster.",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 2,
       "title": "Convert to Static Export",
       "status": "completed",
-      "reason": "Site is now 100% static, builds instantly on Cloudflare Pages."
+      "reason": "Site is now 100% static, builds instantly on Cloudflare Pages.",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 3,
       "title": "Restore Background Videos to R2",
       "status": "completed",
-      "reason": "Restored from git history and uploaded to Cloudflare R2 bucket."
+      "reason": "Restored from git history and uploaded to Cloudflare R2 bucket.",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 4,
       "title": "Add Notes Domain and Layoff Article",
       "status": "completed",
-      "reason": "Added notes domain, published bilingual layoff article, fixed article CSS list styles. PR #23 created."
+      "reason": "Added notes domain, published bilingual layoff article, fixed article CSS list styles. PR #23 created.",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 5,
       "title": "Add Dark Mode and Restructure Header",
       "status": "completed",
-      "reason": "Installed next-themes, implemented ThemeProvider, updated token CSS, moved EN/ID toggle next to ThemeToggle outside mobile menu. Fixed UI hydration errors during SSG build."
+      "reason": "Installed next-themes, implemented ThemeProvider, updated token CSS, moved EN/ID toggle next to ThemeToggle outside mobile menu. Fixed UI hydration errors during SSG build.",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 6,
       "title": "Refactor Header to Mega-Dropdowns",
       "status": "completed",
-      "reason": "Restructured NAV_LINKS into groups, implemented framer-motion dropdowns, and grouped mobile accordion."
+      "reason": "Restructured NAV_LINKS into groups, implemented framer-motion dropdowns, and grouped mobile accordion.",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 7,
       "title": "Refactor Footer Layout",
       "status": "completed",
-      "reason": "Converted the flat link list in the footer to a 4-column structured layout mirroring the header's navigation groups. Added social icons and hover interactions."
+      "reason": "Converted the flat link list in the footer to a 4-column structured layout mirroring the header's navigation groups. Added social icons and hover interactions.",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 8,
       "title": "Drone Services Refactor",
       "status": "completed",
-      "reason": "Refactored homepage FPV section into a teaser CTA and added a new DroneServicesSection component to the Drone Portfolio page."
+      "reason": "Refactored homepage FPV section into a teaser CTA and added a new DroneServicesSection component to the Drone Portfolio page.",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 9,
       "title": "Fix broken links, language toggle, html lang, titles, duplicate h1",
       "status": "completed",
-      "reason": "Crawl of static export: broken internal links 55 -> 0; /id/* lang=id 49/49; articles with 2 h1 13 -> 0; domain/tag pages get own titles. Legacy URLs 301 via public/_redirects (verified with wrangler pages dev). Toggle + lang verified in Chromium. Spec: docs/planning/2026-09-24-site-link-and-seo-fixes.md"
+      "reason": "Crawl of static export: broken internal links 55 -> 0; /id/* lang=id 49/49; articles with 2 h1 13 -> 0; domain/tag pages get own titles. Legacy URLs 301 via public/_redirects (verified with wrangler pages dev). Toggle + lang verified in Chromium. Spec: docs/planning/2026-09-24-site-link-and-seo-fixes.md",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 10,
       "title": "Real content for Tools, Projects, Contact; drone quote flow",
       "status": "completed",
-      "reason": "Tools: DevSpace + qa-agent-skills. Projects: Notion->MDX pipeline + this site (private repos excluded by owner). Contact: Instagram-first. Drone services: fake 'From Rp X' prices removed, CTAs open WhatsApp with pre-filled message. Contact links centralized in lib/site.ts. Verified: lint 0 errors, build, crawl 0 broken links, 390px no horizontal scroll on new pages."
+      "reason": "Tools: DevSpace + qa-agent-skills. Projects: Notion->MDX pipeline + this site (private repos excluded by owner). Contact: Instagram-first. Drone services: fake 'From Rp X' prices removed, CTAs open WhatsApp with pre-filled message. Contact links centralized in lib/site.ts. Verified: lint 0 errors, build, crawl 0 broken links, 390px no horizontal scroll on new pages.",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 11,
       "title": "init.sh, CV fixes, Neo 2 bundle",
       "status": "completed",
-      "reason": "Added init.sh (template from owner's ai-account/ielts-prepai; butler repo on company GitLab not reachable): Node>=20 check, npm install, lint, build; exit 0. CV GitHub link -> github.com/randykaskuser, now rendered (date overlap left as-is per owner). Neo 2 3-battery package Rp850.000. Tools/Projects/Contact now bilingual under /{locale}/."
+      "reason": "Added init.sh (template from owner's ai-account/ielts-prepai; butler repo on company GitLab not reachable): Node>=20 check, npm install, lint, build; exit 0. CV GitHub link -> github.com/randykaskuser, now rendered (date overlap left as-is per owner). Neo 2 3-battery package Rp850.000. Tools/Projects/Contact now bilingual under /{locale}/.",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 12,
       "title": "SEO pass and sitemap (Phase 8)",
       "status": "completed",
-      "reason": "createPageMetadata builds canonical, hreflang(+x-default), full OG (site name, locale, default image), Twitter card for every page. Real 1200x630 og-default.jpg (was 0 bytes). JSON-LD: WebSite+Person (home), Service with Offers from DRONES data (drone portfolio), Article with fixed image URLs and Person author. Tag pages noindex,follow. Sitemap: 38 indexable URLs with hreflang alternates and content-based lastmod. Verified with scripted check over all 109 pages: 0 problems; 0 broken links."
+      "reason": "createPageMetadata builds canonical, hreflang(+x-default), full OG (site name, locale, default image), Twitter card for every page. Real 1200x630 og-default.jpg (was 0 bytes). JSON-LD: WebSite+Person (home), Service with Offers from DRONES data (drone portfolio), Article with fixed image URLs and Person author. Tag pages noindex,follow. Sitemap: 38 indexable URLs with hreflang alternates and content-based lastmod. Verified with scripted check over all 109 pages: 0 problems; 0 broken links.",
+      "evidence": "migrated from legacy feature_list.json"
     },
     {
       "id": 13,
@@ -95,10 +114,31 @@
     },
     {
       "id": 16,
+      "title": "Drone portfolio interactive Flight Map",
+      "status": "completed",
+      "reason": "Implemented per spec and live on the branch preview (a91cfd03.website-elabs.pages.dev); production goes live when the owner merges claude/admiring-maxwell-lcac2g into main. Leaflet 1.9.4 lazy client component, coordinates/flightType in portfolio frontmatter (rounded to 2 decimals), 5 located items from Air 3S EXIF/SRT + IG captions, portfolio images on R2 without metadata. ArcGIS key (Basemap styles, referrer-restricted, expires 2027-11-07) set as Pages variable for Production and Preview; wrangler.jsonc removed because it made Pages ignore dashboard build variables. Open content (not code): coordinates for anyer-coastal, batang-rest-area, commercial-real-estate (candidate held for privacy), FPV items.",
+      "verification": "./init.sh exit 0 (no key: section absent from out/). Build fails on purpose for coordinates without location and for lat -96.2 (test entry removed). Built with placeholder key, served out/ and checked in browser on /en and /id: 4 pins = 4 list items, list click opens matching popup (incl. rapid double click), pin click highlights list, popup > opens Lightbox, wheel does not zoom until map clicked, recenter refits, filter chips hidden (only aerial), no horizontal scroll at 390px, no Leaflet/tiles before scroll, no JS console errors (only pre-existing RSC .txt 404s from `serve`). Screenshots at 1440px and 390px taken in the browser pane. Bundle: docs/benchmarks/2026-11-08-flight-map.md. Real key build: 5 pins, tiles load, 0 tile errors on localhost:4173. Preview a91cfd03 (commit ca843ea): 5 pins, 5 list items, 27/28 tiles loaded, 0 tile errors, list click opens Pulau Merah popup, no broken images, no console errors; routes /, /id, /en|id/drone-portfolio, /en/qa, /about, /sitemap.xml, /en/feed.xml 200; /qa-lab and /drone-portfolio 301; HSTS, CSP-RO, Permissions-Policy, X-Frame-Options present. ./init.sh exit 0."
+    },
+    {
+      "id": 17,
+      "title": "Drone Mapping service section on drone portfolio",
+      "status": "completed",
+      "reason": "Implemented on branch claude/drone-mapping-service-10d391, merged to main by the owner (PR #84, then PR #85 for the 3D orbit and the viewer) and live on ranmaul.com. New components/portfolio/drone-mapping-section.tsx placed right after the existing drone pricing section on /{locale}/drone-portfolio: 3 packages (Peta Dasar from Rp1.500.000 up to 2 ha, Peta + Elevasi Rp2.250.000, Peta + 3D Rp3.500.000), area pricing, add-ons, deliverables, mandatory no-GCP/RTK accuracy note, per-package WhatsApp links naming the package. Mapping offers added to the page Service JSON-LD; SEO description mentions mapping. Example images: public/images/drone-mapping/contoh-orthophoto.webp (1277x1600, 344 KB, from the GeoTIFF with transparent edges) and contoh-detail.webp (1600x1200, 284 KB, full-res crop from the GeoTIFF, no labels, no house numbers). Existing Air 3S/Neo 2 prices unchanged. UI polish (owner request): WCAG AA muted text (neutral-600 light / neutral-400 dark), images on top with 3 price cards in a row on desktop, Peta Dasar accent border + \"Paket utama\" badge, price and unit on separate lines, section spacing lg, WhatsApp links min 44px with visible focus ring. Reveal (shared) now plays once, skips animation under prefers-reduced-motion, and cleans up its ScrollTrigger. Location name removed from the example caption and alt text on owner request. Added a 3D orbit example: muted looping MP4 (640x480, 15 s, 1.7 MB, landscape crop of the Metashape orbit export without UI overlays) via components/portfolio/loop-video.tsx (loads near the viewport, plays only while visible, stays on the poster under prefers-reduced-motion). Chosen over GIF: the same clip as GIF was 36.6 MB. Example tiles are clickable (components/portfolio/mapping-examples.tsx): each opens a full-size viewer built on native <dialog> (Esc, close button, backdrop click, arrow keys and prev/next, body scroll locked, focus returns to the tile); the 3D tile opens the video with controls.",
+      "verification": "./init.sh exit 0 (lint 0 errors, build, smoke 270 pages OK). out/id/drone-portfolio.html contains wa.me links for Drone Mapping - Peta Dasar / Peta + Elevasi / Peta + 3D. Playwright on served out/ at 1440px and 390px (id + en): section renders, both images load, scrollWidth = viewport (no horizontal scroll), example figure sticky on desktop. Console: only the pre-existing RSC .txt 404s from serve. After polish, dev server localhost:3007 at 1440px and 375px, dark and light: no horizontal scroll, all 3 WhatsApp links 44px high, focus ring visible (box-shadow ring), Reveal blocks opacity 1 after a one-step jump past the section and with reduced motion, lowest text contrast 7.66:1 (dark) and 7.49:1 (light). 3D orbit: dev server 1440px and 375px, dark and light: video 640x480 loads only after scrolling near it (readyState 0 on load), plays while visible, stays paused at 0 s with reduced motion, no horizontal scroll. Viewer: at 1440px and 375px, all 3 tiles open the dialog, ArrowRight steps map > zoom > 3D, video plays in the dialog at 4:3 (900x675 desktop, 343x257 mobile), Esc / close button / backdrop click close it, focus returns to the opening tile, body overflow hidden while open and restored after. Production 2026-11-11 after PR #85 (merge 1e0bd39): ranmaul.com/id and /en drone-portfolio 200, orbit MP4 (video/mp4, 1.7 MB) and 3 WebP 200; in the browser at 1440px and 375px the tile video plays, the viewer opens, the dialog video plays, Esc closes, 3 Drone Mapping WhatsApp links. Console: only the CSP-RO notice and a blocked Cloudflare Insights beacon (local DNS), both unrelated."
+    },
+    {
+      "id": 18,
+      "title": "Transport covered up to 30 km on drone service cards",
+      "status": "completed",
+      "reason": "Owner asked to replace \"Transport Jabodetabek termasuk\" with a 30 km limit, because Jabodetabek is too wide (some sites are 70 km or 2 hours away). Changed the shared TRANSPORT feature in the Air 3S/Neo 2 cards and the mapping cards, the services notes line, a new transport note under the mapping section, and the drone-portfolio SEO description. Surcharge amounts for longer distances are not published yet: owner sets them later.",
+      "verification": "2026-11-12: ./init.sh exit 0 (lint, build, smoke OK). out/id/drone-portfolio.html and out/en/drone-portfolio.html contain the new 30 km text and no \"Transport Jabodetabek termasuk\" / \"Di luar Jabodetabek\" text."
+    },
+    {
+      "id": 19,
       "title": "Link Locator Lab from the Tools page and the Playwright articles",
       "status": "completed",
-      "reason": "Added a Locator Lab card (locator.ranmaul.com, source randykaskuser/Locator-Lab) to /{locale}/tools, and one contextual link in each EN+ID pair of the three playwright-tagged articles: retry, shuffle, 1.64 upgrade (updatedAt 2026-10-29). Hero no longer says all tools are open source: Locator-Lab has no license yet. The .first() wrong-element claim in the retry article matches Locator Lab's Break tab default under the re-sorted list refactor.",
-      "verification": "./init.sh exit 0 (lint 0 errors, 196 pages, smoke OK: 10278 internal links, 96/96 id pages lang=id). Built HTML: href=https://locator.ranmaul.com present in out/{en,id}/tools.html and all 6 article pages. Playwright: /en/tools and /id/tools at 1440px and 390px, 3 cards, no horizontal overflow, no page errors; Locator Lab card screenshots checked."
+      "reason": "Added a Locator Lab card (locator.ranmaul.com, source randykaskuser/Locator-Lab) to /{locale}/tools, and one contextual link in each EN+ID pair of three playwright-tagged articles: retry, shuffle, 1.64 upgrade (updatedAt 2026-10-29). Hero no longer says all tools are open source: Locator-Lab has no license yet. The .first() wrong-element claim in the retry article matches Locator Lab's Break tab under the re-sorted list refactor. Originally recorded as feature 16; renumbered when merged with main, which used 16-18.",
+      "verification": "2026-11-24 after merging main: ./init.sh exit 0 (lint 0 errors, 2 warnings; 347 pages; smoke OK: 18495 internal links, 173/173 id pages lang=id). href=https://locator.ranmaul.com present in out/{en,id}/tools.html and all 6 article pages. Earlier (2026-10-29): Playwright screenshots of /en/tools and /id/tools at 1440px and 390px, no overflow, no page errors."
     }
   ]
 }

@@ -1,0 +1,70 @@
+---
+title: "Your Agent's Pull Request Waits 5.3x Longer. Nobody Owns It."
+description: "LinearB's 2026 benchmarks show agent-authored pull requests wait 17.6 hours for a reviewer against 3.4 for human work, and only 32.7% get accepted. The fix is ownership, not more review capacity."
+locale: "en"
+domain: "notes"
+slug: "agent-pr-waits-longer-no-owner-review-fix"
+canonicalGroup: "notes-agent-pr-waits-longer-no-owner"
+publishedAt: "2026-11-23"
+updatedAt: "2026-11-23"
+tags: ["ai-coding-agents", "code-review", "pull-requests", "engineering-workflow", "engineering-productivity"]
+featured: false
+draft: false
+coverImage: "/assets/agent-pr-review/thumbnail-en.png"
+coverAlt: "A long queue of pull request cards waiting at a review gate while one reviewer works through a checklist"
+relatedCanonicalGroups: ["notes-ai-coding-agents-review-bottleneck", "notes-agent-grade-own-homework"]
+---
+
+Your agent opened a pull request on Tuesday. It is still waiting on Friday. Nobody is ignoring it on purpose. Nobody was ever asked to look at it.
+
+That is the shape of the review bottleneck in 2026. A Harvard study showed review is where AI-generated code piles up. New benchmark data from LinearB shows why it piles up there: agent work waits longer, gets accepted less, and arrives bigger than the human work beside it.
+
+## How much longer agent pull requests wait
+
+LinearB's [2026 Software Engineering Benchmarks Report](https://linearb.io/resources/ai-code-review-bottleneck) puts a number on the wait. At the 75th percentile, an agentic pull request waits 17.6 hours for a reviewer to pick it up. An unassisted pull request waits 3.4 hours. That is 5.3 times longer.
+
+The gap does not close at merge. Only 32.7% of AI-generated pull requests are accepted, against 84.4% for human-written ones. Acceptance here means merged within 30 days of opening.
+
+The work is also larger. AI-assisted pull requests run 2.6 times the size of unassisted ones in the same data set. A reviewer opens a bigger change, written by no one they can ask about it, with no one waiting on the other side. Hesitation is the rational response.
+
+## Why nobody picks it up
+
+LinearB traced the wait to three causes. The first is ownership. An agent can open a pull request, but it cannot argue for it in review or chase it to merge. When no human is named on the work, no one feels the wait. The pull request sits because nobody's name is on it.
+
+The second cause is priority. Agentic flows are often pointed at low-priority backlog work. Reviewers triage by impact, so agent work sinks to the bottom of the queue on its own.
+
+The third cause is size and doubt. Reviewers hesitate on larger, more complex AI changes. That hesitation is earned. A [Stack Overflow 2025 Developer Survey](https://survey.stackoverflow.co/2025/) result says 66% of developers name almost-right AI output as their biggest frustration. Another 45% say debugging AI code takes longer than debugging their own.
+
+The load lands on the few people who can judge the work. A Fastly developer survey, reported by TechCrunch, found more than 95% of developers spend extra time fixing AI-generated code. Researcher Annie Vella reports 77% of engineers now spend less time writing code than they used to. The people who used to write the code now spend their days reading code a model wrote first.
+
+## The fix starts at task assignment, not at review
+
+The first change is the cheapest. Name a human owner when the agent's task is assigned, not when its pull request opens. The owner defends the change in review, answers questions about it, and chases it to merge. LinearB's prescription is blunt: no agent-authored pull request opens without a named human owner.
+
+That one rule attacks the biggest cause directly. An owned pull request has someone who notices 17 hours of silence. An unowned one has no one.
+
+The second change is to stop reviewing everything by hand. Route low-risk agent changes through automated approval. LinearB points to gitStream automations such as Approve safe changes and Approve tiny changes. Sensitive files keep human review, and large changes keep an additional review. The human hours go to the changes that need judgment.
+
+The third change protects the reviewers themselves. Engineers who keep writing code stay fluent enough to catch what models get wrong. Move your strongest engineers into review full time and you trade a short-term throughput gain for reviewers who slowly lose the context that made them worth routing to. Protect blocks of hands-on coding time for the people you lean on most for review. Treat review fluency as a capability you maintain, the same way you maintain an on-call rotation.
+
+Warp shows what this looks like in practice. CEO Zach Lloyd has an agent own a routine pull request under a single human review, while sensitive parts of the codebase need human ownership and dual review. The rule is written down before the agent starts, not invented when the pull request stalls.
+
+## How to know it worked
+
+Measure the two numbers that define the problem, team by team. Pickup time for agentic pull requests against the same number for manual work. Acceptance rate for agentic work against the manual rate. A narrowing gap is the bottleneck shrinking. More agent pull requests merged within 30 days is the same signal.
+
+Surveys catch what git data cannot. Ask your engineers, on a schedule, whether the review process still fits the work. Run the same questions before and after a change. Scores that improve quarter over quarter mean the fix landed. Scores that stay flat mean the process is still wrong, even if the queue looks shorter.
+
+## The bottleneck is a staffing decision
+
+The Harvard study behind this series found review is now the bottleneck, with time to merge up 56% after agent adoption. LinearB's data adds the mechanism: agent work waits because no one owns it, and it merges less because it arrives bigger and harder to judge.
+
+None of this is fixed by buying more agents. More agents open more pull requests that wait longer for the same reviewers. The scarce resource is a named human who will stand behind a change, and a review process that spends human attention only where judgment is needed.
+
+Write the ownership rule into the agent's task template this week. Then watch pickup time, not code volume.
+
+## References
+
+- [LinearB, "AI Code Review Bottleneck: Why AI Code Waits 5x Longer" (November 2026)](https://linearb.io/resources/ai-code-review-bottleneck)
+- [Chen & Stratton, "Artificial Intelligence in the Firm: Bottlenecks in Software Production" (current version November 14, 2026)](https://fion.ac/jellyfish.pdf)
+- [Stack Overflow 2025 Developer Survey](https://survey.stackoverflow.co/2025/)

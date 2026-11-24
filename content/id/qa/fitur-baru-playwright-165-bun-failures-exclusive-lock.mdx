@@ -1,0 +1,108 @@
+---
+title: "Fitur Baru Playwright 1.65, Dipraktikkan: Bun, Failures Reporter, dan Exclusive Lock"
+description: "Playwright 1.65, rilis 5 November 2026, membawa tiga fitur baru yang layak dicoba: test runner di Bun, failures reporter, dan exclusive test lock. Ini penjelasan tiap fitur, di mana ia bermasalah, dan mana yang bisa langsung dipakai."
+locale: "id"
+domain: "qa"
+slug: "fitur-baru-playwright-165-bun-failures-exclusive-lock"
+canonicalGroup: "qa-playwright-165-new-features"
+publishedAt: "2026-11-13"
+updatedAt: "2026-11-13"
+tags: ["playwright", "bun", "ci", "test-reporting"]
+featured: false
+draft: false
+coverImage: "/assets/playwright-165-features/thumbnail-id.png"
+---
+
+Playwright 1.65, rilis 5 November 2026, gampang di-upgrade dengan cara yang salah. Breaking change-nya sudah dibahas di artikel sendiri: delapan perubahan yang mengubah perilaku tes yang sudah ada. Artikel ini membahas separuh lainnya dari rilis ini: tiga fitur baru.
+
+Tiap fitur dapat verdict. Bun itu eksperimen di branch, bukan saklar yang langsung dipindah. Failures reporter aman dipakai hari ini. Exclusive lock menyelesaikan satu masalah spesifik, dan harus tetap spesifik.
+
+## Fitur 1: jalankan tes dengan Bun
+
+Test runner kini bisa jalan di Bun. Bun men-transpile file tes TypeScript sendiri, jadi Playwright tidak memakai Babel atau compilation cache. Perintahnya butuh flag, karena tanpa flag itu `bunx playwright test` tetap jalan di Node.js:
+
+```bash
+bunx --bun playwright test
+```
+
+CI Playwright sendiri menjalankan test runner di Bun 1.4.3 di Linux. Itu bukti fiturnya nyata, bukan demo. Tapi itu bukan bukti tesmu jadi lebih cepat. Bun menghilangkan langkah transpile. Pekerjaan browser tetap mendominasi kebanyakan suite, jadi ukur dulu sebelum mengklaim lebih cepat.
+
+Caveat berikut yang menentukan apakah Bun cocok untuk suitemu:
+
+- Tidak ada watch mode. UI mode tidak menjalankan ulang tes saat file berubah, dan `--only-changed` tidak mengikuti import.
+- Bun memuat module sendiri, jadi `--tsconfig` dan opsi JSX di `tsconfig.json` tidak berpengaruh. Custom ESM loader tidak didukung.
+- Stack trace tidak menyertakan async frame. Nama API kehilangan nama class: `click`, bukan `locator.click`. Ini mengubah lokasi step, judul step, dan pesan error.
+- Console output dari sebuah tes tidak masuk ke trace dan UI mode. Kalau kamu debug lewat `console.log`, output itu hilang dari trace.
+
+Verdict: coba di branch kalau suitemu banyak TypeScript dan CInya jalan di Linux. Lewati kalau kamu hidup di watch mode, bergantung pada `--only-changed`, memakai custom loader, atau membaca console output dari trace. Pertahankan Node.js sebagai default sampai hasil run di branch membuktikan sebaliknya.
+
+## Fitur 2: laporan yang hanya berisi failure
+
+Reporter baru `failures` mencetak failure dan retry yang berhasil begitu terjadi, lalu ringkasan, tanpa progress output. Reporter HTML, JSON, dan JUnit mendapat opsi `onlyFailures`. Opsi ini hanya menyimpan tes dengan hasil yang tidak diharapkan, tes yang flaky, dan tes yang terinterupsi:
+
+```ts
+// playwright.config.ts
+import { defineConfig } from '@playwright/test';
+
+export default defineConfig({
+  reporter: [
+    ['failures'],
+    ['html', { onlyFailures: true }],
+  ],
+});
+```
+
+Ini fitur dengan hasil terbaik untuk risiko terkecil. Run yang hijau hampir tidak mencetak apa-apa. Run yang merah menampilkan failure dulu, lalu ringkasan, tanpa noise progress di antaranya. Log CI jadi lebih pendek tepat saat kamu perlu membacanya.
+
+Satu batasan yang perlu diketahui: reporter ini menampilkan failure, bukan alasan kenapa suite lambat. Kalau masalahmu runtime, bukan noise, fitur ini tidak membantu. Itu pekerjaan lain, dan failures reporter tidak akan mengerjakannya.
+
+Verdict: pakai sekarang, di CI dulu. Pertahankan reporter `list` untuk run lokal kalau kamu suka melihat progress. Retry yang lolos tetap bukan lolos, jadi padukan ini dengan disiplin dari artikel retry: run hijau dari retry menyembunyikan tes yang flaky.
+
+## Fitur 3: exclusive test lock
+
+Playwright 1.63 menambahkan named test lock untuk tes yang berbagi resource. Versi 1.65 menambahkan lock bawaan, `-exclusive-`. Tes dengan lock ini hanya jalan saat tidak ada tes lain yang berjalan. Semua tes lain tetap jalan paralel satu sama lain:
+
+```ts
+test('restart the server', { lock: '-exclusive-' }, async () => {
+  // No other test runs while this one is running.
+});
+```
+
+Pakai untuk satu tes yang mengubah shared state: me-restart server, mengubah setting akun global, atau memanggil external service yang tidak tahan dipanggil paralel. Itu seluruh use case-nya. Lock bukan perbaikan untuk tes yang order-dependent. Kalau dua tes hanya lolos dalam satu urutan, tesnya yang rusak, dan lock hanya menyembunyikannya. Artikel shuffle menunjukkan cara menemukan tes seperti itu.
+
+Verdict: pakai untuk satu tes yang membutuhkannya. Jangan sebarkan lock ke seluruh suite. Setiap tes exclusive membuat sebagian run jadi serial, dan suite yang penuh tes seperti itu adalah suite sequential dengan langkah tambahan.
+
+## Perubahan kecil yang perlu diketahui
+
+- `test.skip()`, `test.fixme()`, `test.fail()`, dan `test.slow()` kini hanya menerima description. Description itu tercatat di test annotation:
+
+```ts
+test('upload a file', async ({ page }) => {
+  test.skip('Not implemented yet');
+});
+```
+
+- Environment variable baru `PLAYWRIGHT_TRANSFORM_CACHE_DIR` mengatur direktori untuk file tes yang sudah di-transpile. Ini penting di mesin Linux yang dipakai bersama pengguna lain.
+- `cdpSession.send()` mendapat opsi `timeout` dan `signal`.
+- `testRun.mode()` mengembalikan execution mode dari sebuah suite selama `reporter.preprocess()`.
+- Playwright tidak lagi menguji di Node.js 20. Pakai Node.js 22, 24, atau 26. Docker image kini memakai Node.js 26.
+- Browser yang dibundel: Chromium 158, Firefox 159, WebKit 27.2.
+
+## Checklist adopsi
+
+- Upgrade di branch, dan jalankan dulu delapan cek breaking change. Fitur baru di atas upgrade yang rusak tidak memberi tahu apa-apa.
+- Tambahkan reporter `failures` ke config CI. Biarkan output lokal seperti sekarang.
+- Cari satu tes yang mengubah shared state. Beri lock `-exclusive-`, dan jangan beri ke tes lain.
+- Coba `bunx --bun playwright test` di branch. Bandingkan run time dan output trace dengan Node.js sebelum memutuskan.
+- Cek versi Node.js: 22 atau lebih baru. Node.js 20 sudah tidak diuji.
+
+## Kesimpulan
+
+Tiga fitur, tiga verdict. Failures reporter itu signal gratis, jadi ambil. Exclusive lock itu scalpel untuk satu tes, jadi jaga tetap sempit. Bun itu opsi nyata dengan trade-off nyata, jadi uji di branch dan biarkan angka yang memutuskan. Rilis ini layak di-upgrade. Fitur-fiturnya layak diadopsi satu per satu.
+
+## Referensi
+
+- [Playwright release notes, versi 1.65](https://playwright.dev/docs/release-notes)
+- [Naik ke Playwright 1.65? Cek Dulu Delapan Breaking Change Ini](https://ranmaul.com/id/qa/playwright-165-breaking-change-checklist-upgrade)
+- [Lolos Berurutan, Gagal Saat Diacak](https://ranmaul.com/id/qa/lolos-urut-gagal-diacak-playwright)
+- [Lolos di Retry Bukan Berarti Lolos](https://ranmaul.com/id/qa/lolos-retry-bukan-lolos-playwright)

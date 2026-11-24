@@ -1,0 +1,87 @@
+---
+title: "Let an AI Agent Write Your Playwright Tests — but Read the Assertion First"
+description: "Amikoo, a new AI testing agent from MuukLabs, writes and repairs Playwright tests on every pull request. The tests land in your repo as plain TypeScript. The part that still needs a human is the assertion."
+locale: "en"
+domain: "qa"
+slug: "ai-agent-writes-playwright-tests-check-assertion"
+canonicalGroup: "qa-ai-agent-writes-playwright-tests-assertion-check"
+publishedAt: "2026-11-19"
+updatedAt: "2026-11-19"
+tags: ["ai-testing", "playwright", "test-generation", "test-repair", "ci"]
+featured: false
+draft: false
+coverImage: "/assets/ai-agent-writes-tests/thumbnail-en.png"
+---
+
+Your team ships code faster than it can test it. An AI coding agent opens a pull request in minutes. The tests for that change still take a human an afternoon. So the coverage gap grows with every merge.
+
+On 11 November 2026, MuukLabs announced Amikoo, an AI agent that closes the gap from the other side. It writes the Playwright tests itself, runs them against the live app, and repairs them when they break. The tests land in your own repo as standard Playwright TypeScript.
+
+That last detail is the one that matters. If the tests live in your repo, they keep running even if you stop using Amikoo. The agent is a guest in your suite, not the owner of it. But a guest that writes tests still needs a host who reads them. The question is not whether the agent can write a test. It is whether the test proves anything.
+
+## What Amikoo actually does
+
+You set up a Worker by describing the job in plain English, for example "write the missing tests whenever a pull request opens". You approve a step-by-step plan before the Worker starts. Workers fire on pull-request events or on a schedule, and one of them emails a weekly coverage report.
+
+The output is Playwright TypeScript with a page object model, committed to your GitHub or Azure DevOps repo. It goes through the same review workflow as any other change. Tests can run locally, in your own CI, or in Amikoo's cloud.
+
+The tests run against the live, running app, not just the diff. They exercise real flows: sign in, checkout, onboarding. When a test fails, Amikoo sorts the failure into a likely product defect, a test issue, or an environment problem, and attaches a confidence score to the call.
+
+A coverage map flags gaps against the product's actual user flows, in the weekly report and inside a VS Code extension. Pricing is still a preview: a seven-day free trial, a Solo plan that runs locally only, and Team, Growth, and Scale tiers metered in monthly credits and Workers.
+
+The published case study is Ariso, an AI management platform. Its team went from almost no active E2E coverage to more than 500 tests over a few weeks, adding around 20 tests a day. Tests run after staging deploys, and the team reviews failures before production releases. The team says the workflow caught two or three defects before they reached customers, including a failing delete button on a team dashboard. That case study is vendor-published, so treat its numbers as the vendor's, not an independent result.
+
+## The 70% number, read with care
+
+The announcement cites an internal benchmark: Amikoo's agent repaired 70% of broken tests, against 34% for Playwright's native Healer Agent. Each repair cycle took about five minutes instead of 25. The release itself says the benchmark has not been independently verified.
+
+Treat that as a claim to test, not a result. A repair rate says nothing about what the repair did. A test "repaired" by deleting its assertion is a test that passes and proves nothing. Before you trust any repair rate, ask what share of repairs touched the assertion, and how many of those weakened it.
+
+## The failure mode that matters
+
+This site drew a line in the Healer article: an agent may fix the locator, not the assertion. The same line applies here, at a larger scale. When an agent writes the whole test, the assertion is the only part that says what "correct" means. Everything else is plumbing.
+
+A weakened assertion is easy to miss in review:
+
+```ts
+// The agent wrote this first:
+await expect(page.getByText('Order confirmed')).toBeVisible();
+
+// After the flow changed, the "repair" became this:
+await expect(page.locator('body')).toContainText('Order');
+```
+
+The second version passes on almost any page that mentions orders. It no longer checks the confirmation the user actually sees. The test is green. The coverage is fiction.
+
+A second failure mode is quieter: the agent writes a test that passes on the first run because it never exercised the risky path. A checkout test that stops at the cart page is not a checkout test. Count the assertions, not the tests.
+
+## The checklist
+
+- Read the assertion first. In every agent-written test, the assertion is the review. Skim the setup. Read the assertion line by line.
+- Keep the tests in your repo. Amikoo already does this. Any tool that holds your tests hostage fails this check on day one.
+- Cap the repair loop. Let the agent try twice, then escalate to a human. An agent that retries forever will eventually pass by weakening the test.
+- Never let a repair touch an assertion without a human approving that exact line. Put assertion changes in a separate commit, or a separate review step.
+- Break the suite on purpose. Plant a bug, disable the delete button or return the wrong total, and confirm the agent-written tests fail. A suite that cannot fail cannot protect you.
+- Keep a smoke set the agent cannot edit. A small hand-written suite is your control group. If the agent's tests pass and the smoke set fails, the agent's tests are wrong.
+- Treat confidence scores as guesses. A "93% chance this is a real defect" is the model's opinion about its own work. Verify it against the app, not against the score.
+- Start gated. Let the agent write tests for one area, on a label, for a few weeks. Watch what it writes before it writes everywhere.
+
+## What still does not work
+
+Bitbucket support is planned, not shipped. The token claim, about 4,800 tokens per task against about 30,000 for a general model, comes from the founder's interview, not an independent test. And no agent fixes the deeper problem: if nobody on the team knows what the checkout flow should do, the agent will write a confident test for the wrong behaviour.
+
+The model is only as good as the context it gets. Amikoo takes the repo, tickets, docs, and run history. A team with no docs and no ticket discipline will get tests that mirror that mess.
+
+## The bottom line
+
+An agent that writes your tests is not a shortcut around understanding your product. It moves the human work from writing boilerplate to reading assertions. That is a good trade, if you actually do the reading.
+
+The tests are yours. They live in your repo, in plain TypeScript, and they outlive the tool. Read them like they are yours. Because they are.
+
+## References
+
+- MuukLabs, [Best AI Testing Agent, Amikoo, Takes E2E Testing Beyond AI Code Review So Teams Can Verify Every Pull Request](https://www.abnewswire.com/pressreleases/best-ai-testing-agent-amikoo-takes-e2e-testing-beyond-ai-code-review-so-teams-can-verify-every-pull-request_847615.html) — the announcement, the 70% repair claim, and the Ariso case study.
+- TestGuild, [What Changes for Your Team with Amikoo](https://app.testguild.com/amikoo-ai-test-agents/) — founder interview; repair confidence scores and the token-per-task claim. Sponsored content.
+- Playwright docs, [Annotations](https://playwright.dev/docs/test-annotations) — tagging tests and filtering with `--grep`.
+- [The Healer May Fix the Locator, Not the Assertion](https://ranmaul.com/en/qa/healer-fix-locator-not-assertion-playwright-agents) — the boundary this article extends to agent-written tests.
+- [Break Your Tests Before You Trust Them](https://ranmaul.com/en/qa/break-your-tests-before-you-trust-them) — the mutation check for any suite, agent-written or not.

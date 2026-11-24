@@ -25,7 +25,11 @@ export type PortfolioFrontmatter = {
   objective?: string;
   constraint?: string;
   aircraft?: string;
+  coordinates?: [number, number];
+  flightType: FlightType;
 };
+
+export type FlightType = "aerial" | "fpv";
 
 export type PortfolioItem = PortfolioFrontmatter & {
   body: string;
@@ -37,6 +41,22 @@ function assertNonEmptyString(value: unknown, key: string, filePath: string): st
     throw new Error(`Invalid frontmatter "${key}" (empty) in ${filePath}`);
   }
   return str;
+}
+
+// Rounded to 2 decimals (~1 km) so exact flying spots never ship.
+function parseCoordinates(value: unknown, filePath: string): [number, number] | undefined {
+  if (value === undefined || value === null) return undefined;
+  const [lat, lng] = Array.isArray(value) && value.length === 2 ? value.map(Number) : [NaN, NaN];
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+    throw new Error(`Invalid frontmatter "coordinates" (expected [lat, lng] in range) in ${filePath}`);
+  }
+  return [Math.round(lat * 100) / 100, Math.round(lng * 100) / 100];
+}
+
+function parseFlightType(value: unknown, filePath: string): FlightType {
+  if (value === undefined || value === null) return "aerial";
+  if (value === "aerial" || value === "fpv") return value;
+  throw new Error(`Invalid frontmatter "flightType" (expected "aerial" or "fpv") in ${filePath}`);
 }
 
 function assertFrontmatter(data: Record<string, unknown>, filePath: string): PortfolioFrontmatter {
@@ -57,6 +77,10 @@ function assertFrontmatter(data: Record<string, unknown>, filePath: string): Por
   }
 
   const locale = String(data.locale) as Locale;
+  const coordinates = parseCoordinates(data.coordinates, filePath);
+  if (coordinates && !String(data.location ?? "").trim()) {
+    throw new Error(`Frontmatter "coordinates" requires "location" (map label) in ${filePath}`);
+  }
 
   return {
     title: assertNonEmptyString(data.title, "title", filePath),
@@ -75,6 +99,8 @@ function assertFrontmatter(data: Record<string, unknown>, filePath: string): Por
     objective: data.objective ? String(data.objective) : undefined,
     constraint: data.constraint ? String(data.constraint) : undefined,
     aircraft: data.aircraft ? String(data.aircraft) : undefined,
+    coordinates,
+    flightType: parseFlightType(data.flightType, filePath),
   };
 }
 

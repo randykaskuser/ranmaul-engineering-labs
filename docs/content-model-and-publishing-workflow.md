@@ -243,6 +243,20 @@ Optional fields:
 - `translationOf`
 - `relatedCanonicalGroups`
 
+### Portfolio entries (`content/portfolio/{en,id}/*.mdx`)
+
+Loaded by `lib/portfolio.ts`. Map fields (drone portfolio Flight Map):
+
+- `coordinates` (optional, `[lat, lng]`): the item appears on the map only when set.
+  Rounded to 2 decimals (~1 km) on read; out-of-range values fail the build.
+  Take it from the original photo EXIF or DJI `.SRT`, never from the web image.
+- `flightType` (optional, `aerial` | `fpv`, default `aerial`): filter and pin colour.
+- `location` is required when `coordinates` is set (pin label); the build fails otherwise.
+- `coordinates` and `flightType` must be identical in the EN and ID file of a pair.
+
+Portfolio images live in R2 (`elabs-images`, key `portfolio-<slug>.jpg`). Strip all
+metadata (EXIF/GPS, XMP, ICC) before upload.
+
 ---
 
 ## 12) Publishing Workflow (Locked)

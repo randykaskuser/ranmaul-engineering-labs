@@ -1,0 +1,101 @@
+---
+title: "Gyroflow's Optical Correction: The O4 Pro Fix That Reads the Video"
+description: "Gyroflow's nightly gained Optical Correction: it measures real motion from the video itself and fixes the O4 Pro's lying gyro data. Defaults fix the easy flights. A hard flight still needs the ignore-gyro fallback."
+locale: "en"
+domain: "fpv"
+slug: "gyroflow-optical-correction-o4-pro-gyro-fix"
+canonicalGroup: "fpv-gyroflow-optical-correction-o4-pro"
+publishedAt: "2026-11-18"
+updatedAt: "2026-11-18"
+tags: ["fpv", "dji-o4", "gyroflow", "stabilization", "optical-correction"]
+featured: false
+draft: false
+coverImage: "/assets/gyroflow-optical-correction/thumbnail-en.png"
+---
+
+Your O4 Pro footage looks clean in the goggles. The raw recording looks clean too. Then Gyroflow stabilizes it, and the video jerks and sways in ways the quad never moved.
+
+This site has followed this problem twice. First came the diagnosis: 2026-production O4 Pro cameras use a different gyro, the ICM-40609-D, which mistakes motor vibration for rotation. Then came the first software repair: a Gyroflow nightly and FPVFlow 1.0.3, both fixing the gyro data itself.
+
+Now the nightly has a second tool, and it attacks the problem from the other side. Optical Correction does not trust the gyro at all. It reads the video, measures how the drone actually moved, and corrects the gyro data against that.
+
+## What Optical Correction does
+
+Normal Gyroflow stabilization trusts the camera's motion data. The gyro says the camera rotated, so Gyroflow counter-rotates the frame. That works when the gyro tells the truth.
+
+On an affected O4 Pro, the gyro lies. Under motor vibration it records short false rotations, up to about 2 degrees in a few milliseconds. The camera then slowly pulls each one back over about 12 seconds. Gyroflow corrects rotations that never happened, and the result shakes.
+
+Optical Correction flips the source of truth. It tracks points in the video itself, frame by frame, and measures the real motion. Then it corrects the gyro data to match what the pixels actually did. The wrong rotations get removed because the video says they never happened.
+
+It lives in the Motion Data panel of the Gyroflow nightly, the dev build. The feature is still under review on GitHub, so it is nightly-only for now. Download it from the dev builds page, not the stable release.
+
+## The workflow: three steps, in order
+
+### 1. Start with the defaults
+
+Load the clip, turn on Optical Correction, and click Analyze. On an easy flight, that is the whole job.
+
+The test flight that proves it was a GEPRC TriPro 6" on a soft mount, flown in gusts of wind with no ND filter. Defaults only, one click, and the microvibrations were gone. If your mount is good and your flight is smooth, try this first and stop here.
+
+### 2. Turn up the strength, change the tracking
+
+A hard flight needs more. The second test flight, from a pilot named Andrea, still shook after the defaults. The tester then tried Strength at 100, the maximum. Then the three tracking methods: KLT, DIS, and GMFlow. Then the correction mode: Per row or Per frame.
+
+Each step helped a little. None of them removed the shaking. That is the honest result, and it matters: Optical Correction is not a cure for every clip. It fixes the easy ones outright and softens the hard ones.
+
+The tracking methods also cost very different amounts of time. KLT is fast. GMFlow, the AI-powered tracker, took over 12 minutes to analyze the same flight. Start with KLT. Reach for GMFlow only when KLT leaves something behind.
+
+### 3. Ignore the gyro entirely
+
+When the corrected gyro still shakes, there is one more switch: "Ignore motion data from the file." Gyroflow then stabilizes from the image alone, with no gyro input at all.
+
+On the hard test flight, this worked. The flight came out stable and publishable, with KLT analysis taking about a dozen seconds. The gyro data was the problem, so removing it from the equation removed the problem.
+
+This is the fallback, not the first step. Image-only stabilization has no gyro to anchor it, so it leans entirely on what the tracker can see. But when the gyro is lying, trusting the image beats trusting the gyro.
+
+## Two small tricks that change the result
+
+First, trim the timeline. Gyroflow only analyzes the distance between the trimmers, so cut the clip to the flight before you analyze. The analysis runs faster, and parked time on the bench does not pollute the tracking.
+
+Second, erase bad tracked points. Points tracked on the propellers or on a passing car follow the wrong motion. Delete them before you analyze, or they pull the correction in the wrong direction.
+
+## The recording rules have not changed
+
+Optical Correction still needs the gyro data in the file. That means the same rules as before: shoot in Wide FOV, with RockSteady off in the goggles. If RockSteady was on, the camera already stabilized the image in-camera, and there is no motion track to correct.
+
+HorizonSteady off too. The repair needs the camera's 1 kHz orientation track, and the stabilization modes switch it off.
+
+Also remember what this does not fix. RockSteady in-camera is still broken on affected units. This repair is post-flight only. If your workflow is RockSteady straight out of the camera, you are still waiting on DJI.
+
+## What DJI has and has not done
+
+Since June, pilots have waited for a firmware fix, a press release, or any signal from DJI about the new gyro. Nothing has come. The fixes so far are all community work: the o4fix investigation, the FPVFlow port, and now Gyroflow's Optical Correction.
+
+That is worth saying plainly. The tool you are downloading is a nightly build of an open-source project, carrying a feature that is still under review. It is not a DJI fix, and DJI has not said when or whether one is coming.
+
+## The decision
+
+- You have an affected unit and old footage: try Optical Correction on the clips first, defaults then Strength 100, then the ignore-gyro fallback. The test costs an evening.
+- You fly with a soft mount and smooth lines: the defaults will probably fix your footage outright. That was the easy test flight.
+- You fly hard with a stiff mount: expect partial improvement, not a cure. The ignore-gyro fallback is your real tool, and it works.
+- You fly RockSteady: nothing here helps yet. Wait for DJI, or switch to Gyroflow.
+
+Three weeks ago, the advice was to test the gyro repair before paying for a hardware swap. Today there is a second repair to test first, and a fallback that throws the gyro away entirely. The hardware swap is further down the list than it was.
+
+## The checklist
+
+- Get the Gyroflow nightly from the dev builds page. The stable release does not have Optical Correction yet.
+- Record in Wide FOV with RockSteady and HorizonSteady off, or there is no motion track to correct.
+- Turn on Optical Correction in the Motion Data panel and click Analyze with the defaults.
+- If the flight still shakes, raise Strength to 100 and try KLT, then DIS, then GMFlow. GMFlow can take over 12 minutes.
+- If it still shakes, check "Ignore motion data from the file" and stabilize from the image alone.
+- Trim the clip to the flight first, and erase tracked points on propellers or moving cars.
+- Keep your originals. This is a nightly build with a feature still under review.
+
+## References
+
+- Davide FPV, [GYROFLOW fixes DJI O4 PRO bugs while DJI SLEEPS! Is it worth buying?!](https://www.youtube.com/watch?v=zrPjxY5wdt4) — Optical Correction tested on two real flights, from defaults to the ignore-gyro fallback.
+- Gyroflow, [Development builds](https://gyroflow.xyz/devbuild) — the nightly with Optical Correction, for Windows, Mac, Linux, Android, and iOS.
+- Gyroflow docs, [DJI](https://docs.gyroflow.xyz/app/getting-started/supported-cameras/dji.md) — supported DJI cameras and the gyro data requirements.
+- [Your O4 Pro Gyro Is Not Dead Yet: Test the Software Fix Before You Swap Hardware](https://ranmaul.com/en/fpv/o4-pro-gyro-software-fix-before-hardware-swap) — the first software repair: the Gyroflow nightly and FPVFlow 1.0.3.
+- [Before You Bin That O4 Clip: Recovering Footage From the 2026 Gyro Swap](https://ranmaul.com/en/fpv/recovering-o4-pro-footage-2026-gyro-swap) — the diagnosis: the ICM-40609-D gyro and the false rotations.

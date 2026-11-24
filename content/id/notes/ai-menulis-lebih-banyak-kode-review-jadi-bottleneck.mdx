@@ -1,0 +1,91 @@
+---
+title: "AI Menulis 44% Lebih Banyak Kode. Review Kini Jadi Bottleneck."
+description: "Studi Harvard atas 655 perusahaan menemukan agent coding AI menaikkan lines of code 44%, tetapi issue yang selesai hanya naik 13,7%. Kode tambahan itu menumpuk di review, dan approval kini 56% lebih lama."
+locale: "id"
+domain: "notes"
+slug: "ai-menulis-lebih-banyak-kode-review-jadi-bottleneck"
+canonicalGroup: "notes-ai-coding-agents-review-bottleneck"
+publishedAt: "2026-11-15"
+updatedAt: "2026-11-15"
+tags: ["ai-coding-agents", "code-review", "engineering-productivity", "harvard-study", "engineering-workflow"]
+featured: false
+draft: false
+coverImage: "/assets/ai-review-bottleneck/thumbnail-id.png"
+coverAlt: "Antrean panjang kartu pull request menunggu di gerbang review sementara satu reviewer memeriksa checklist"
+relatedCanonicalGroups: ["notes-agent-grade-own-homework"]
+---
+
+Pull request di timmu naik sepertiga. Pekerjaan yang selesai hampir tidak naik. Selisih kedua angka itu kini jadi cerita AI di software engineering.
+
+Studi Harvard mengukurnya. Fiona Chen dan James Stratton meneliti 655 perusahaan dan 720.542 engineer, memakai data Jellyfish dari Januari 2021 sampai Agustus 2026. Judul papernya "Artificial Intelligence in the Firm: Bottlenecks in Software Production". Ini working paper, belum peer review. Versi terbarunya bertanggal 14 November 2026.
+
+## Temuan studinya
+
+Dua belas bulan setelah sebuah perusahaan mengadopsi AI coding agent, lines of code naik 44,0%. Commits naik 36,0%. Pull request yang dibuka naik 35,7%. Efek ini dihitung di atas AI assistant, yang sudah dipakai sebagian besar perusahaan.
+
+Pekerjaan yang selesai naik jauh lebih kecil. Issue Jira yang selesai naik 13,7%, efek yang oleh penulis disebut borderline significant. Epic yang selesai naik 18,0%.
+
+Penulis memeriksa apakah issue-nya sekadar membesar. Mereka memakai machine learning untuk memprediksi berapa lama setiap issue seharusnya selesai. Tidak ada perubahan pada rata-rata prediksi itu. Kesenjangan output ini nyata.
+
+Jumlah engineer tidak bergerak. Engineer aktif berubah −2,6%, dan angka itu tidak signifikan secara statistik. Data ini menyingkirkan kemungkinan penurunan lebih besar dari 15,6%. Hiring junior juga tidak turun.
+
+## Ke mana perginya kode tambahan itu
+
+Kode itu masuk ke antrean review. Waktu dari pull request diajukan sampai disetujui naik 56,1%. Itu 1,99 hari tambahan dari baseline 3,56 hari.
+
+Dua hal terjadi sekaligus. Kode menunggu lebih lama sebelum ada yang melihatnya: waktu di backlog naik 59,9%. Dan setelah review dimulai, prosesnya lebih lama: waktu active review naik 58,5%. Komentar per change naik 38,6%.
+
+Penulis membaca ini sebagai dua masalah, bukan satu. Reviewer langka, jadi kode menunggu. Dan kode yang sampai di review butuh lebih banyak perbaikan, jadi setiap review memakan waktu lebih lama.
+
+Engineer hanya menghabiskan 30 sampai 40% waktunya untuk menulis kode. Sisanya untuk planning, review, testing, dan meeting. Agent mempercepat potongan pekerjaan yang paling kecil. Pekerjaan itu menumpuk di langkah berikutnya.
+
+## Pool reviewer itu sempit
+
+Review tidak mudah dibagi-bagi. Dalam data, 82,8% review dikerjakan engineer yang sudah mengenal kode itu. Kalau reviewer ditunjuk acak, angkanya hanya 17,2%.
+
+Kode senior di-review oleh senior. Kode yang ditulis senior mendapat reviewer senior 75,7% dari waktu. Junior hanya mengerjakan 24,3% review atas kode yang ditulis senior.
+
+Seorang engineer yang diwawancarai untuk paper ini menjelaskannya dengan gamblang. Hanya satu senior yang boleh menyetujui perubahan di proyeknya, dan senior itu hanya sempat me-review kodenya seminggu sekali. Setelah commit hasil AI menyebabkan outage, tim menambah aturan yang mewajibkan approval senior untuk kode hasil AI. Bottleneck itu makin parah.
+
+Tool AI review tidak menutup kesenjangan ini. 79,1% perusahaan mengadopsi satu. Manusia tetap menulis sebagian besar review dan komentar.
+
+Model dalam paper ini memberi angka atas pergeseran itu. Agent menaikkan coding productivity 73,7% dan menurunkan review productivity 7,0%. Perusahaan menggeser tenaga kerja mengikuti itu: waktu menulis kode turun 22,7%, waktu review naik 43,4%.
+
+## Apa yang bisa dilakukan
+
+### Kalau kamu menulis kode dengan agent
+
+Jaga pull request dari agent tetap kecil dan dijelaskan. Review adalah tempat pekerjaan kini menunggu. Setiap change yang kamu buat lebih mudah di-review menghemat waktu rekanmu.
+
+Review output agentmu sebelum rekanmu melakukannya. Waktu active review yang lebih panjang menandakan kode berkualitas lebih rendah sampai di review. Tangkap dulu masalahnya.
+
+Jangan mengukur dirimu dengan lines atau commits. Penulis menulis bahwa metrik seperti itu "overstate the gains from AI adoption."
+
+### Kalau kamu me-review kode
+
+Antreanmu kini menentukan throughput timmu. Buat beban itu terlihat dalam planning, jangan diserap diam-diam.
+
+Perluas pool reviewer. Libatkan junior dalam review, termasuk atas kode yang ditulis senior. Hanya itu cara angka familiarity 82,8% bisa bergerak.
+
+### Kalau kamu memimpin tim
+
+Hitung pekerjaan yang selesai, bukan commits. GitHub melaporkan lebih dari 1,2 miliar commits dalam satu minggu di bulan Oktober, naik lebih dari 400% dibanding setahun sebelumnya. Studi Faros AI yang dikutip GitHub menemukan pull request menghabiskan waktu 441% lebih lama di review saat tim beralih dari adopsi AI rendah ke tinggi. Volume commit bukan throughput.
+
+Perlakukan kapasitas review sebagai sumber daya yang direncanakan, bukan pajak atas waktu coding. Survei Sonar dari November 2026 menemukan 53% developer kini menghabiskan lebih banyak waktu me-review kode daripada membuatnya.
+
+## Apa yang tidak dikatakan studi ini
+
+Studi ini tidak mengatakan agent tidak berguna. Pekerjaan yang selesai naik 13,7%, dan epic naik 18,0%. Kenaikannya nyata. Hanya saja lebih kecil dari yang disarankan angka kode.
+
+Studi ini juga tidak mengatakan pekerjaan aman selamanya. Model dalam paper ini memproyeksikan penurunan employment pada 2031 dalam beberapa skenario, dari −10,3% sampai batas atas −76,2%. Itu output model, bukan pengukuran. Skenario itu mengasumsikan AI terus membaik dan demand berperilaku tertentu. Perlakukan sebagai skenario, bukan ramalan.
+
+Ringkasan yang jujur adalah abstrak paper itu sendiri: AI "substantially increases code output but has smaller effects on final software output and no detectable effect on employment. Code review becomes the bottleneck."
+
+Menulis kode makin murah. Menilai kode kini jadi skill yang langka. Rencanakan berdasarkan itu.
+
+## Referensi
+
+- [Chen & Stratton, "Artificial Intelligence in the Firm: Bottlenecks in Software Production" (versi terbaru 14 November 2026)](https://fion.ac/jellyfish.pdf)
+- [StackChief, "Harvard AI Coding Agents Study: More Code, Same Headcount" (8 November 2026)](https://stackchief.com/blog/Harvard%20AI%20Coding%20Agents%20Study%202026:%20More%20Code,%20Same%20Headcount)
+- [Jenuel, "The State of AI in Software Development in 2026" (November 2026)](https://blog.jenuel.dev/blog/state-of-ai-software-development-2026)
+- [VibeLeaderboard, "Beyond code generation: A developer's guide to agentic engineering" (6 November 2026)](https://www.vibeleaderboard.ai/intel/9ea15773-85f1-42af-868e-fa463a6ea725)
