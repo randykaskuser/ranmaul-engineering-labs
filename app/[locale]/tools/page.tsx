@@ -19,13 +19,13 @@ type Tool = {
 const COPY = {
   title: { en: "Tools", id: "Tools" },
   metaDescription: {
-    en: "Free tools I built and use: DevSpace, a disk cleaner for developers, and QA skills for coding agents.",
-    id: "Tools gratis yang saya buat dan pakai: DevSpace, pembersih disk untuk developer, dan skill QA untuk coding agent.",
+    en: "Free tools I built and use: DevSpace, a disk cleaner for developers, QA skills for coding agents, and Locator Lab, an interactive guide to Playwright locators.",
+    id: "Tools gratis yang saya buat dan pakai: DevSpace, pembersih disk untuk developer, skill QA untuk coding agent, dan Locator Lab, panduan interaktif locator Playwright.",
   },
   heroTitle: { en: "Free tools I built and use every day", id: "Tools gratis yang saya buat dan pakai setiap hari" },
   heroDescription: {
-    en: "Small, practical software for developers and QA engineers. Both are open source.",
-    id: "Software kecil dan praktis untuk developer dan QA engineer. Keduanya open source.",
+    en: "Small, practical software for developers and QA engineers. DevSpace and QA Agent Skills are open source; Locator Lab's code is public on GitHub.",
+    id: "Software kecil dan praktis untuk developer dan QA engineer. DevSpace dan QA Agent Skills open source; kode Locator Lab bisa dilihat di GitHub.",
   },
 };
 
@@ -91,6 +91,33 @@ const TOOLS: Tool[] = [
     stack: "Claude Code plugin · Markdown skills · Playwright MCP",
     install: "/plugin marketplace add randykaskuser/qa-agent-skills\n/plugin install qa-agent-skills",
     links: [{ label: { en: "Source on GitHub", id: "Source code di GitHub" }, href: `${GITHUB_URL}/qa-agent-skills` }],
+  },
+  {
+    name: "Locator Lab",
+    tagline: { en: "An interactive guide to Playwright locators", id: "Panduan interaktif locator Playwright" },
+    description: {
+      en: "Type a locator and see what it matches on a sample shop, then refactor the shop and see which locators survive, break, or silently point at the wrong element.",
+      id: "Ketik locator dan lihat apa yang dicocokkannya di contoh toko online, lalu refactor tokonya dan lihat locator mana yang bertahan, rusak, atau diam-diam menunjuk elemen yang salah.",
+    },
+    points: [
+      {
+        en: "Playground: match count, strict-mode errors and robustness notes for each locator",
+        id: "Playground: jumlah match, error strict mode, dan catatan ketahanan untuk setiap locator",
+      },
+      {
+        en: "Break the UI: hashed classes, generated IDs, a re-sorted list, wrapper divs, translated text, button to link",
+        id: "Break the UI: class hash, ID yang di-generate, list yang diurutkan ulang, wrapper div, teks terjemahan, button jadi link",
+      },
+      {
+        en: "Locator ladder and an 8-round quiz; every locator is checked against real Playwright",
+        id: "Tangga locator dan kuis 8 ronde; setiap locator dicek terhadap Playwright asli",
+      },
+    ],
+    stack: "Static HTML · vanilla JS · Playwright parity tests",
+    links: [
+      { label: { en: "Open Locator Lab", id: "Buka Locator Lab" }, href: "https://locator.ranmaul.com" },
+      { label: { en: "Source on GitHub", id: "Source code di GitHub" }, href: `${GITHUB_URL}/Locator-Lab` },
+    ],
   },
 ];
 

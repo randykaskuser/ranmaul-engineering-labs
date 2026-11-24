@@ -6,7 +6,7 @@ domain: "qa"
 slug: "playwright-164-silent-behaviour-changes-upgrade-checklist"
 canonicalGroup: "qa-playwright-164-behaviour-changes"
 publishedAt: "2026-10-27"
-updatedAt: "2026-10-27"
+updatedAt: "2026-10-29"
 tags: ["playwright", "snapshots", "ci", "upgrade"]
 featured: false
 draft: false
@@ -80,6 +80,8 @@ Check: search for `toBeVisible` assertions near iframes, and for any test that i
 ## Conclusion
 
 Four silent changes, four one-line fixes, and one habit: read the breaking-changes section before the features section. The features are why you upgrade. The breaking changes are what the upgrade actually does to your suite.
+
+If the upgrade has you revisiting locators too, [Locator Lab](https://locator.ranmaul.com) lets you test a locator against a sample shop and see which ones survive a UI refactor.
 
 ## References
 

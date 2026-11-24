@@ -1,8 +1,8 @@
 {
   "active_context": {
-    "current_feature_id": "15",
-    "last_updated": "2026-11-17",
-    "summary": "Migrated Personal/website to Hybrid Harness + ai-memory + graphify. Historical progress logs imported to ai-memory (notes/legacy-progress-history.md).",
+    "current_feature_id": "19",
+    "last_updated": "2026-11-24",
+    "summary": "Feature 19: Locator Lab linked from /{locale}/tools and the retry, shuffle and 1.64 upgrade articles (EN+ID). Branch feat/locator-lab-links merged with main; PR #67 open.",
     "blockers": [],
     "next_step": "Run ./init.sh at session start, review ai-memory context, and pick the next unfinished feature in feature_list.json."
   },
@@ -132,6 +132,13 @@
       "status": "completed",
       "reason": "Owner asked to replace \"Transport Jabodetabek termasuk\" with a 30 km limit, because Jabodetabek is too wide (some sites are 70 km or 2 hours away). Changed the shared TRANSPORT feature in the Air 3S/Neo 2 cards and the mapping cards, the services notes line, a new transport note under the mapping section, and the drone-portfolio SEO description. Surcharge amounts for longer distances are not published yet: owner sets them later.",
       "verification": "2026-11-12: ./init.sh exit 0 (lint, build, smoke OK). out/id/drone-portfolio.html and out/en/drone-portfolio.html contain the new 30 km text and no \"Transport Jabodetabek termasuk\" / \"Di luar Jabodetabek\" text."
+    },
+    {
+      "id": 19,
+      "title": "Link Locator Lab from the Tools page and the Playwright articles",
+      "status": "completed",
+      "reason": "Added a Locator Lab card (locator.ranmaul.com, source randykaskuser/Locator-Lab) to /{locale}/tools, and one contextual link in each EN+ID pair of three playwright-tagged articles: retry, shuffle, 1.64 upgrade (updatedAt 2026-10-29). Hero no longer says all tools are open source: Locator-Lab has no license yet. The .first() wrong-element claim in the retry article matches Locator Lab's Break tab under the re-sorted list refactor. Originally recorded as feature 16; renumbered when merged with main, which used 16-18.",
+      "verification": "2026-11-24 after merging main: ./init.sh exit 0 (lint 0 errors, 2 warnings; 347 pages; smoke OK: 18495 internal links, 173/173 id pages lang=id). href=https://locator.ranmaul.com present in out/{en,id}/tools.html and all 6 article pages. Earlier (2026-10-29): Playwright screenshots of /en/tools and /id/tools at 1440px and 390px, no overflow, no page errors."
     }
   ]
 }
